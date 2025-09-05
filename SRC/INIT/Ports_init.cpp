@@ -1,0 +1,28 @@
+#include "Ports_init.hpp"
+#include "LPC407x_8x_177x_8x.h"
+
+void SetDiscreteOutputs() 
+{   
+  //Дискретные выходы
+
+  LPC_GPIO0->SET  = 0x00000380; // U-LED - Off, OUT-E в единице отключает дискретные выходы, HOLD - исходное состояние  
+  LPC_GPIO0->CLR  = 0xFFFFFC7F;
+  LPC_GPIO1->SET  = 0x00202000; // Q2VF, Q1VF единица отключает оптроны
+  LPC_GPIO1->CLR  = 0xFFDFDFFF;  
+  LPC_GPIO2->SET  = 0x00000000; 
+  LPC_GPIO2->CLR  = 0xFFFFFFFF;
+  
+  LPC_GPIO3->CLR  = 0xFFFFFFFF;
+  LPC_GPIO3->SET  = 0x3F3F0000; // V6...V1, U6...U1 -> 1-пассивное состояние
+  LPC_GPIO4->CLR  = 0xFFFFFFFF;
+  LPC_GPIO5->CLR  = 0xFFFFFFFF;
+  
+  LPC_GPIO0->DIR |= 0x00000380; // 0000.0000.0000.0000.0000.0011.1000.0000      U-LED, OUT-E, HOLD  
+  LPC_GPIO1->DIR |= 0x1020200C; // 0001.0010.0010.0000.0010.0000.0000.1100      SUM3, SUM2, Q2VF, Q1VF, SUM1, SUM0
+  LPC_GPIO2->DIR |= 0xFF000020; // 1111.1111.0000.0000.0000.0000.0010.0000      D-OUT7...D-OUT0, DAVR
+  LPC_GPIO3->DIR |= 0x3F3F0000; // 0011.1111.0011.1111.0000.0000.0000.0000      V6...V1, U6...U1
+  LPC_GPIO4->DIR |= 0x00000000; // 0000.0000.0000.0000.0000.0000.0000.0000          
+  LPC_GPIO5->DIR |= 0x00000000; // 0000.0000.0000.0000.0000.0000.0000.0000         
+   
+}
+

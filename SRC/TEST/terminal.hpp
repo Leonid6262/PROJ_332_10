@@ -1,0 +1,77 @@
+#pragma once
+
+#include "uart.hpp"
+#include "din_cpu.hpp"
+#include "dout_cpu.hpp"
+#include "spi_ports.hpp"
+#include "pause_us.hpp"
+#include "settings_eep.hpp"
+#include "Puls.hpp"
+#include "Compare.hpp"
+#include "i_adc.hpp"
+#include "adc.hpp"
+#include "Tests.hpp"
+#include "SDCard_init.hpp"
+#include "test_eth.hpp"
+#include "rtc.hpp"
+#include <stdio.h>
+
+struct TerminalDependencies {
+    CUART&      srComPort;
+    CDin_cpu&   srDin_cpu;
+    CSPI_ports& srSpi_ports;
+    CTESTS&     srTs;
+    CDout_cpu&  srDout_cpu;
+    CIADC&      srI_adc;
+    CADC&       srADC;
+    CSDCard&    srSD_card;
+    CTEST_ETH&  srTest_eth;
+    CRTC&       srRt_clock;
+};
+
+class CTerminal{
+  
+private: 
+  
+  enum class ELED
+  {
+    LED_RED    = 0x01,
+    LED_GREEN  = 0x02,
+    LED_BLUE   = 0x03,
+    LED_YELLOW = 0x04,
+    LED_WHITE  = 0x09,
+    LED_OFF    = 0x0B 
+  };
+  
+  CUART& rComPort;
+  CDin_cpu& rDin_cpu;
+  CSPI_ports& rSpi_ports;
+  CTESTS& rTs;
+  CDout_cpu& rDout_cpu;
+  CIADC& rI_adc;
+  CADC& rADC;
+  CSDCard& rSD_card;
+  CTEST_ETH& rTest_eth;
+  CRTC& rRt_clock;
+  
+  static const char* header_str[];
+  
+  signed short index_win;
+  
+  char receive_char;   
+  char formVar[15];
+  bool edit;
+  bool fup, fdn;
+  
+  unsigned int prev_TC0;
+  unsigned short ind_max;
+
+  void char_to_bits(char*, char);
+  
+public:  
+  
+  CTerminal(const TerminalDependencies&); 
+
+  void terminal();
+  
+};
