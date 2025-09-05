@@ -43,7 +43,8 @@ void CRTC::update_now()
   date_now.second = static_cast<unsigned char>(t & 0x3F);           // SEC  
 }
 
-const CRTC::SDateTime& CRTC::get_now() const {
+const CRTC::SDateTime& CRTC::get_now() const 
+{
     return date_now;
 }
 

@@ -868,7 +868,7 @@
                     <item>rem_osc</item>
                     <item>CREM_OSC::tx_dma_buffer</item>
                     <item>CREM_OSC::rx_dma_buffer</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

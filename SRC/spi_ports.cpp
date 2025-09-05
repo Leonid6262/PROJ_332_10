@@ -65,7 +65,6 @@ void CSPI_ports::rw()
   LPC_GPIO0->SET = HOLD;  
 }
 
-
 CSPI_ports::CSPI_ports()
 {
   // SPI-0 

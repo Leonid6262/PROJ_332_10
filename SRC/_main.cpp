@@ -2,10 +2,10 @@
 
 /*  
     1.Проект компилируется как C++, для Cortex-M4. FPU включен. 
-    2.Скрипт распределения памяти MemoryMap.icf - отредактирован:
+    2.Скрипт распределения памяти MemoryMap.icf (бывший ldscript_irom_iar) - отредактирован:
       - снят конфликт правил для секции .bss;
       - В RAM добавлен блок (4К) DMA_BUFFERS, под DMA 
-        UART, CAN и SPI (#pragma location = ".dma_buffers").
+        UART, SPI, CD (#pragma location = ".dma_buffers").
       - HEAP (0.5К) хотя и не используется, оставлена на не непредвиденный случай.
     3.Все внедряемые зависимости, кроме crc16 - Reference.
     4.Вместо устаревших конструкций include guards используются директивы #pragma once.
@@ -25,9 +25,9 @@ __root signed short CREM_OSC::rx_dma_buffer[CREM_OSC::TRANSACTION_LENGTH];
 
 void UserStartInit()
 {     
-  SetDiscreteOutputs();         // Определение дискретных выходов микроконтроллера (pins)
-  UserLedOn();                  // Включается для визуального контроля инициализации
-  EMC_Init_Check();             // Инициализации exr RAM и шины расширения. Контроль exr RAM
+  SetDiscreteOutputs();    // Определение дискретных выходов микроконтроллера (pins)
+  UserLedOn();             // Включается для визуального контроля инициализации
+  EMC_Init_Check();        // Инициализации exr RAM и шины расширения. Контроль exr RAM
 }
 
 /* 
@@ -132,7 +132,7 @@ void main(void)
   /* 
     Тесты CAN1, CAN2, RS485-1, RS485-2, DAC0, PWM_DAC1, PWM_DAC2.
     Так как интерфейсы CAN и UART проверяются на функционирование,
-    используются FIFO (к DMA и Interrupts не подвязаны).
+    в UART используются FIFO (к DMA и Interrupts не подвязаны).
   */
   static CTESTS tests( RS485_01, RS485_02, can1, can2, dac0, pwm_dac1, pwm_dac2 ); 
   
@@ -193,7 +193,7 @@ void main(void)
     // loop Test CAN
     tests.testCAN();
     
-    // Тест DAC-0, pwm_dac1, pwm_dac2 (контроль функционированя - осцилографом)
+    // Тест DAC-0, PWM-DAC1, PWM-DAC2 (контроль функционированя - осцилографом)
     tests.testDAC0();
     tests.testDAC1_PWM();
     tests.testDAC2_PWM();
@@ -208,14 +208,9 @@ void main(void)
     rt_clock.update_now();
     
     // Terminal (индикация и управление тестами)
-    terminal.terminal();
-        
-    rem_osc.tx_dma_buffer[0]=0xAA55;
-    //LPC_SSP2->DR = rem_osc.tx_dma_buffer[0];
-    rem_osc.start_dma_transfer();
+    terminal.terminal();        
     
-    
-    Pause_us(5000);    
+    Pause_us(1000);    
   } 
 }
 
