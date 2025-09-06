@@ -14,7 +14,7 @@ const char* CTerminal::header_str[] = {
     "\r\nCD card RCA     \r\n"
 };
 
-CTerminal::CTerminal(const TerminalDependencies& deps) :
+CTerminal::CTerminal(const SDependencies& deps) :
   rComPort(deps.srComPort),
   rDin_cpu(deps.srDin_cpu),
   rSpi_ports(deps.srSpi_ports),

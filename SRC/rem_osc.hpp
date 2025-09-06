@@ -9,6 +9,7 @@ class CREM_OSC
 private: 
   
   CDMAcontroller& rContDMA;
+  void init_dma();
   
   static constexpr unsigned int Hz_SPI  = 1000000;
   static constexpr unsigned int bits_tr = 16;
@@ -28,7 +29,6 @@ public:
   static signed short tx_dma_buffer[TRANSACTION_LENGTH];
   static signed short rx_dma_buffer[TRANSACTION_LENGTH];
   
-  void init_dma();
   void start_dma_transfer();
 };
 

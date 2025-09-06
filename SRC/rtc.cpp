@@ -1,9 +1,8 @@
 #include "rtc.hpp"
 #include "LPC407x_8x_177x_8x.h"
 
-CRTC::CRTC(){}
-
-void CRTC::init() {       
+CRTC::CRTC()
+{
   if ((LPC_RTC->RTC_AUX & RTC_OSCF) || !isDateTimeValid()) 
   {
     setDefault();                       // Установка дефолтных значений если была остановка 

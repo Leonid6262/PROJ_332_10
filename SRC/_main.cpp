@@ -105,7 +105,7 @@ void main(void)
   }
   
   static CRTC rt_clock;      /* Системные часы (Real Time Clock по документации) */
-  rt_clock.init();           /* Пример "атомарного" чтения:
+                             /* Пример "атомарного" чтения:
                                   rRt_clock.update_now(); <--данные читаются из RTC в момент выполнения update_now()
                                   sec   = rRt_clock.get_now().second; min  = rRt_clock.get_now().minute; 
                                   hour  = rRt_clock.get_now().hour;   day  = rRt_clock.get_now().day; 
@@ -116,8 +116,7 @@ void main(void)
                               */
                                   
 
-  static CREM_OSC rem_osc(cont_dma);    // Дистанционный осцилограф (ESP32 c WiFi модулем)
-  rem_osc.init_dma();                   // Карту каналов DMA с.м. в dma_config.hpp
+  static CREM_OSC rem_osc(cont_dma);    // Дистанционный осцилограф (ESP32 c WiFi модулем).Карту каналов DMA с.м. в dma_config.hpp               // 
                    
   /*--Объекты классов тестов--*/
 
@@ -127,7 +126,6 @@ void main(void)
                                         // Измеряет частоту синхронизации и напряжения статора 
   
   static CTEST_ETH test_eth(emac_drv);  // loop Test Ethernet. По физической петле передаёт/принимает тестовые raw кадры 
-  test_eth.init();
   
   /* 
     Тесты CAN1, CAN2, RS485-1, RS485-2, DAC0, PWM_DAC1, PWM_DAC2.
@@ -141,7 +139,7 @@ void main(void)
     демонстрирует альтернативный дизайн внедрения зависимостей
     (на мой взгляд, весьма спорный), в отличие от CTESTS tests.
   */    
-  static TerminalDependencies deps
+  static CTerminal::SDependencies deps
   {
     COM_Port,   
     din_cpu, 

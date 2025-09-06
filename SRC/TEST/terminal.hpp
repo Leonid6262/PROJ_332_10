@@ -16,19 +16,6 @@
 #include "rtc.hpp"
 #include <stdio.h>
 
-struct TerminalDependencies {
-    CUART&      srComPort;
-    CDin_cpu&   srDin_cpu;
-    CSPI_ports& srSpi_ports;
-    CTESTS&     srTs;
-    CDout_cpu&  srDout_cpu;
-    CIADC&      srI_adc;
-    CADC&       srADC;
-    CSDCard&    srSD_card;
-    CTEST_ETH&  srTest_eth;
-    CRTC&       srRt_clock;
-};
-
 class CTerminal{
   
 private: 
@@ -70,8 +57,21 @@ private:
   
 public:  
   
-  CTerminal(const TerminalDependencies&); 
-
+  struct SDependencies {
+    CUART&      srComPort;
+    CDin_cpu&   srDin_cpu;
+    CSPI_ports& srSpi_ports;
+    CTESTS&     srTs;
+    CDout_cpu&  srDout_cpu;
+    CIADC&      srI_adc;
+    CADC&       srADC;
+    CSDCard&    srSD_card;
+    CTEST_ETH&  srTest_eth;
+    CRTC&       srRt_clock;
+  };
+  
+  CTerminal(const SDependencies&); 
+  
   void terminal();
   
 };

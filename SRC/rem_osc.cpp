@@ -21,6 +21,8 @@ CREM_OSC::CREM_OSC(CDMAcontroller& r_cont_dma) : rContDMA(r_cont_dma)
   SPI_Config::set_spi_clock(LPC_SSP2, Hz_SPI, PeripheralClock );
   LPC_SSP2->CR1 |= SPI_Config::CR1_SSP_EN ;
   LPC_SSP2->DMACR = TXDMAE | RXDMAE; // Приём и передача по DMA
+  
+  init_dma();
 }
 
 // Старт передачи по DMA

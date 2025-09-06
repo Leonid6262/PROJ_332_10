@@ -16,7 +16,6 @@ public:
     unsigned char  second;
   };
    
-  void init();                          // Проверка и инициализация
   void update_now();                    // Обновление данных из RTC
   const SDateTime& get_now() const;     // Доступ к актуальным данным  
   void setDateTime(const SDateTime&);   // Установка даты и времени
