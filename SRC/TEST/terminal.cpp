@@ -14,27 +14,17 @@ const char* CTerminal::header_str[] = {
     "\r\nCD card RCA     \r\n"
 };
 
-CTerminal::CTerminal(const SDependencies& deps) :
-  rComPort(deps.srComPort),
-  rDin_cpu(deps.srDin_cpu),
-  rSpi_ports(deps.srSpi_ports),
-  rTs(deps.srTs),
-  rDout_cpu(deps.srDout_cpu),
-  rI_adc(deps.srI_adc),
-  rADC(deps.srADC),
-  rSD_card(deps.srSD_card),
-  rTest_eth(deps.srTest_eth),
-  rRt_clock(deps.srRt_clock)
+CTerminal::CTerminal(const SDependencies& deps) : deps(deps)
   {
     Pause_us(2000000); // Очень долго инициализируется ПТ
-    rComPort.transfer_char(static_cast<char>(ELED::LED_OFF));
-    rComPort.transfer_char('\r');
-    rComPort.transfer_string(const_cast<char*>("\r\n                "));
-    rComPort.transfer_string(const_cast<char*>("\r\n                "));
+    deps.rComPort.transfer_char(static_cast<char>(ELED::LED_OFF));
+    deps.rComPort.transfer_char('\r');
+    deps.rComPort.transfer_string(const_cast<char*>("\r\n                "));
+    deps.rComPort.transfer_string(const_cast<char*>("\r\n                "));
     edit = false;
     index_win = 0;
     ind_max = (sizeof(header_str) / sizeof(header_str[0])) - 1;
-    rComPort.transfer_string(const_cast<char*>(header_str[index_win]));
+    deps.rComPort.transfer_string(const_cast<char*>(header_str[index_win]));
   }
   
 void CTerminal::char_to_bits(char* d, char c)
@@ -56,8 +46,7 @@ void CTerminal::char_to_bits(char* d, char c)
 
 void CTerminal::terminal()
 {  
-     
-  receive_char = rComPort.receive_char();
+  receive_char = deps.rComPort.receive_char();
   unsigned int dT0 = LPC_TIM0->TC - prev_TC0; //Текущая дельта [0.1*mks]   
   
   switch(receive_char)
@@ -69,7 +58,7 @@ void CTerminal::terminal()
     {
       index_win = ind_max;
     }
-    rComPort.transfer_string(const_cast<char*>(header_str[index_win]));    
+    deps.rComPort.transfer_string(const_cast<char*>(header_str[index_win]));    
     break;
   case 0x2D: //"Dn"     
     index_win++;
@@ -78,7 +67,7 @@ void CTerminal::terminal()
     {
       index_win = 0;
     }
-    rComPort.transfer_string(const_cast<char*>(header_str[index_win]));
+    deps.rComPort.transfer_string(const_cast<char*>(header_str[index_win]));
     break;   
   case 0x3D: //"Fn+Up"
     fup = true;
@@ -97,12 +86,12 @@ void CTerminal::terminal()
   case 0x2A: //"STOP"
     break;
   case 0x78: //"FN+Enter" - Запись уставок    
-    rComPort.transfer_char(static_cast<char>(ELED::LED_GREEN));
-    rComPort.transfer_char('\r');
+    deps.rComPort.transfer_char(static_cast<char>(ELED::LED_GREEN));
+    deps.rComPort.transfer_char('\r');
     CEEPSettings::getInstance().saveSettings();
     Pause_us(200000);
-    rComPort.transfer_char(static_cast<char>(ELED::LED_OFF));
-    rComPort.transfer_char('\r');
+    deps.rComPort.transfer_char(static_cast<char>(ELED::LED_OFF));
+    deps.rComPort.transfer_char('\r');
     break;
   case 0x00: 
     if(dT0 < 1500000) return;
@@ -113,30 +102,31 @@ void CTerminal::terminal()
   {  
   case 0:     
     sprintf(formVar, "%02u.%02u %02u:%02u:%02u\r",
-            rRt_clock.get_now().day,  rRt_clock.get_now().month,
-            rRt_clock.get_now().hour, rRt_clock.get_now().minute, rRt_clock.get_now().second);            
-    rComPort.transfer_string(formVar);
+            deps.rRt_clock.get_now().day,  deps.rRt_clock.get_now().month,
+            deps.rRt_clock.get_now().hour, deps.rRt_clock.get_now().minute, 
+            deps.rRt_clock.get_now().second);            
+    deps.rComPort.transfer_string(formVar);
     break;
   case 1:     
-    char_to_bits(data_port_input, rDin_cpu.UData_din_f_Pi0.all);
+    char_to_bits(data_port_input, deps.rDin_cpu.UData_din_f_Pi0.all);
     sprintf(formVar, "%s\r", data_port_input);    
-    rComPort.transfer_string(formVar);
+    deps.rComPort.transfer_string(formVar);
     break;
     
   case 2: 
-    char_to_bits(data_port_input, rDin_cpu.UData_din_Pi1.all);
+    char_to_bits(data_port_input, deps.rDin_cpu.UData_din_Pi1.all);
     sprintf(formVar, "%s\r", data_port_input);
-    rComPort.transfer_string(formVar);
+    deps.rComPort.transfer_string(formVar);
     break;
     
   case 3: 
     char_to_bits
       (
        data_port_input, 
-       rSpi_ports.UData_din_f[static_cast<char>(CSPI_ports::EBytesDinNumber::BYTE_DIN_CPU)].all
+       deps.rSpi_ports.UData_din_f[static_cast<char>(CSPI_ports::EBytesDinNumber::BYTE_DIN_CPU)].all
          );
     sprintf(formVar, "%s\r", data_port_input);
-    rComPort.transfer_string(formVar);
+    deps.rComPort.transfer_string(formVar);
     break;
     
   case 4: 
@@ -162,17 +152,17 @@ void CTerminal::terminal()
     switch(bridge)
     {  
     case 0:
-      rComPort.transfer_string(const_cast<char*>("STOP            \r"));
+      deps.rComPort.transfer_string(const_cast<char*>("STOP            \r"));
       CPULS::getInstance().forcing_bridge = false;
       CPULS::getInstance().main_bridge = false;
       break;
     case 1:
-      rComPort.transfer_string(const_cast<char*>("MAIN            \r"));
+      deps.rComPort.transfer_string(const_cast<char*>("MAIN            \r"));
       CPULS::getInstance().forcing_bridge = false;
       CPULS::getInstance().main_bridge = true;
       break;
     case 2:
-      rComPort.transfer_string(const_cast<char*>("FORSING         \r"));
+      deps.rComPort.transfer_string(const_cast<char*>("FORSING         \r"));
       CPULS::getInstance().main_bridge = false;
       CPULS::getInstance().forcing_bridge = true;
       break;
@@ -181,9 +171,9 @@ void CTerminal::terminal()
     
   case 5:
     sprintf(formVar, "%.1f  ", CCOMPARE::getInstance().SYNC_FREQUENCY);
-    rComPort.transfer_string(formVar);
+    deps.rComPort.transfer_string(formVar);
     sprintf(formVar, "%.1f    \r", CCOMPARE::getInstance().STATOR_FREQUENCY);
-    rComPort.transfer_string(formVar);
+    deps.rComPort.transfer_string(formVar);
     break; 
     
   case 6: 
@@ -209,47 +199,47 @@ void CTerminal::terminal()
     switch(K)
     {  
     case 0:
-      rComPort.transfer_string(const_cast<char*>("REL OFF         \r"));
-      rDout_cpu.REL_LEAKAGE_P(OFF);
-      rDout_cpu.REL_LEAKAGE_N(OFF);
+      deps.rComPort.transfer_string(const_cast<char*>("REL OFF         \r"));
+      deps.rDout_cpu.REL_LEAKAGE_P(OFF);
+      deps.rDout_cpu.REL_LEAKAGE_N(OFF);
       break;
     case 1:
-      rComPort.transfer_string(const_cast<char*>("REL P is ON     \r"));
-      rDout_cpu.REL_LEAKAGE_P(ON);
-      rDout_cpu.REL_LEAKAGE_N(OFF);
+      deps.rComPort.transfer_string(const_cast<char*>("REL P is ON     \r"));
+      deps.rDout_cpu.REL_LEAKAGE_P(ON);
+      deps.rDout_cpu.REL_LEAKAGE_N(OFF);
       break;
     case 2:
-      rComPort.transfer_string(const_cast<char*>("REL N is ON      \r"));
-      rDout_cpu.REL_LEAKAGE_P(OFF);
-      rDout_cpu.REL_LEAKAGE_N(ON);
+      deps.rComPort.transfer_string(const_cast<char*>("REL N is ON      \r"));
+      deps.rDout_cpu.REL_LEAKAGE_P(OFF);
+      deps.rDout_cpu.REL_LEAKAGE_N(ON);
       break;
     }
     break;
     
   case 7:     
-    sprintf(formVar, "1:%03d  ", rTs.receive_RS485_1);
-    rComPort.transfer_string(formVar);
-    sprintf(formVar, "2:%03d    \r", rTs.receive_RS485_2);
-    rComPort.transfer_string(formVar);
+    sprintf(formVar, "1:%03d  ", deps.rTs.receive_RS485_1);
+    deps.rComPort.transfer_string(formVar);
+    sprintf(formVar, "2:%03d    \r", deps.rTs.receive_RS485_2);
+    deps.rComPort.transfer_string(formVar);
     break;
     
   case 8:     
-    sprintf(formVar, "1:%03d  ", rTs.CAN1_data_rx);
-    rComPort.transfer_string(formVar);
-    sprintf(formVar, "2:%03d    \r", rTs.CAN2_data_rx);
-    rComPort.transfer_string(formVar);
+    sprintf(formVar, "1:%03d  ", deps.rTs.CAN1_data_rx);
+    deps.rComPort.transfer_string(formVar);
+    sprintf(formVar, "2:%03d    \r", deps.rTs.CAN2_data_rx);
+    deps.rComPort.transfer_string(formVar);
     break;
     
   case 9:     
-    sprintf(formVar, "Tx:%03d ", rTest_eth.sendFrame[14]);
-    rComPort.transfer_string(formVar);
-    sprintf(formVar, "Rx:%03d   \r", rTest_eth.rxBuffer[14]);
-    rComPort.transfer_string(formVar);
+    sprintf(formVar, "Tx:%03d ", deps.rTest_eth.sendFrame[14]);
+    deps.rComPort.transfer_string(formVar);
+    sprintf(formVar, "Rx:%03d   \r", deps.rTest_eth.rxBuffer[14]);
+    deps.rComPort.transfer_string(formVar);
     break;
     
   case 10:     
-    sprintf(formVar, "%05d     \r", rSD_card.RCA);
-    rComPort.transfer_string(formVar);
+    sprintf(formVar, "%05d     \r", deps.rSD_card.RCA);
+    deps.rComPort.transfer_string(formVar);
     break;
     
   }

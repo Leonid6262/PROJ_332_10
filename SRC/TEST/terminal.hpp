@@ -17,6 +17,26 @@
 #include <stdio.h>
 
 class CTerminal{
+
+public:  
+  
+  // Структура зависимостей класса 
+  struct SDependencies {
+    CUART&      rComPort;
+    CDin_cpu&   rDin_cpu;
+    CSPI_ports& rSpi_ports;
+    CTESTS&     rTs;
+    CDout_cpu&  rDout_cpu;
+    CIADC&      rI_adc;
+    CADC&       rADC;
+    CSDCard&    rSD_card;
+    CTEST_ETH&  rTest_eth;
+    CRTC&       rRt_clock;
+  };
+  
+  CTerminal(const SDependencies&); 
+  
+  void terminal();  
   
 private: 
   
@@ -29,17 +49,6 @@ private:
     LED_WHITE  = 0x09,
     LED_OFF    = 0x0B 
   };
-  
-  CUART& rComPort;
-  CDin_cpu& rDin_cpu;
-  CSPI_ports& rSpi_ports;
-  CTESTS& rTs;
-  CDout_cpu& rDout_cpu;
-  CIADC& rI_adc;
-  CADC& rADC;
-  CSDCard& rSD_card;
-  CTEST_ETH& rTest_eth;
-  CRTC& rRt_clock;
   
   static const char* header_str[];
   
@@ -55,23 +64,6 @@ private:
 
   void char_to_bits(char*, char);
   
-public:  
-  
-  struct SDependencies {
-    CUART&      srComPort;
-    CDin_cpu&   srDin_cpu;
-    CSPI_ports& srSpi_ports;
-    CTESTS&     srTs;
-    CDout_cpu&  srDout_cpu;
-    CIADC&      srI_adc;
-    CADC&       srADC;
-    CSDCard&    srSD_card;
-    CTEST_ETH&  srTest_eth;
-    CRTC&       srRt_clock;
-  };
-  
-  CTerminal(const SDependencies&); 
-  
-  void terminal();
+  const SDependencies& deps;
   
 };

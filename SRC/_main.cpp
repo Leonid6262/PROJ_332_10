@@ -132,12 +132,11 @@ void main(void)
     Так как интерфейсы CAN и UART проверяются на функционирование,
     в UART используются FIFO (к DMA и Interrupts не подвязаны).
   */
-  static CTESTS tests( RS485_01, RS485_02, can1, can2, dac0, pwm_dac1, pwm_dac2 ); 
+  static CTESTS tests(RS485_01, RS485_02, can1, can2, dac0, pwm_dac1, pwm_dac2); 
   
   /* 
-    Вспомогательная структура references для класса Terminal,
-    демонстрирует альтернативный дизайн внедрения зависимостей
-    (на мой взгляд, весьма спорный), в отличие от CTESTS tests.
+    При большом количестве зависимостей, целесообразно использовать вспомогательную встроенную структуру.
+    Альтернативный дизайн внедрения зависимостей.
   */    
   static CTerminal::SDependencies deps
   {

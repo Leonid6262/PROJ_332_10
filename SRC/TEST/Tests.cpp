@@ -1,14 +1,12 @@
 #include "Tests.hpp"
 
-CTESTS::CTESTS(
-               CUART& rRS485_1, 
-               CUART& rRS485_2, 
-               CCAN& rCAN_1, 
-               CCAN& rCAN_2, 
-               CDAC0& rDAC0, 
+CTESTS::CTESTS(CUART&    rRS485_1, 
+               CUART&    rRS485_2, 
+               CCAN&     rCAN_1,   
+               CCAN&     rCAN_2,   
+               CDAC0&    rDAC0,    
                CDAC_PWM& rPWM_DAC1, 
-               CDAC_PWM& rPWM_DAC2
-                 ) : 
+               CDAC_PWM& rPWM_DAC2) : 
   rRS485_1(rRS485_1), 
   rRS485_2(rRS485_2), 
   rCAN_1(rCAN_1), 
