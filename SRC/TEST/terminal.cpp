@@ -16,7 +16,7 @@ const char* CTerminal::header_str[] = {
 
 CTerminal::CTerminal(const SDependencies& deps) : deps(deps)
   {
-    Pause_us(2000000); // Очень долго инициализируется ПТ
+    Pause_us(500000); // Долго инициализируется ПТ
     deps.rComPort.transfer_char(static_cast<char>(ELED::LED_OFF));
     deps.rComPort.transfer_char('\r');
     deps.rComPort.transfer_string(const_cast<char*>("\r\n                "));

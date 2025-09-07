@@ -60,8 +60,9 @@ void main(void)
     Без внедрения зависимостей, по "найди меня" (extern MyClass myObj) - ВИДНЫ НЕ БУДУТ!
   */
   
-  static CDMAcontroller cont_dma; // Класс управления каналами DMA. Пример инициализации и использования
-                                  // каналов с.м. в классе CREM_OSC (Дистанционный осцилограф)
+  static CDMAcontroller cont_dma; // Класс управления каналами DMA. От lpc177x_8x_gpdma.c НЕ зависит.
+                                  // Пример инициализации и использования каналов 
+                                  // с.м. в классе CREM_OSC (Дистанционный осцилограф)
   
   static CUART COM_Port(CUART::EUartInstance::UART_TERMINAL);       // COM Port (uart0 - Terminal)
   static CUART RS485_01(CUART::EUartInstance::UART_RS485_01);       // RS485-1 (uart2)
@@ -116,7 +117,7 @@ void main(void)
                               */
                                   
 
-  static CREM_OSC rem_osc(cont_dma);    // Дистанционный осцилограф (ESP32 c WiFi модулем).Карту каналов DMA с.м. в dma_config.hpp               // 
+  static CREM_OSC rem_osc(cont_dma);    // Дистанционный осцилограф (ESP32 c WiFi модулем).Карту каналов DMA с.м. в controllerDMA.hpp               // 
                    
   /*--Объекты классов тестов--*/
 

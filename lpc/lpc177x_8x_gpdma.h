@@ -55,36 +55,6 @@ extern "C"
  * @{
  */
 
-/** DMA Connection number definitions */
-#define GPDMA_CONN_MCI				((1UL))			/** SD card */
-#define GPDMA_CONN_SSP0_Tx 			((2UL)) 		/**< SSP0 Tx */
-#define GPDMA_CONN_SSP0_Rx 			((3UL)) 		/**< SSP0 Rx */
-#define GPDMA_CONN_SSP1_Tx 			((4UL)) 		/**< SSP1 Tx */
-#define GPDMA_CONN_SSP1_Rx 			((5UL)) 		/**< SSP1 Rx */
-#define GPDMA_CONN_SSP2_Tx			((6UL))			/**< SSP2 Tx */
-#define GPDMA_CONN_SSP2_Rx			((7UL))			/**< SSP2 Rx */
-#define GPDMA_CONN_ADC 				((8UL)) 		/**< ADC */
-#define GPDMA_CONN_DAC 				((9UL)) 		/**< DAC */
-#define GPDMA_CONN_UART0_Tx			((10UL)) 		/**< UART0 Tx */
-#define GPDMA_CONN_UART0_Rx			((11UL)) 		/**< UART0 Rx */
-#define GPDMA_CONN_UART1_Tx			((12UL)) 		/**< UART1 Tx */
-#define GPDMA_CONN_UART1_Rx			((13UL)) 		/**< UART1 Rx */
-#define GPDMA_CONN_UART2_Tx			((14UL)) 		/**< UART2 Tx */
-#define GPDMA_CONN_UART2_Rx			((15UL)) 		/**< UART2 Rx */
-#define GPDMA_CONN_MAT0_0 			((16UL)) 		/**< MAT0.0 */
-#define GPDMA_CONN_MAT0_1 			((17UL)) 		/**< MAT0.1 */
-#define GPDMA_CONN_MAT1_0 			((18UL)) 		/**< MAT1.0 */
-#define GPDMA_CONN_MAT1_1   		((19UL)) 		/**< MAT1.1 */
-#define GPDMA_CONN_MAT2_0   		((20UL)) 		/**< MAT2.0 */
-#define GPDMA_CONN_MAT2_1   		((21UL)) 		/**< MAT2.1 */
-#define GPDMA_CONN_I2S_Channel_0 	((22UL)) 		/**< I2S channel 0 */
-#define GPDMA_CONN_I2S_Channel_1 	((23UL)) 		/**< I2S channel 1 */
-#define GPDMA_CONN_UART3_Tx			((26UL)) 		/**< UART3 Tx */
-#define GPDMA_CONN_UART3_Rx			((27UL)) 		/**< UART3 Rx */
-#define GPDMA_CONN_UART4_Tx			((28UL)) 		/**< UART3 Tx */
-#define GPDMA_CONN_UART4_Rx			((29UL)) 		/**< UART3 Rx */
-#define GPDMA_CONN_MAT3_0 			((30UL)) 		/**< MAT3.0 */
-#define GPDMA_CONN_MAT3_1   		((31UL)) 		/**< MAT3.1 */
 
 /** GPDMA Transfer type definitions: Memory to memory - DMA control */
 #define GPDMA_TRANSFERTYPE_M2M 		((0UL))
