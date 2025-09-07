@@ -39,16 +39,16 @@ public:
   };  
   
   // Размер единичной передачи
-  struct DmaBurst 
+  enum class DmaBurst : unsigned char 
   {
-    static constexpr unsigned int SIZE_1   = 0;
-    static constexpr unsigned int SIZE_4   = 1; // Оптимум для SPI
-    static constexpr unsigned int SIZE_8   = 2;
-    static constexpr unsigned int SIZE_16  = 3;
-    static constexpr unsigned int SIZE_32  = 4;
-    static constexpr unsigned int SIZE_64  = 5;
-    static constexpr unsigned int SIZE_128 = 6;
-    static constexpr unsigned int SIZE_256 = 7;
+    SIZE_1   = 0,
+    SIZE_4   = 1, // Оптимум для SPI
+    SIZE_8   = 2,
+    SIZE_16  = 3,
+    SIZE_32  = 4,
+    SIZE_64  = 5,
+    SIZE_128 = 6,
+    SIZE_256 = 7
   };
   
   // Номер подалючения
@@ -91,10 +91,10 @@ public:
   {
     ChannelMap channelNum;       // Номер канала
     ETransferType transferType;  // Тип канала
-    EConnNumber   Conn;          // Номер периферийного подключения
-    unsigned int  BurstSize;     // Количество единичных элементов транзакции 
-    EWidth Width;                // Размер единичного элемента
-    bool enableInterrupt;        // Разрешение/запрет события окончания передачи (ON/OFF) 
+    EConnNumber Conn;           // Номер периферийного подключения
+    DmaBurst BurstSize;         // Количество единичных элементов транзакции 
+    EWidth Width;               // Размер единичного элемента
+    bool enableInterrupt;       // Разрешение/запрет события окончания передачи (ON/OFF) 
   };
   
   void init_M2P2M_Channel(const SChannelConfig*);

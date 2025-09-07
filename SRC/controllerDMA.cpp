@@ -52,10 +52,10 @@ void CDMAcontroller::init_M2P2M_Channel(const SChannelConfig *cfg)
     // Адрес перифери (адрес регистра назначения)
     ch->CDestAddr = static_cast<unsigned int>((long long)(LUTPerAddr[static_cast<unsigned int>(cfg->Conn)]));
     
-    ch->CControl = GPDMA_DMACCxControl_SBSize(cfg->BurstSize) |
-		   GPDMA_DMACCxControl_DBSize(cfg->BurstSize) |
-		   GPDMA_DMACCxControl_SWidth((uint32_t)cfg->Width) |
-                   GPDMA_DMACCxControl_DWidth((uint32_t)cfg->Width) |
+    ch->CControl = GPDMA_DMACCxControl_SBSize(static_cast<unsigned int>(cfg->BurstSize)) |
+		   GPDMA_DMACCxControl_DBSize(static_cast<unsigned int>(cfg->BurstSize)) |
+		   GPDMA_DMACCxControl_SWidth(static_cast<unsigned int>(cfg->Width)) |
+                   GPDMA_DMACCxControl_DWidth(static_cast<unsigned int>(cfg->Width)) |
                    GPDMA_DMACCxControl_SI; 
 	
     /* Enable DMA channels, little endian */
@@ -78,10 +78,10 @@ void CDMAcontroller::init_M2P2M_Channel(const SChannelConfig *cfg)
     // Адрес перифери (адрес регистра источника)
     ch->CSrcAddr = static_cast<unsigned int>((long long)(LUTPerAddr[static_cast<unsigned int>(cfg->Conn)]));
     
-    ch->CControl = GPDMA_DMACCxControl_SBSize(cfg->BurstSize) |
-		   GPDMA_DMACCxControl_DBSize(cfg->BurstSize) |
-		   GPDMA_DMACCxControl_SWidth((uint32_t)cfg->Width) |
-                   GPDMA_DMACCxControl_DWidth((uint32_t)cfg->Width) |
+    ch->CControl = GPDMA_DMACCxControl_SBSize(static_cast<unsigned int>(cfg->BurstSize)) |
+		   GPDMA_DMACCxControl_DBSize(static_cast<unsigned int>(cfg->BurstSize)) |
+		   GPDMA_DMACCxControl_SWidth(static_cast<unsigned int>(cfg->Width)) |
+                   GPDMA_DMACCxControl_DWidth(static_cast<unsigned int>(cfg->Width)) |
                    GPDMA_DMACCxControl_DI; 
     
     /* Enable DMA channels, little endian */
