@@ -1,9 +1,7 @@
 #pragma once
 
 #include "lpc407x_8x_177x_8x.h"
-#include "lpc177x_8x_gpdma.h"
 #include "lpc177x_8x_clkpwr.h"
-#include "dma_config.hpp"
 
 class CDMAcontroller {
   
@@ -158,7 +156,22 @@ private:
     &LPC_TIM3->MR1                      // MAT3.1  
                             ~~~~~~~~~~~~~~~~~~~~*/
   };
-
+  static constexpr unsigned char bSBSize = 12;
+  static constexpr unsigned char bDBSize = 15;
+  static constexpr unsigned char bSWidth = 18;
+  static constexpr unsigned char bDWidth = 21;
+  static constexpr unsigned int  bSI     = 1UL << 26;
+  static constexpr unsigned int  bDI     = 1UL << 27;
+  
+  static constexpr unsigned int  DMACConfig_E =	0x01;
+  static constexpr unsigned int  DMACCxConfig_E   = 1UL << 0;
+  static constexpr unsigned int  DMACCxConfig_IE  = 1UL << 14;
+  static constexpr unsigned int  DMACCxControl_I  = 1UL << 31;
+  static constexpr unsigned int  DMACCxConfig_ITC = 1UL << 15;
+  
+  static constexpr unsigned int bTransferType     = 11;
+  static constexpr unsigned int bSrcPeripheral    = 1;
+  static constexpr unsigned int bDestPeripheral   = 6;
 };
 
 

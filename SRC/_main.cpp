@@ -60,7 +60,7 @@ void main(void)
     Без внедрения зависимостей, по "найди меня" (extern MyClass myObj) - ВИДНЫ НЕ БУДУТ!
   */
   
-  static CDMAcontroller cont_dma; // Класс управления каналами DMA. От lpc177x_8x_gpdma.c НЕ зависит.
+  static CDMAcontroller cont_dma; // Класс управления каналами DMA. От lpc177x_8x_gpdma.c/h не зависит.
                                   // Пример инициализации и использования каналов 
                                   // с.м. в классе CREM_OSC (Дистанционный осцилограф)
   

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "controllerDMA.hpp"
-#include "dma_config.hpp"
 #include "spi_ports.hpp"
 #include "Ports_init.hpp"
 #include "emc.hpp"

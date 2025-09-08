@@ -21,7 +21,7 @@ class CTerminal{
 public:  
   
   // Структура зависимостей класса 
-  struct SDependencies {
+ struct SDependencies {
     CUART&      rComPort;
     CDin_cpu&   rDin_cpu;
     CSPI_ports& rSpi_ports;

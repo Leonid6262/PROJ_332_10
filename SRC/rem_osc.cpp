@@ -1,5 +1,4 @@
 #include "rem_osc.hpp"
-#include "dma_config.hpp"
 #include "bool_name.hpp"
 #include "system_LPC177x.h"
 
