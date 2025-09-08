@@ -39,7 +39,7 @@ void main(void)
 {                   
 
   NVIC_SetPriorityGrouping(Priorities::G4S8);   // Распределение векторов по группам реализовано в файле IntPriority.h
-  Timers_0_1_3_Initializing();                  // Настройки реализованы в виде одной функции для удобства.
+  Timers_Initializing();                        // Настройки реализованы в виде одной функции для удобства.
   static CCRC16 crc16;                          // Объект класса расчёт КС (как минимум,ещё понадобится в ModBus)   
   
   CEEPSettings::getInstance().init_EEP(&crc16); // Singleton класса CEEPSettings создаётся здесь (паттерн Майерса).
@@ -127,7 +127,7 @@ void main(void)
                                         // Измеряет частоту синхронизации и напряжения статора 
   
   static CTEST_ETH test_eth(emac_drv);  // loop Test Ethernet. По физической петле передаёт/принимает тестовые raw кадры 
-  
+
   /* 
     Тесты CAN1, CAN2, RS485-1, RS485-2, DAC0, PWM_DAC1, PWM_DAC2.
     Так как интерфейсы CAN и UART проверяются на функционирование,
@@ -208,7 +208,6 @@ void main(void)
     // Terminal (индикация и управление тестами)
     terminal.terminal();        
     
-    Pause_us(1000);    
   } 
 }
 

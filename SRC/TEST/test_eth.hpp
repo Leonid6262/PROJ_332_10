@@ -12,9 +12,10 @@ public:
     
     CEMAC_DRV& rEmac_drv;
     CTEST_ETH(CEMAC_DRV&);
-    void test();    
-
+    void test(); 
+    
 private:
   
     void init(); 
+
 };

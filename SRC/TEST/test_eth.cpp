@@ -7,7 +7,7 @@ const unsigned char CTEST_ETH::MAC_PC[] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55};
 
 CTEST_ETH::CTEST_ETH(CEMAC_DRV& rEmac_drv) : rEmac_drv(rEmac_drv)
 {
-  void init();
+  init();
 }
 
 void CTEST_ETH::init() {                                                // Тестовый кадр:

@@ -91,10 +91,10 @@ public:
   {
     ChannelMap channelNum;       // Номер канала
     ETransferType transferType;  // Тип канала
-    EConnNumber Conn;           // Номер периферийного подключения
-    DmaBurst BurstSize;         // Количество единичных элементов транзакции 
-    EWidth Width;               // Размер единичного элемента
-    bool enableInterrupt;       // Разрешение/запрет события окончания передачи (ON/OFF) 
+    EConnNumber Conn;            // Номер периферийного подключения
+    DmaBurst BurstSize;          // Количество единичных элементов транзакции 
+    EWidth Width;                // Размер единичного элемента
+    bool enableInterrupt;        // Разрешение/запрет события окончания передачи (ON/OFF) 
   };
   
   void init_M2P2M_Channel(const SChannelConfig*);

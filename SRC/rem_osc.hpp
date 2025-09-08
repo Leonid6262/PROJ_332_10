@@ -19,6 +19,7 @@ private:
   static constexpr unsigned int PROG_CS    = 1UL << 3;
   static constexpr unsigned int RXDMAE     = 1UL << 0;
   static constexpr unsigned int TXDMAE     = 1UL << 1;
+  static constexpr unsigned int P1_27      = 1UL << 27;
   
   static constexpr unsigned short TRANSACTION_LENGTH = 11; 
  

@@ -50,9 +50,10 @@ void CREM_OSC::init_dma()
 
 CREM_OSC::CREM_OSC(CDMAcontroller& rContDMA) : rContDMA(rContDMA)
 {   
-  LPC_IOCON->P5_0 = IOCON_SPI;       //MOSI
-  LPC_IOCON->P5_1 = IOCON_SPI;       //MISO
-  LPC_IOCON->P5_2 = IOCON_SPI;       //SCK   
+  LPC_IOCON->P5_0  = IOCON_SPI;       //MOSI
+  LPC_IOCON->P5_1  = IOCON_SPI;       //MISO
+  LPC_IOCON->P5_2  = IOCON_SPI;       //SCK 
+  LPC_IOCON->P1_27 = IOCON_PORT;      //Резервный вход/выход
   
   LPC_IOCON->P5_3 = IOCON_PORT;      //Програмный CS  
   LPC_GPIO5->DIR |= PROG_CS;

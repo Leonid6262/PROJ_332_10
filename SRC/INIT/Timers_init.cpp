@@ -3,7 +3,7 @@
 #include "system_LPC177x.h"
 #include "LPC407x_8x_177x_8x.h"
    
-void Timers_0_1_3_Initializing()
+void Timers_Initializing()
 { 
   // Включение clock
   LPC_SC->PCONP |= CLKPWR_PCONP_PCTIM0;
