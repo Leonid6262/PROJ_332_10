@@ -136,8 +136,13 @@ void main(void)
       CEEPSettings::getInstance().getSettings().disp_c.p_ROTOR_VOLTAGE,
       CEEPSettings::getInstance().getSettings().disp_c.p_STATOR_VOLTAGE
     },
-    // Серийный номер платы контроллера
-    CEEPSettings::getInstance().getSettings().SNboard_number
+    // Режим работы Access_point или Station
+    CREM_OSC::Operating_mode::Access_point,
+    // Серийный номер платы контроллера (указывается для режима Access_point)
+    CEEPSettings::getInstance().getSettings().SNboard_number,
+    // Имя сети и пароль (указываются для режима Station)
+    CREM_OSC::SSID,
+    CREM_OSC::Password
   };
   static CREM_OSC rem_osc(cont_dma, set_init);    // Дистанционный осцилограф (ESP32 c WiFi модулем).Карту каналов DMA с.м. в controllerDMA.hpp               // 
   
