@@ -46,17 +46,18 @@ void CDMAcontroller::init_M2P2M_Channel(const SChannelConfig *cfg)
   ch->CConfig  = 0;
   ch->CLLI     = 0; // Механизм Linked List Item (LLI) не используется
   
+  ch->CControl = ((static_cast<unsigned int>(cfg->BurstSize) & 0x07) << bSBSize) 
+               | ((static_cast<unsigned int>(cfg->BurstSize) & 0x07) << bDBSize) 
+               | ((static_cast<unsigned int>(cfg->Width) & 0x07) << bSWidth)    
+               | ((static_cast<unsigned int>(cfg->Width) & 0x07) << bDWidth);     
+  
   switch (cfg->transferType) 
   {
+
   case ETransferType::TYPE_M2P:
     // Адрес перифери (адрес регистра назначения)
-    ch->CDestAddr = static_cast<unsigned int>((long long)(LUTPerAddr[static_cast<unsigned int>(cfg->Conn)]));
-    
-    ch->CControl =  ((static_cast<unsigned int>(cfg->BurstSize) & 0x07) << bSBSize) 
-                 |  ((static_cast<unsigned int>(cfg->BurstSize) & 0x07) << bDBSize) 
-                 |  ((static_cast<unsigned int>(cfg->Width) & 0x07) << bSWidth)    
-                 |  ((static_cast<unsigned int>(cfg->Width) & 0x07) << bDWidth)     
-                 |  bSI; // Control_SI
+    ch->CDestAddr = static_cast<unsigned int>((long long)(LUTPerAddr[static_cast<unsigned int>(cfg->Conn)]));   
+    ch->CControl |= bSI; // Control_SI
 	
     /* Enable DMA channels, little endian */
     LPC_GPDMA->Config = DMACConfig_E;
@@ -64,44 +65,28 @@ void CDMAcontroller::init_M2P2M_Channel(const SChannelConfig *cfg)
     
     ch->CConfig = ((static_cast<unsigned int>(cfg->transferType) & 0x07) << bTransferType) |
               ((static_cast<unsigned int>(cfg->Conn) & 0x1F) << bDestPeripheral);  
-    
-    // Прерывания по ошибкам (IE) не используется. Если события окончания передачи разрешены,
-    // для обработки прерываний от DMA, разумеется, нужно вызвать  enableIrq() {NVIC_EnableIRQ(DMA_IRQn);} 
-    ch->CConfig &= ~DMACCxConfig_IE;
-    if (cfg->enableInterrupt) 
-    {
-      ch->CControl |= DMACCxControl_I;
-      ch->CConfig  |= DMACCxConfig_ITC;
-    }     
     break;
   case ETransferType::TYPE_P2M:
     // Адрес перифери (адрес регистра источника)
-    ch->CSrcAddr = static_cast<unsigned int>((long long)(LUTPerAddr[static_cast<unsigned int>(cfg->Conn)]));
-    
-    ch->CControl =  ((static_cast<unsigned int>(cfg->BurstSize) & 0x07) << bSBSize) 
-                 |  ((static_cast<unsigned int>(cfg->BurstSize) & 0x07) << bDBSize) 
-                 |  ((static_cast<unsigned int>(cfg->Width) & 0x07) << bSWidth)    
-                 |  ((static_cast<unsigned int>(cfg->Width) & 0x07) << bDWidth)     
-                 |  bDI; // Control_DI
-    
+    ch->CSrcAddr = static_cast<unsigned int>((long long)(LUTPerAddr[static_cast<unsigned int>(cfg->Conn)]));    
+    ch->CControl |=  bDI; // Control_DI 
+                    
     /* Enable DMA channels, little endian */
     LPC_GPDMA->Config = DMACConfig_E;
     while (!(LPC_GPDMA->Config & DMACConfig_E)){};
     
     ch->CConfig = ((static_cast<unsigned int>(cfg->transferType) & 0x07) << bTransferType) |
               ((static_cast<unsigned int>(cfg->Conn) & 0x1F) << bSrcPeripheral);
-    
-    // Прерывания по ошибкам (IE) не используется. Если события окончания передачи разрешены,
-    // для обработки прерываний от DMA, разумеется, нужно вызвать  enableIrq() {NVIC_EnableIRQ(DMA_IRQn);} 
-    ch->CConfig &= ~DMACCxConfig_IE;
-    if (cfg->enableInterrupt) 
-    {
-      ch->CControl |= DMACCxControl_I;
-      ch->CConfig  |= DMACCxConfig_ITC;
-    }     
     break;
   }
-  
+  // Прерывания по ошибкам (IE) не используется. Если события окончания передачи разрешены,
+  // для обработки прерываний от DMA, разумеется, нужно вызвать  enableIrq() {NVIC_EnableIRQ(DMA_IRQn);} 
+  ch->CConfig &= ~DMACCxConfig_IE;
+  if (cfg->enableInterrupt) 
+  {
+    ch->CControl |= DMACCxControl_I;
+    ch->CConfig  |= DMACCxConfig_ITC;
+  }     
 }
 
 void CDMAcontroller::enableIrq() 
