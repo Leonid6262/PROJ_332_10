@@ -44,10 +44,10 @@ void CREM_OSC::init_dma()
   };
   
   rContDMA.init_M2P2M_Channel(&cfg_ch_rx); 
-  
+
 }
 
-CREM_OSC::CREM_OSC(CDMAcontroller& rContDMA) : rContDMA(rContDMA)
+CREM_OSC::CREM_OSC(CDMAcontroller& rContDMA, SSET_init& set_init) : rContDMA(rContDMA), set_init(set_init)
 {   
   LPC_IOCON->P5_0  = IOCON_SPI;       //MOSI
   LPC_IOCON->P5_1  = IOCON_SPI;       //MISO

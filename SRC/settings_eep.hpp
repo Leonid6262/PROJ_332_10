@@ -24,13 +24,17 @@ private:
     signed short shift_adc[G_CONST::NUMBER_CHANNELS];   // 3 Смещения АЦП 
     float incline_adc[G_CONST::NUMBER_CHANNELS];        // 4 Наклон
     signed short shift_dac0;                            // 5 Смещение DAC0
-    struct Disp_c                                       // 6 Коэффициенты для отображения в системе (СИ)
-    {
-      float C_ROTOR_CURRENT;
-      float C_STATOR_CURRENT;
-      float C_ROTOR_VOLTAGE;
-      float C_STATOR_VOLTAGE;      
-    } disp_c_settings;
+    struct Disp_c                                       // 6 Коэффициенты для отображения: p_NAME в % (дискрет/100%)
+    {                                                   //                                 c_NAME в единицах СИ
+      unsigned short p_ROTOR_CURRENT;
+      float          c_ROTOR_CURRENT;
+      unsigned short p_STATOR_CURRENT;
+      float          c_STATOR_CURRENT;
+      unsigned short p_ROTOR_VOLTAGE;
+      float          c_ROTOR_VOLTAGE;
+      unsigned short p_STATOR_VOLTAGE; 
+      float          c_STATOR_VOLTAGE;
+    } disp_c;
     unsigned char din_Pi0_invert;                       // 7 Признак инвертирования входов порта Pi0
     unsigned char din_Pi1_invert;                       // 8 Признак инвертирования входов порта Pi1
     unsigned char din_spi_invert[G_CONST::BYTES_RW];    // 9 Признак инвертирования SPI входов 
@@ -58,11 +62,16 @@ private:
       0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
     },
     .shift_dac0 = 0,
-    .disp_c_settings = {
-      .C_ROTOR_CURRENT  = 1.0f,
-      .C_STATOR_CURRENT = 1.0f,
-      .C_ROTOR_VOLTAGE  = 1.0f,
-      .C_STATOR_VOLTAGE = 1.0f
+    .disp_c = 
+    {
+      .p_ROTOR_CURRENT  = 2047,
+      .c_ROTOR_CURRENT  = 0.5f,
+      .p_STATOR_CURRENT = 2047,
+      .c_STATOR_CURRENT = 0.5f,
+      .p_ROTOR_VOLTAGE  = 2047,
+      .c_ROTOR_VOLTAGE  = 0.5f,
+      .p_STATOR_VOLTAGE = 2047,
+      .c_STATOR_VOLTAGE = 0.5f  
     },
     .din_Pi0_invert = 0,
     .din_Pi1_invert = 0,

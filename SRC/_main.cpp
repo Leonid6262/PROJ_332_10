@@ -115,10 +115,32 @@ void main(void)
                                   CRTC::SDateTime CurDateTime = {year, month, day, hour, min, sec};                                       
                                   rRt_clockc.setDateTime(CurDateTime); <--данные пишутся в RTC в момент выполнения setDateTime(CurDateTime)
                               */
-                                  
-
-  static CREM_OSC rem_osc(cont_dma);    // Дистанционный осцилограф (ESP32 c WiFi модулем).Карту каналов DMA с.м. в controllerDMA.hpp               // 
-                   
+  
+  // Пример структуры инициализирующих значений CREM_OSC
+  static CREM_OSC::SSET_init set_init
+  {
+    {
+      // Указатели на отображаемые переменные
+      &adc.data[CADC::ROTOR_CURRENT], &adc.data[CADC::STATOR_CURRENT],
+      &adc.data[CADC::ROTOR_VOLTAGE], &adc.data[CADC::STATOR_VOLTAGE],
+      nullptr  // По nullptr определяется реальное количество треков. 
+    },
+    {
+      // Имена треков (для ПО ПК)
+      "IROT","ISTAT","UROT","USTAT"
+    },
+    {
+      // Коэффициенты отображения (дискрет на 100%)
+      CEEPSettings::getInstance().getSettings().disp_c.p_ROTOR_CURRENT,
+      CEEPSettings::getInstance().getSettings().disp_c.p_STATOR_CURRENT,
+      CEEPSettings::getInstance().getSettings().disp_c.p_ROTOR_VOLTAGE,
+      CEEPSettings::getInstance().getSettings().disp_c.p_STATOR_VOLTAGE
+    },
+    // Серийный номер платы контроллера
+    CEEPSettings::getInstance().getSettings().SNboard_number
+  };
+  static CREM_OSC rem_osc(cont_dma, set_init);    // Дистанционный осцилограф (ESP32 c WiFi модулем).Карту каналов DMA с.м. в controllerDMA.hpp               // 
+  
   /*--Объекты классов тестов--*/
 
   CPULS::getInstance().start();         // Singleton класса CPULS (Тест импульсов управления) создаётся здесь (паттерн Майерса)
@@ -136,7 +158,7 @@ void main(void)
   static CTESTS tests(RS485_01, RS485_02, can1, can2, dac0, pwm_dac1, pwm_dac2); 
   
   /* 
-    При большом количестве зависимостей, целесообразно использовать вспомогательную 
+    При большом количестве ссылок, целесообразно использовать вспомогательную 
     встроенную структуру, как альтернативный дизайн внедрения зависимостей.
   */    
   static CTerminal::SDependencies deps
