@@ -12,6 +12,7 @@ private:
   CDMAcontroller& rContDMA;
   
   void init_dma();
+  unsigned char number_actual_tracks;
   
   static constexpr unsigned int Hz_SPI  = 1000000;
   static constexpr unsigned int bits_tr = 16;

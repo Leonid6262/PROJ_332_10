@@ -68,4 +68,9 @@ CREM_OSC::CREM_OSC(CDMAcontroller& rContDMA, SSET_init& set_init) : rContDMA(rCo
   LPC_SSP2->DMACR = TXDMAE | RXDMAE; // Приём и передача по DMA
   
   init_dma();
+  
+  unsigned char count = 0;
+  while (count < NUMBER_TRACKS && set_init.pData[count]) count++;
+  number_actual_tracks = count;
+  
 }

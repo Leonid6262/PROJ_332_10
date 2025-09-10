@@ -122,8 +122,8 @@ void main(void)
     {
       // Указатели на отображаемые переменные
       &adc.data[CADC::ROTOR_CURRENT], &adc.data[CADC::STATOR_CURRENT],
-      &adc.data[CADC::ROTOR_VOLTAGE], &adc.data[CADC::STATOR_VOLTAGE],
-      nullptr  // По nullptr определяется фактическое количество треков. 
+      &adc.data[CADC::ROTOR_VOLTAGE], &adc.data[CADC::STATOR_VOLTAGE]
+      // По pData[NUMBER_TRACKS] определяется фактическое количество треков. 
     },
     {
       // Имена треков (как будут подписаны в ПО ПК)
