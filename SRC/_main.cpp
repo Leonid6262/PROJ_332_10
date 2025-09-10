@@ -123,10 +123,10 @@ void main(void)
       // Указатели на отображаемые переменные
       &adc.data[CADC::ROTOR_CURRENT], &adc.data[CADC::STATOR_CURRENT],
       &adc.data[CADC::ROTOR_VOLTAGE], &adc.data[CADC::STATOR_VOLTAGE],
-      nullptr  // По nullptr определяется реальное количество треков. 
+      nullptr  // По nullptr определяется фактическое количество треков. 
     },
     {
-      // Имена треков (для ПО ПК)
+      // Имена треков (как будут подписаны в ПО ПК)
       "IROT","ISTAT","UROT","USTAT"
     },
     {
@@ -138,13 +138,13 @@ void main(void)
     },
     // Режим работы Access_point или Station
     CREM_OSC::Operating_mode::Access_point,
-    // Серийный номер платы контроллера (указывается для режима Access_point)
+    // Серийный номер платы контроллера (задаётся для режима Access_point)
     CEEPSettings::getInstance().getSettings().SNboard_number,
-    // Имя сети и пароль (указываются для режима Station)
-    CREM_OSC::SSID,
-    CREM_OSC::Password
+    // Имя сети и пароль (задаются для режима Station)
+    CREM_OSC::ssid,
+    CREM_OSC::password 
   };
-  static CREM_OSC rem_osc(cont_dma, set_init);    // Дистанционный осцилограф (ESP32 c WiFi модулем).Карту каналов DMA с.м. в controllerDMA.hpp               // 
+  static CREM_OSC rem_osc(cont_dma, set_init);  // Дистанционный осцилограф (ESP32 c WiFi модулем).Карту каналов DMA с.м. в controllerDMA.hpp               // 
   
   /*--Объекты классов тестов--*/
 
