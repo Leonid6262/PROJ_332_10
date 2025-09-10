@@ -10,9 +10,35 @@ class CREM_OSC
 private: 
   
   CDMAcontroller& rContDMA;
-  
-  void init_dma();
+    
   unsigned char number_actual_tracks;
+  
+  void init_SPI();
+  void init_dma();
+  unsigned char get_actual_number();
+  void transfer_disp_c();
+  void transfer_name();
+  
+  static constexpr unsigned short TRANSACTION_LENGTH = 11;                // Слово управления + 10 треков
+  static constexpr unsigned char  NUMBER_TRACKS = TRANSACTION_LENGTH - 1; // Максимальное количество треков
+  static constexpr unsigned char  NAME_LENGTH = 5 + 1;                    // Максимальная длина имени трека 5 символов
+  static constexpr unsigned char  SSID_PS_L   = 20;                       // Максимальная длина имени и пароля WiFi сети 20 символов
+  
+  //Директивы передачи
+  static constexpr unsigned short send_SSID  = 0x8000; //Передача SS_ID
+  static constexpr unsigned short send_PASS  = 0x8001; //Передача Password
+  static constexpr unsigned short send_SNID  = 0x8002; //Передача SN_ID
+  static constexpr unsigned short send_CIND  = 0x8003; //Передача коэффициентов отображения
+  
+  static constexpr unsigned short NAME_CODES[NUMBER_TRACKS / 2] = {
+    0x8004,  //Передача имён 0,1
+    0x8005,  //Передача имён 2,3
+    0x8006,  //Передача имён 4,5
+    0x8007,  //Передача имён 6,7
+    0x8008   //Передача имён 8,9
+  };
+  
+  static constexpr unsigned short send_TRACKS = 0x8F00; //Передача данных треков
   
   static constexpr unsigned int Hz_SPI  = 1000000;
   static constexpr unsigned int bits_tr = 16;
@@ -23,12 +49,7 @@ private:
   static constexpr unsigned int RXDMAE     = 1UL << 0;
   static constexpr unsigned int TXDMAE     = 1UL << 1;
   static constexpr unsigned int P1_27      = 1UL << 27;
-  
-  static constexpr unsigned short TRANSACTION_LENGTH = 11;                // Слово управления + 10 треков
-  static constexpr unsigned char  NUMBER_TRACKS = TRANSACTION_LENGTH - 1; // Максимальное количество треков
-  static constexpr unsigned char  NAME_LENGTH = 5 + 1;                    // Максимальная длина имени трека 5 символов
-  static constexpr unsigned char  SSID_PS_L   = 20;                       // Максимальная длина имени и пароля WiFi сети 20 символов
-  
+ 
 public:
   
   // Режим работы

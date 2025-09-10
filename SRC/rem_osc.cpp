@@ -1,5 +1,6 @@
 #include "rem_osc.hpp"
 #include "bool_name.hpp"
+#include "pause_us.hpp"
 #include "system_LPC177x.h"
 
 // Старт передачи по DMA
@@ -47,8 +48,80 @@ void CREM_OSC::init_dma()
 
 }
 
+// Получение актуального количества треков
+unsigned char CREM_OSC::get_actual_number()
+{
+  unsigned char count = 0;
+  while ((count < NUMBER_TRACKS) && set_init.pData[count]) 
+  {
+    ++count;
+  }
+  return count;
+}
+
+// Передача в ESP32 коэффициентов отображения  
+void CREM_OSC::transfer_disp_c()
+{
+  memset(tx_dma_buffer, 0, TRANSACTION_LENGTH*2);
+  memset(rx_dma_buffer, 0, TRANSACTION_LENGTH*2);
+  tx_dma_buffer[0]  = send_CIND;    
+  for (unsigned short i = 1; i < NUMBER_TRACKS; ++i)
+  {
+    tx_dma_buffer[i] = *set_init.pData[i];
+  }
+  start_dma_transfer();
+  Pause_us(6000);
+  start_dma_transfer();
+  Pause_us(6000);
+  start_dma_transfer();
+  Pause_us(6000);
+}
+
+// Передача в ESP32 имён треков. Два имени за одну транзакцию
+void CREM_OSC::transfer_name()
+{
+  unsigned char position;
+  unsigned char track = 0;
+  unsigned char HALF_LENGTH = ((TRANSACTION_LENGTH - 1) / 2 ) + 1;  //6 при длине TRANSACTION_LENGHT = 11
+  for(unsigned short nt = 0; nt < (NUMBER_TRACKS / 2); nt++)
+  {    
+    memset(tx_dma_buffer, 0, TRANSACTION_LENGTH*2);
+    memset(rx_dma_buffer, 0, TRANSACTION_LENGTH*2);
+    
+    position = 0;
+    tx_dma_buffer[position++]  = NAME_CODES[nt];   
+    
+    for(unsigned short nch = 0; nch < (NAME_LENGTH - 1) && set_init.Names[track][nch]; nch++)
+    {
+      tx_dma_buffer[position++] = set_init.Names[track][nch];
+    }
+    position = HALF_LENGTH;
+    track++;
+    for(short nch = 0; nch < (NAME_LENGTH - 1) && set_init.Names[track][nch]; nch++)
+    {
+      tx_dma_buffer[position++]  = set_init.Names[track][nch];
+    }    
+    start_dma_transfer();
+    Pause_us(6000);
+    start_dma_transfer();
+    Pause_us(6000);
+    start_dma_transfer();
+    Pause_us(6000);
+  }
+}
+
 CREM_OSC::CREM_OSC(CDMAcontroller& rContDMA, SSET_init& set_init) : rContDMA(rContDMA), set_init(set_init)
 {   
+  init_SPI();
+  init_dma();
+  number_actual_tracks = get_actual_number();
+  transfer_disp_c();
+  transfer_name();
+  
+}
+
+void CREM_OSC::init_SPI()
+{
   LPC_IOCON->P5_0  = IOCON_SPI;       //MOSI
   LPC_IOCON->P5_1  = IOCON_SPI;       //MISO
   LPC_IOCON->P5_2  = IOCON_SPI;       //SCK 
@@ -67,10 +140,5 @@ CREM_OSC::CREM_OSC(CDMAcontroller& rContDMA, SSET_init& set_init) : rContDMA(rCo
   LPC_SSP2->CR1 |= SPI_Config::CR1_SSP_EN ;
   LPC_SSP2->DMACR = TXDMAE | RXDMAE; // Приём и передача по DMA
   
-  init_dma();
-  
-  unsigned char count = 0;
-  while (count < NUMBER_TRACKS && set_init.pData[count]) count++;
-  number_actual_tracks = count;
-  
 }
+
