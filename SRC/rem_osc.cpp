@@ -65,9 +65,9 @@ void CREM_OSC::transfer_disp_c()
   memset(tx_dma_buffer, 0, TRANSACTION_LENGTH*2);
   memset(rx_dma_buffer, 0, TRANSACTION_LENGTH*2);
   tx_dma_buffer[0]  = send_CIND;    
-  for (unsigned short i = 1; i < NUMBER_TRACKS; ++i)
+  for (unsigned short i = 1; i < NUMBER_TRACKS + 1; ++i)
   {
-    tx_dma_buffer[i] = *set_init.pData[i];
+    tx_dma_buffer[i] = set_init.d_100p[i - 1];
   }
   start_dma_transfer();
   Pause_us(6000);
@@ -89,7 +89,7 @@ void CREM_OSC::transfer_name()
     memset(rx_dma_buffer, 0, TRANSACTION_LENGTH*2);
     
     position = 0;
-    tx_dma_buffer[position++]  = NAME_CODES[nt];   
+    tx_dma_buffer[position++] = NAME_CODES[nt];   
     
     for(unsigned short nch = 0; nch < (NAME_LENGTH - 1) && set_init.Names[track][nch]; nch++)
     {
@@ -100,7 +100,8 @@ void CREM_OSC::transfer_name()
     for(short nch = 0; nch < (NAME_LENGTH - 1) && set_init.Names[track][nch]; nch++)
     {
       tx_dma_buffer[position++]  = set_init.Names[track][nch];
-    }    
+    }
+    track++;
     start_dma_transfer();
     Pause_us(6000);
     start_dma_transfer();
