@@ -9,6 +9,7 @@ namespace G_CONST
 {
   constexpr unsigned short NUMBER_CHANNELS = 16;     //Количество какналов АЦП
   constexpr unsigned short BYTES_RW = 3;             //Количество байт чтения/записи по SPI (один в контроллере, два на S600)
+  constexpr unsigned short SSID_PS_L = 20;          // Максимальная длина имени и пароля WiFi сети 20 символов
 }
 
 class CEEPSettings {
@@ -39,7 +40,8 @@ private:
     unsigned char din_Pi1_invert;                       // 8 Признак инвертирования входов порта Pi1
     unsigned char din_spi_invert[G_CONST::BYTES_RW];    // 9 Признак инвертирования SPI входов 
     unsigned char dout_spi_invert[G_CONST::BYTES_RW];   //10 Признак инвертирования SPI выходов
-    
+    unsigned char ssid[G_CONST::SSID_PS_L];             //11 Имя сети
+    unsigned char password[G_CONST::SSID_PS_L];         //12 Пароль
     // Добавляя новые уставки сюда, не забывайте обновлять defaultSettings ниже!!!
   };
   #pragma pack(pop)
@@ -76,7 +78,9 @@ private:
     .din_Pi0_invert = 0,
     .din_Pi1_invert = 0,
     .din_spi_invert =  { 0,0,0 },
-    .dout_spi_invert = { 0,0,0 }
+    .dout_spi_invert = { 0,0,0 },
+    .ssid = "NetName",
+    .password = "Password"
   };
   #pragma pack(pop)
   

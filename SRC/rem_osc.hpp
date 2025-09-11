@@ -20,14 +20,17 @@ private:
   void transfer_disp_c();
   void transfer_name();
   void transfer_mode();
+  void send_data();
   StatusRet transfer_SN_ID();
   StatusRet transfer_SSID();
   StatusRet transfer_Password();
+  StatusRet echo_check();
+  void pack_chars(unsigned char*);
     
   static constexpr unsigned short TRANSACTION_LENGTH = 11;                // Слово управления + 10 треков
   static constexpr unsigned char  NUMBER_TRACKS = TRANSACTION_LENGTH - 1; // Максимальное количество треков
   static constexpr unsigned char  NAME_LENGTH = 5 + 1;                    // Максимальная длина имени трека 5 символов
-  static constexpr unsigned char  SSID_PS_L   = 20;                       // Максимальная длина имени и пароля WiFi сети 20 символов
+  static constexpr unsigned char  n_repeat = 5;                           // Количество повторов при контроле эха
   
   //Директивы передачи
   static constexpr unsigned short send_SSID  = 0x8000; //Передача SS_ID
@@ -58,6 +61,7 @@ private:
 public:
   
   bool StatusESP32;
+  unsigned short ip_ap_sta[4];   //Полученный в режиме Station ip адрес
   
   // Режим работы
   enum class Operating_mode : unsigned char 
@@ -72,8 +76,8 @@ public:
     unsigned short d_100p[NUMBER_TRACKS];
     Operating_mode mode;
     unsigned short SNboard_number;
-    const char* pSSID;
-    const char* pPassword;
+    unsigned char* pSSID;
+    unsigned char* pPassword;
   };
   const SSET_init& set_init;
   
@@ -83,10 +87,6 @@ public:
   static signed short rx_dma_buffer[TRANSACTION_LENGTH];
   
   void start_dma_transfer();
-  
-  // Как задавать ssid и password пока не ясно. При отсутствии панели оператора
-  // и сетевых интерфейсов, возможно с ноутбука. Задавать с ПТ удовольствие так себе.
-  static constexpr const char* ssid     = "SectorSoftware";
-  static constexpr const char* password = "SoftwareSector";
+
 };
 

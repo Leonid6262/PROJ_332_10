@@ -141,8 +141,10 @@ void main(void)
     // Серийный номер платы контроллера (задаётся для режима Access_point)
     CEEPSettings::getInstance().getSettings().SNboard_number,
     // Имя сети и пароль (задаются для режима Station)
-    CREM_OSC::ssid,
-    CREM_OSC::password 
+    // Как задавать ssid и password пока не ясно. При отсутствии панели оператора
+    // и сетевых интерфейсов, возможно с ноутбука. Задавать с ПТ удовольствие так себе.
+    CEEPSettings::getInstance().getSettings().ssid,
+    CEEPSettings::getInstance().getSettings().password 
   };
   static CREM_OSC rem_osc(cont_dma, set_init);  // Дистанционный осцилограф (ESP32 c WiFi модулем).Карту каналов DMA с.м. в controllerDMA.hpp               // 
   

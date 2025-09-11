@@ -1,5 +1,6 @@
 #include "rem_osc.hpp"
 #include "pause_us.hpp"
+#include "settings_eep.hpp"
 #include "system_LPC177x.h"
 #include <stdio.h>
 
@@ -46,6 +47,25 @@ void CREM_OSC::init_dma()
   
   rContDMA.init_M2P2M_Channel(&cfg_ch_rx); 
 
+}
+
+// Передача данных треков
+void CREM_OSC::send_data()
+{
+  if(!StatusESP32) return;
+  
+/*  ip_ap_sta[0] = rx_dma_buffer[1];
+  ip_ap_sta[1] = rx_dma_buffer[2];
+  ip_ap_sta[2] = rx_dma_buffer[3];
+  ip_ap_sta[3] = rx_dma_buffer[4];*/
+  
+  memset(rx_dma_buffer, 0, TRANSACTION_LENGTH*2);  
+  tx_dma_buffer[0] = send_TRACKS; 
+  for(unsigned char n_data = 1; n_data < number_actual_tracks + 1; n_data++)
+  {
+    tx_dma_buffer[n_data] = *set_init.pData[n_data - 1];
+  }
+  start_dma_transfer();
 }
 
 // Получение актуального количества треков
@@ -128,6 +148,8 @@ void CREM_OSC::transfer_mode()
     }    
     break;
   }
+  memset(tx_dma_buffer, 0, TRANSACTION_LENGTH*2);
+  memset(rx_dma_buffer, 0, TRANSACTION_LENGTH*2);
   StatusESP32 = static_cast<bool>(Ret);
 }
 
@@ -143,8 +165,17 @@ StatusRet CREM_OSC::transfer_SN_ID()
   tx_dma_buffer[2] = formVar[1];
   start_dma_transfer();
   Pause_us(6000);
-  
-  return StatusRet::SUCCESS;  
+  for(short n = 1; n < n_repeat; n++) 
+  {
+    memset(rx_dma_buffer, 0, TRANSACTION_LENGTH*2);
+    start_dma_transfer();
+    Pause_us(6000);
+    if(echo_check() == StatusRet::SUCCESS)
+    {
+      return StatusRet::SUCCESS;
+    }
+  }
+  return StatusRet::ERROR;
 }
 
 // Передача в ESP32 SSID
@@ -153,10 +184,20 @@ StatusRet CREM_OSC::transfer_SSID()
   memset(tx_dma_buffer, 0, TRANSACTION_LENGTH*2);
   memset(rx_dma_buffer, 0, TRANSACTION_LENGTH*2);
   tx_dma_buffer[0]  = send_SSID;
-  
-  
-  
-  return StatusRet::SUCCESS;
+  pack_chars(set_init.pSSID);
+  start_dma_transfer();
+  Pause_us(6000);
+  for(short n = 1; n < n_repeat; n++) 
+  {
+    memset(rx_dma_buffer, 0, TRANSACTION_LENGTH*2);
+    start_dma_transfer();
+    Pause_us(6000);
+    if(echo_check() == StatusRet::SUCCESS)
+    {
+      return StatusRet::SUCCESS;
+    }
+  }
+  return StatusRet::ERROR;
 }
 
 // Передача в ESP32 Пароля
@@ -165,10 +206,43 @@ StatusRet CREM_OSC::transfer_Password()
   memset(tx_dma_buffer, 0, TRANSACTION_LENGTH*2);
   memset(rx_dma_buffer, 0, TRANSACTION_LENGTH*2);
   tx_dma_buffer[0]  = send_PASS;
-  
-  
-  
+  pack_chars(set_init.pPassword);
+  start_dma_transfer();
+  Pause_us(6000);
+  for(short n = 1; n < n_repeat; n++) 
+  {
+    memset(rx_dma_buffer, 0, TRANSACTION_LENGTH*2);
+    start_dma_transfer();
+    Pause_us(6000);
+    if(echo_check() == StatusRet::SUCCESS)
+    {
+      return StatusRet::SUCCESS;
+    }
+  }
+  return StatusRet::ERROR;
+}
+
+// Контроль эха
+StatusRet CREM_OSC::echo_check()
+{  
+  for(short n = 0; n < TRANSACTION_LENGTH;  n++)
+  {
+    if(rx_dma_buffer[n] != tx_dma_buffer[n])
+    {
+      return StatusRet::ERROR;
+    }
+  }
   return StatusRet::SUCCESS;
+}
+
+// Упаковка строки
+void CREM_OSC::pack_chars(unsigned char* str)
+{
+  unsigned char position = 1;
+  for(short ch = 0; (ch < G_CONST::SSID_PS_L) && str[ch]; ch += 2)
+  {
+    tx_dma_buffer[position++] = (str[ch] << 8) | str[ch + 1]; 
+  }
 }
 
 // Конструктор
@@ -190,7 +264,7 @@ void CREM_OSC::init_SPI()
   LPC_IOCON->P5_2  = IOCON_SPI;       //SCK 
   LPC_IOCON->P1_27 = IOCON_PORT;      //Резервный вход/выход
   
-  LPC_IOCON->P5_3 = IOCON_PORT;      //Програмный CS  
+  LPC_IOCON->P5_3 = IOCON_PORT;       //Програмный CS  
   LPC_GPIO5->DIR |= PROG_CS;
   LPC_GPIO5->CLR  = PROG_CS;
   
