@@ -870,7 +870,7 @@
                     <item>inst</item>
                     <item>CEEPSettings::getInstance().getSettings();</item>
                     <item>rCpuls</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

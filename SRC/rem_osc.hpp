@@ -18,7 +18,8 @@ private:
   unsigned char get_actual_number();
   void transfer_disp_c();
   void transfer_name();
-  
+  void transfer_mode();
+    
   static constexpr unsigned short TRANSACTION_LENGTH = 11;                // Слово управления + 10 треков
   static constexpr unsigned char  NUMBER_TRACKS = TRANSACTION_LENGTH - 1; // Максимальное количество треков
   static constexpr unsigned char  NAME_LENGTH = 5 + 1;                    // Максимальная длина имени трека 5 символов

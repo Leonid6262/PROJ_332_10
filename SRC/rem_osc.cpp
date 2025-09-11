@@ -111,6 +111,25 @@ void CREM_OSC::transfer_name()
   }
 }
 
+// Передача в ESP32 SN)ID или SSID и Password  
+void CREM_OSC::transfer_mode()
+{
+  memset(tx_dma_buffer, 0, TRANSACTION_LENGTH*2);
+  memset(rx_dma_buffer, 0, TRANSACTION_LENGTH*2);
+  switch(set_init.mode)
+  {
+  case Operating_mode::Access_point:
+    tx_dma_buffer[0]  = send_SNID;
+    break;
+  case Operating_mode::Station:
+    tx_dma_buffer[0]  = send_SSID;
+    
+    tx_dma_buffer[0]  = send_PASS;
+    
+    break;
+  }
+}
+
 CREM_OSC::CREM_OSC(CDMAcontroller& rContDMA, SSET_init& set_init) : rContDMA(rContDMA), set_init(set_init)
 {   
   init_SPI();
