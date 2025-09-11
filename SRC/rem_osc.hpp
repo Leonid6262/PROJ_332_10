@@ -2,6 +2,7 @@
 
 #include "spi_init.hpp"
 #include "controllerDMA.hpp"
+#include "bool_name.hpp"
 #include <vector>
 
 class CREM_OSC
@@ -19,6 +20,9 @@ private:
   void transfer_disp_c();
   void transfer_name();
   void transfer_mode();
+  StatusRet transfer_SN_ID();
+  StatusRet transfer_SSID();
+  StatusRet transfer_Password();
     
   static constexpr unsigned short TRANSACTION_LENGTH = 11;                // Слово управления + 10 треков
   static constexpr unsigned char  NUMBER_TRACKS = TRANSACTION_LENGTH - 1; // Максимальное количество треков
@@ -52,6 +56,8 @@ private:
   static constexpr unsigned int P1_27      = 1UL << 27;
  
 public:
+  
+  bool StatusESP32;
   
   // Режим работы
   enum class Operating_mode : unsigned char 

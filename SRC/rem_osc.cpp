@@ -1,7 +1,7 @@
 #include "rem_osc.hpp"
-#include "bool_name.hpp"
 #include "pause_us.hpp"
 #include "system_LPC177x.h"
+#include <stdio.h>
 
 // Старт передачи по DMA
 void CREM_OSC::start_dma_transfer()
@@ -111,25 +111,67 @@ void CREM_OSC::transfer_name()
   }
 }
 
-// Передача в ESP32 SN)ID или SSID и Password  
+// Определение режима работы и готовности ESP32 
 void CREM_OSC::transfer_mode()
 {
-  memset(tx_dma_buffer, 0, TRANSACTION_LENGTH*2);
-  memset(rx_dma_buffer, 0, TRANSACTION_LENGTH*2);
+  StatusRet Ret;
   switch(set_init.mode)
   {
   case Operating_mode::Access_point:
-    tx_dma_buffer[0]  = send_SNID;
+    Ret = transfer_SN_ID();
     break;
   case Operating_mode::Station:
-    tx_dma_buffer[0]  = send_SSID;
-    
-    tx_dma_buffer[0]  = send_PASS;
-    
+    Ret = transfer_SSID();
+    if(Ret == StatusRet::SUCCESS)
+    {
+      Ret = transfer_Password();
+    }    
     break;
   }
+  StatusESP32 = static_cast<bool>(Ret);
 }
 
+// Передача в ESP32 двух последних цифр SN_ID
+StatusRet CREM_OSC::transfer_SN_ID()
+{
+  memset(tx_dma_buffer, 0, TRANSACTION_LENGTH*2);
+  memset(rx_dma_buffer, 0, TRANSACTION_LENGTH*2);
+  tx_dma_buffer[0]  = send_SNID;
+  char formVar[4];
+  sprintf(formVar, "%02u", set_init.SNboard_number % 100);
+  tx_dma_buffer[1] = formVar[0];
+  tx_dma_buffer[2] = formVar[1];
+  start_dma_transfer();
+  Pause_us(6000);
+  
+  return StatusRet::SUCCESS;  
+}
+
+// Передача в ESP32 SSID
+StatusRet CREM_OSC::transfer_SSID()
+{
+  memset(tx_dma_buffer, 0, TRANSACTION_LENGTH*2);
+  memset(rx_dma_buffer, 0, TRANSACTION_LENGTH*2);
+  tx_dma_buffer[0]  = send_SSID;
+  
+  
+  
+  return StatusRet::SUCCESS;
+}
+
+// Передача в ESP32 Пароля
+StatusRet CREM_OSC::transfer_Password()
+{
+  memset(tx_dma_buffer, 0, TRANSACTION_LENGTH*2);
+  memset(rx_dma_buffer, 0, TRANSACTION_LENGTH*2);
+  tx_dma_buffer[0]  = send_PASS;
+  
+  
+  
+  return StatusRet::SUCCESS;
+}
+
+// Конструктор
 CREM_OSC::CREM_OSC(CDMAcontroller& rContDMA, SSET_init& set_init) : rContDMA(rContDMA), set_init(set_init)
 {   
   init_SPI();
@@ -137,9 +179,10 @@ CREM_OSC::CREM_OSC(CDMAcontroller& rContDMA, SSET_init& set_init) : rContDMA(rCo
   number_actual_tracks = get_actual_number();
   transfer_disp_c();
   transfer_name();
-  
+  transfer_mode();
 }
 
+// Инициализация SPI
 void CREM_OSC::init_SPI()
 {
   LPC_IOCON->P5_0  = IOCON_SPI;       //MOSI
