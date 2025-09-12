@@ -54,38 +54,6 @@ void CCOMPARE::test()
   Us_f_comp = false;  
 }
 
-extern "C" 
-{
-  void TIMER3_IRQHandler( void )
-  {   
-    unsigned short TIMER3_IRQ = LPC_TIM3->IR;
-    LPC_TIM3->IR = 0xFFFFFFFF;
-    
-    if (TIMER3_IRQ & CCOMPARE::IRQ_CAP1)       //Прерывание T3 по CAP1 (Sync)
-    {            
-      CCOMPARE& rCompare = CCOMPARE::getInstance();
-      unsigned int time_diff = LPC_TIM3->TC - rCompare.sync_time;      
-      rCompare.sync_f = CCOMPARE::TIC_SEC / static_cast<float>(time_diff);           
-      rCompare.sync_time = LPC_TIM3->TC;
-      rCompare.sync_f_comp = true;
-    }
-  }
-  
-  void TIMER1_IRQHandler( void )
-  {   
-    unsigned short TIMER1_IRQ = LPC_TIM1->IR;
-    LPC_TIM1->IR = 0xFFFFFFFF;
-    
-    if (TIMER1_IRQ & CCOMPARE::IRQ_CAP1)       //Прерывание T1 по CAP1 (Us)
-    {            
-      CCOMPARE& rCompare = CCOMPARE::getInstance();
-      unsigned int time_diff = LPC_TIM1->TC - rCompare.Us_time;
-      rCompare.Us_f = CCOMPARE::TIC_SEC / static_cast<float>(time_diff);      
-      rCompare.Us_time = LPC_TIM1->TC;
-      rCompare.Us_f_comp = true;  
-    }
-  }
-}
 
 
   

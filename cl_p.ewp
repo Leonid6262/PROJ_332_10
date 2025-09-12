@@ -2186,6 +2186,9 @@
             <name>$PROJ_DIR$\SRC\dout_cpu.cpp</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\SRC\handlers_IRQ.cpp</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\SRC\i_adc.cpp</name>
         </file>
         <file>
