@@ -18,16 +18,10 @@ private:
   
   static constexpr unsigned int _100ms = 1000000;
    
-  //--- Механизмы Singleton ---
-  CCOMPARE();
-  CCOMPARE(const CCOMPARE&) = delete;
-  CCOMPARE& operator=(const CCOMPARE&) = delete;
-  
 public:
   
-  //--Публичный метод для получения единственного экземпляра ---
-  static CCOMPARE& getInstance(); 
-  
+  CCOMPARE();
+
   float SYNC_FREQUENCY;
   float sync_f;
   bool sync_f_comp;

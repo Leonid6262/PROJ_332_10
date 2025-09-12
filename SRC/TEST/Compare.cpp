@@ -19,14 +19,6 @@ void CCOMPARE::start()
   NVIC_EnableIRQ( TIMER1_IRQn );
 }
 
-// --- Singleton Майерса ---
-CCOMPARE& CCOMPARE::getInstance() 
-{
-  // Инициализация в момент первого вызова
-  static CCOMPARE instance; 
-  return instance;
-}
-
 void CCOMPARE::test() 
 {  
   static unsigned int prev_TC0;

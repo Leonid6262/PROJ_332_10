@@ -3,30 +3,35 @@
 #include "Puls.hpp"
 #include "Compare.hpp"
 
-extern "C" {
+extern "C" 
+{
+  void TIMER1_IRQHandler(void);
   void TIMER2_IRQHandler(void);
+  void TIMER3_IRQHandler(void);
 }
 
 /*
-  Ñèíãëòîí-ïðîêñè äëÿ äîñòóïà ê void TIMER2_IRQHandler( void ) èç CPULS
+  Ð¡Ð¸Ð½Ð³Ð»Ñ‚Ð¾Ð½-Ð¿Ñ€Ð¾ÐºÑÐ¸ Ð´Ð»Ñ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð° Ðº TIMER1_IRQHandler(), TIMER2_IRQHandler() Ð¸ TIMER3_IRQHandler()
 */
 
-class CProxy_Handler_TIMER2 {
+class CProxyHandlerTIMER123 
+{
 public:
-    static CProxy_Handler_TIMER2& getInstance() {
-        static CProxy_Handler_TIMER2 instance;
-        return instance;
-    }
-
-    void setTarget(CPULS* pPuls) {
-        this->pPuls = pPuls;
-    }
-
+  
+  static CProxyHandlerTIMER123& getInstance() 
+  {
+    static CProxyHandlerTIMER123 instance;
+    return instance;
+  }
+  
+  CPULS* pPuls;
+  CCOMPARE* pCompare;
+  void set_pointers(CPULS*, CCOMPARE*);
+  
 private:
+  
+    CProxyHandlerTIMER123(); 
+    CProxyHandlerTIMER123(const CProxyHandlerTIMER123&) = delete;
+    CProxyHandlerTIMER123& operator=(const CProxyHandlerTIMER123&) = delete; 
 
-    CProxy_Handler_TIMER2(); 
-    CProxy_Handler_TIMER2(const CProxy_Handler_TIMER2&) = delete;
-    CProxy_Handler_TIMER2& operator=(const CProxy_Handler_TIMER2&) = delete; // Delete assignment operator
-
-    CPULS* pPuls;
 };

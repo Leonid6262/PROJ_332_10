@@ -153,26 +153,26 @@ void CTerminal::terminal()
     {  
     case 0:
       deps.rComPort.transfer_string(const_cast<char*>("STOP            \r"));
-      CPULS::getInstance().forcing_bridge = false;
-      CPULS::getInstance().main_bridge = false;
+      deps.rPuls.forcing_bridge = false;
+      deps.rPuls.main_bridge = false;
       break;
     case 1:
       deps.rComPort.transfer_string(const_cast<char*>("MAIN            \r"));
-      CPULS::getInstance().forcing_bridge = false;
-      CPULS::getInstance().main_bridge = true;
+      deps.rPuls.forcing_bridge = false;
+      deps.rPuls.main_bridge = true;
       break;
     case 2:
       deps.rComPort.transfer_string(const_cast<char*>("FORSING         \r"));
-      CPULS::getInstance().main_bridge = false;
-      CPULS::getInstance().forcing_bridge = true;
+      deps.rPuls.main_bridge = false;
+      deps.rPuls.forcing_bridge = true;
       break;
     }
     break;
     
   case 5:
-    sprintf(formVar, "%.1f  ", CCOMPARE::getInstance().SYNC_FREQUENCY);
+    sprintf(formVar, "%.1f  ", deps.rCompare.SYNC_FREQUENCY);
     deps.rComPort.transfer_string(formVar);
-    sprintf(formVar, "%.1f    \r", CCOMPARE::getInstance().STATOR_FREQUENCY);
+    sprintf(formVar, "%.1f    \r", deps.rCompare.STATOR_FREQUENCY);
     deps.rComPort.transfer_string(formVar);
     break; 
     

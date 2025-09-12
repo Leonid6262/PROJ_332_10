@@ -6,20 +6,14 @@ class CPULS
 { 
 
 private:
-    
-  //--- Механизмы Singleton ---
-  CPULS();
-  CPULS(const CPULS&) = delete;
-  CPULS& operator=(const CPULS&) = delete;
 
   static constexpr unsigned int IOCON_P1_PWM = 0x03;                         //Тип портов - PWM
   static constexpr unsigned int PWM_div_0    = 60;                           //Делитель частоты
   
 public:
   
-  //--Публичный метод для получения единственного экземпляра ---
-  static CPULS& getInstance();
-  
+  CPULS();
+
   static const char pulses[];
   
   bool forcing_bridge;

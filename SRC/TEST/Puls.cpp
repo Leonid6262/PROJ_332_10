@@ -12,15 +12,6 @@ CPULS::CPULS()
   LPC_PWM0->TCR    = COUNTER_RESET;             //Сброс таймера 
 }
 
-
-// --- Singleton Майерса ---
-CPULS& CPULS::getInstance() 
-{
-  // Инициализация в момент первого вызова
-  static CPULS instance; 
-  return instance;
-}
-
 void CPULS::start() 
 {  
   forcing_bridge = false;
@@ -31,7 +22,6 @@ void CPULS::start()
   LPC_TIM2->MCR  = 0x00000000;          //Compare TIM3 с MR0 и MR1, с прерываниями (disabled)
   LPC_TIM2->IR   = 0xFFFFFFFF;          //Очистка флагов прерываний  
   LPC_TIM2->TCR |= TIM2_TCR_START;      //Старт таймера TIM2
-  NVIC_EnableIRQ(TIMER2_IRQn);
   
   LPC_IOCON->P1_2     = IOCON_P1_PWM;   //P1_2->PWM0:1 (SUM-1) 
   LPC_IOCON->P1_3     = IOCON_P1_PWM;   //P1_3->PWM0:2 (SUM-2) 
@@ -44,7 +34,10 @@ void CPULS::start()
   LPC_PWM0->TCR       = COUNTER_STOP;   //Включение PWM. Счётчик - стоп
   
   LPC_TIM2->MR1 = LPC_TIM2->TC + PULSE_WIDTH;    
-  LPC_TIM2->MCR = TIM2_COMPARE_MR1;     //Compare TIM3 с MR1- enabled
+  LPC_TIM2->MCR = TIM2_COMPARE_MR1;     //Compare TIM2 с MR1- enabled
+  
+  NVIC_EnableIRQ(TIMER2_IRQn);
+  
 }
 
 

@@ -150,10 +150,14 @@ void main(void)
   
   /*--Объекты классов тестов--*/
 
-  CPULS::getInstance().start();         // Singleton класса CPULS (Тест импульсов управления) создаётся здесь (паттерн Майерса)
-   
-  CCOMPARE::getInstance().start();      // Singleton класса CCOMPARE (Тест компараторов) создаётся здесь (паттерн Майерса)
-                                        // Измеряет частоту синхронизации и напряжения статора 
+  static CPULS puls;            // Тест импульсов управления             
+
+  static CCOMPARE compare;      // Тест компараторов. Измеряет частоту синхронизации и напряжения статора
+  
+  CProxyHandlerTIMER123::getInstance().set_pointers(&puls, &compare); // Proxy Singleton доступа к Handler TIMER2,3 создаётся здесь (паттерн Майерса)
+                                                                      // Данный патерн позволяет избежать глобальных ссылок на puls и compare
+  puls.start();                 // Старт теста ИУ
+  compare.start();              // Старт теста компараторов
   
   static CTEST_ETH test_eth(emac_drv);  // loop Test Ethernet. По физической петле передаёт/принимает тестовые raw кадры 
 
@@ -179,7 +183,9 @@ void main(void)
     adc,        
     sd_card,
     test_eth,
-    rt_clock
+    rt_clock,
+    puls,
+    compare 
   };
   static CTerminal terminal(deps); // Класс CTerminal НЕ ПО ПТ! Используется, только для индикации и управления тестами
   
@@ -226,7 +232,7 @@ void main(void)
     tests.testDAC2_PWM();
     
     // Тест компараторов (индикация измеренных частот Sync и Us)
-    CCOMPARE::getInstance().test();    
+    compare.test();    
     
     // loop Test Ethernet
     test_eth.test();

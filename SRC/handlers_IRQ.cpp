@@ -2,6 +2,13 @@
 #include "system_LPC177x.h"
 #include "LPC407x_8x_177x_8x.h"
 
+CProxyHandlerTIMER123::CProxyHandlerTIMER123(){};
+
+void CProxyHandlerTIMER123::set_pointers(CPULS* pPuls,CCOMPARE* pCompare)  
+{
+  this->pPuls = pPuls;
+  this->pCompare = pCompare;
+}
 
 extern "C" 
 {
@@ -11,53 +18,53 @@ extern "C"
     unsigned short IRQ = LPC_TIM2->IR;
     LPC_TIM2->IR &= 0xFFFFFFFF;
 
-    if (IRQ & CPULS::IRQ_MR0)                          //Прерывание по Compare с MR0 (P->1)
+    CProxyHandlerTIMER123& rProxy = CProxyHandlerTIMER123::getInstance();
+    
+    if (IRQ & CPULS::IRQ_MR0)                          //РџСЂРµСЂС‹РІР°РЅРёРµ РїРѕ Compare СЃ MR0 (P->1)
     {                          
-      CPULS& rCpuls = CPULS::getInstance();
-      
-      if(rCpuls.forcing_bridge)   
+  
+      if(rProxy.pPuls->forcing_bridge)   
       {
-        LPC_PWM0->PCR     = rCpuls.PCR_PWMENA1;          
+        LPC_PWM0->PCR     = rProxy.pPuls->PCR_PWMENA1;          
       }
-      if(rCpuls.main_bridge)      
+      if(rProxy.pPuls->main_bridge)      
       {
-        LPC_PWM0->PCR     = rCpuls.PCR_PWMENA2;
+        LPC_PWM0->PCR     = rProxy.pPuls->PCR_PWMENA2;
       }
            
-      LPC_PWM0->TCR       = rCpuls.COUNTER_START;      //Старт счётчик b1<-0
-      LPC_PWM0->LER       = rCpuls.LER_012;            //Обновление MR0,MR1 и MR2     
+      LPC_PWM0->TCR       = rProxy.pPuls->COUNTER_START;      //РЎС‚Р°СЂС‚ СЃС‡С‘С‚С‡РёРє b1<-0
+      LPC_PWM0->LER       = rProxy.pPuls->LER_012;            //РћР±РЅРѕРІР»РµРЅРёРµ MR0,MR1 Рё MR2     
      
-      for(int Counter = rCpuls.DELAY_PWM; Counter > 0; Counter--){}
+      for(int Counter = rProxy.pPuls->DELAY_PWM; Counter > 0; Counter--){}
       
-      if(rCpuls.forcing_bridge || rCpuls.main_bridge)
+      if(rProxy.pPuls->forcing_bridge || rProxy.pPuls->main_bridge)
       {
-        LPC_GPIO3->CLR  = rCpuls.pulses[rCpuls.N_Pulse - 1] << rCpuls.FIRS_PULS_PORT;
+        LPC_GPIO3->CLR  = rProxy.pPuls->pulses[rProxy.pPuls->N_Pulse - 1] << rProxy.pPuls->FIRS_PULS_PORT;
       }
       else
       {
-        LPC_GPIO3->SET  = rCpuls.OFF_PULSES; 
-        LPC_PWM0->TCR   = rCpuls.COUNTER_STOP;         //Стоп счётчик b1<-1
+        LPC_GPIO3->SET  = rProxy.pPuls->OFF_PULSES; 
+        LPC_PWM0->TCR   = rProxy.pPuls->COUNTER_STOP;         //РЎС‚РѕРї СЃС‡С‘С‚С‡РёРє b1<-1
         LPC_PWM0->PCR   = 0x00;
       }            
-      LPC_TIM2->MR1 = LPC_TIM2->TC + rCpuls.PULSE_WIDTH; 
-      LPC_TIM2->MCR = rCpuls.TIM2_COMPARE_MR1;
+      LPC_TIM2->MR1 = LPC_TIM2->TC + rProxy.pPuls->PULSE_WIDTH; 
+      LPC_TIM2->MCR = rProxy.pPuls->TIM2_COMPARE_MR1;
     }
     
-    if (IRQ & CPULS::IRQ_MR1)                          //Прерывание по Compare с MR1 (P->0)
+    if (IRQ & CPULS::IRQ_MR1)                          //РџСЂРµСЂС‹РІР°РЅРёРµ РїРѕ Compare СЃ MR1 (P->0)
     {            
-      CPULS& rCpuls = CPULS::getInstance();
       
-      LPC_GPIO3->SET  = rCpuls.OFF_PULSES;              
-      LPC_TIM2->MR0   = LPC_TIM2->TC + rCpuls.PULSE_PERIOD - rCpuls.PULSE_WIDTH;
-      LPC_TIM2->MCR   = rCpuls.TIM2_COMPARE_MR0;            
+      LPC_GPIO3->SET  = rProxy.pPuls->OFF_PULSES;              
+      LPC_TIM2->MR0   = LPC_TIM2->TC + rProxy.pPuls->PULSE_PERIOD - rProxy.pPuls->PULSE_WIDTH;
+      LPC_TIM2->MCR   = rProxy.pPuls->TIM2_COMPARE_MR0;            
       
-      LPC_PWM0->TCR  = rCpuls.COUNTER_STOP;            //Стоп счётчик b1<-1
+      LPC_PWM0->TCR  = rProxy.pPuls->COUNTER_STOP;            //РЎС‚РѕРї СЃС‡С‘С‚С‡РёРє b1<-1
       LPC_PWM0->PCR  = 0x00;
       
-      rCpuls.N_Pulse++;
-      if(rCpuls.N_Pulse > rCpuls.N_PULSES) 
+      rProxy.pPuls->N_Pulse++;
+      if(rProxy.pPuls->N_Pulse > rProxy.pPuls->N_PULSES) 
       {
-        rCpuls.N_Pulse = 1;     
+        rProxy.pPuls->N_Pulse = 1;     
       }
     }   
   }  
@@ -68,15 +75,15 @@ extern "C"
   void TIMER3_IRQHandler( void )
   {   
     unsigned short TIMER3_IRQ = LPC_TIM3->IR;
-    LPC_TIM3->IR = 0xFFFFFFFF;
+    LPC_TIM3->IR = 0xFFFFFFFF;   
+    CProxyHandlerTIMER123& rProxy = CProxyHandlerTIMER123::getInstance();
     
-    if (TIMER3_IRQ & CCOMPARE::IRQ_CAP1)       //Прерывание T3 по CAP1 (Sync)
+    if (TIMER3_IRQ & CCOMPARE::IRQ_CAP1)       //РџСЂРµСЂС‹РІР°РЅРёРµ T3 РїРѕ CAP1 (Sync)
     {            
-      CCOMPARE& rCompare = CCOMPARE::getInstance();
-      unsigned int time_diff = LPC_TIM3->TC - rCompare.sync_time;      
-      rCompare.sync_f = CCOMPARE::TIC_SEC / static_cast<float>(time_diff);           
-      rCompare.sync_time = LPC_TIM3->TC;
-      rCompare.sync_f_comp = true;
+      unsigned int time_diff = LPC_TIM3->TC - rProxy.pCompare->sync_time;      
+      rProxy.pCompare->sync_f = CCOMPARE::TIC_SEC / static_cast<float>(time_diff);           
+      rProxy.pCompare->sync_time = LPC_TIM3->TC;
+      rProxy.pCompare->sync_f_comp = true;
     }
   }
   
@@ -84,14 +91,14 @@ extern "C"
   {   
     unsigned short TIMER1_IRQ = LPC_TIM1->IR;
     LPC_TIM1->IR = 0xFFFFFFFF;
+    CProxyHandlerTIMER123& rProxy = CProxyHandlerTIMER123::getInstance();
     
-    if (TIMER1_IRQ & CCOMPARE::IRQ_CAP1)       //Прерывание T1 по CAP1 (Us)
+    if (TIMER1_IRQ & CCOMPARE::IRQ_CAP1)       //РџСЂРµСЂС‹РІР°РЅРёРµ T1 РїРѕ CAP1 (Us)
     {            
-      CCOMPARE& rCompare = CCOMPARE::getInstance();
-      unsigned int time_diff = LPC_TIM1->TC - rCompare.Us_time;
-      rCompare.Us_f = CCOMPARE::TIC_SEC / static_cast<float>(time_diff);      
-      rCompare.Us_time = LPC_TIM1->TC;
-      rCompare.Us_f_comp = true;  
+      unsigned int time_diff = LPC_TIM1->TC - rProxy.pCompare->Us_time;
+      rProxy.pCompare->Us_f = CCOMPARE::TIC_SEC / static_cast<float>(time_diff);      
+      rProxy.pCompare->Us_time = LPC_TIM1->TC;
+      rProxy.pCompare->Us_f_comp = true;  
     }
   }
 }

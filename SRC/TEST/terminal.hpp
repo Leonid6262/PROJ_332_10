@@ -8,6 +8,7 @@
 #include "settings_eep.hpp"
 #include "Puls.hpp"
 #include "Compare.hpp"
+#include "Compare.hpp"
 #include "i_adc.hpp"
 #include "adc.hpp"
 #include "Tests.hpp"
@@ -32,6 +33,8 @@ public:
     CSDCard&    rSD_card;
     CTEST_ETH&  rTest_eth;
     CRTC&       rRt_clock;
+    CPULS&      rPuls;
+    CCOMPARE&   rCompare;
   };
   
   CTerminal(const SDependencies&); 
