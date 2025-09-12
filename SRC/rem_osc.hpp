@@ -20,7 +20,6 @@ private:
   void transfer_disp_c();
   void transfer_name();
   void transfer_mode();
-  void send_data();
   StatusRet transfer_SN_ID();
   StatusRet transfer_SSID();
   StatusRet transfer_Password();
@@ -87,6 +86,7 @@ public:
   static signed short rx_dma_buffer[TRANSACTION_LENGTH];
   
   void start_dma_transfer();
+  void send_data();
 
 };
 

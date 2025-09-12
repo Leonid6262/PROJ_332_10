@@ -190,10 +190,10 @@ void main(void)
     // Измерение всех используемых (в ВТЕ) аналоговых сигналов (внешнее ADC)
     adc.conv
       (
-       CADC::ROTOR_CURRENT,         
-       CADC::STATOR_CURRENT,             
-       CADC::ROTOR_VOLTAGE,            
-       CADC::STATOR_VOLTAGE,            
+       //CADC::ROTOR_CURRENT,         
+       //CADC::STATOR_CURRENT,             
+       //CADC::ROTOR_VOLTAGE,            
+       //CADC::STATOR_VOLTAGE,            
        CADC::LEAKAGE_CURRENT,       
        CADC::EXTERNAL_SETTINGS,     
        CADC::LOAD_NODE_CURRENT   
@@ -236,7 +236,7 @@ void main(void)
     
     // Terminal (индикация и управление тестами)
     terminal.terminal();        
-
+    
     Pause_us(3000);
   } 
 }
