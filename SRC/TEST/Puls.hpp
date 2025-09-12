@@ -40,8 +40,7 @@ public:
   static constexpr unsigned int COUNTER_START    = 0x09;
   
   static constexpr unsigned int TIM2_TCR_START   = 0x01;
-  static constexpr unsigned int IRQ_MR0          = 0x01;
-  static constexpr unsigned int IRQ_MR1          = 0x02;
+
   static constexpr unsigned int TIM2_COMPARE_MR0 = 0x01;
   static constexpr unsigned int TIM2_COMPARE_MR1 = 0x08;
   

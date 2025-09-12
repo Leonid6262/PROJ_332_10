@@ -43,7 +43,6 @@ void CTerminal::char_to_bits(char* d, char c)
   d[8] = 0;
 }
 
-
 void CTerminal::terminal()
 {  
   receive_char = deps.rComPort.receive_char();

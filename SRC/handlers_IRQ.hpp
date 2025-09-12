@@ -28,10 +28,14 @@ public:
   CCOMPARE* pCompare;
   void set_pointers(CPULS*, CCOMPARE*);
   
+  static constexpr unsigned int IRQ_CAP1 = 0x20;
+  static constexpr unsigned int IRQ_MR0  = 0x01;
+  static constexpr unsigned int IRQ_MR1  = 0x02;
+  
 private:
   
     CProxyHandlerTIMER123(); 
     CProxyHandlerTIMER123(const CProxyHandlerTIMER123&) = delete;
     CProxyHandlerTIMER123& operator=(const CProxyHandlerTIMER123&) = delete; 
-
+    
 };

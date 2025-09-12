@@ -35,7 +35,6 @@ public:
   void test();
   void start();
   
-  static constexpr unsigned int IRQ_CAP1 = 0x20;
   static constexpr float TIC_SEC = 1000000.0;
 
 };
