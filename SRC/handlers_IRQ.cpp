@@ -2,7 +2,7 @@
 #include "system_LPC177x.h"
 #include "LPC407x_8x_177x_8x.h"
 
-CProxyHandlerTIMER123::CProxyHandlerTIMER123(){};
+CProxyHandlerTIMER123::CProxyHandlerTIMER123(){}; // Прокси для доступа к Timers IRQ Handlers
 
 void CProxyHandlerTIMER123::set_pointers(CPULS* pPuls, CCOMPARE* pCompare)  
 {
@@ -12,6 +12,7 @@ void CProxyHandlerTIMER123::set_pointers(CPULS* pPuls, CCOMPARE* pCompare)
 
 extern "C" 
 {
+  // Compare таймера 2 используются для выдачи классической последовательности СИФУ
   void TIMER2_IRQHandler( void )
   { 
     
@@ -49,6 +50,12 @@ extern "C"
       }            
       LPC_TIM2->MR1 = LPC_TIM2->TC + CPULS::PULSE_WIDTH; 
       LPC_TIM2->MCR = CPULS::TIM2_COMPARE_MR1;
+     
+       
+      /*--- Здесь передаются отображаемые данные в ESP32 ---*/
+      rProxy.pPuls->rRem_osc.send_data();
+      /*–-------------------------–-------------------------*/
+      
     }
     
     if (IRQ & CProxyHandlerTIMER123::IRQ_MR1)          //Прерывание по Compare с MR1 (P->0)
@@ -70,6 +77,7 @@ extern "C"
   }  
 }
 
+// По capture таймера 3 измеряется частота синхронизации
 extern "C" 
 {
   void TIMER3_IRQHandler( void )
@@ -87,6 +95,7 @@ extern "C"
     }
   }
   
+  // По capture таймера 1 измеряется частота напряжения статора
   void TIMER1_IRQHandler( void )
   {   
     unsigned short TIMER1_IRQ = LPC_TIM1->IR;

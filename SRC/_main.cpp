@@ -116,7 +116,7 @@ void main(void)
                                   rRt_clockc.setDateTime(CurDateTime); <--данные пишутся в RTC в момент выполнения setDateTime(CurDateTime)
                               */
   
-  // Пример структуры инициализирующих значений CREM_OSC
+  // Пример структуры инициализирующих значений CREM_OSC. Дистанционный осцилограф (ESP32 c WiFi модулем)
   static CREM_OSC::SSET_init set_init
   {
     {
@@ -147,15 +147,17 @@ void main(void)
     CEEPSettings::getInstance().getSettings().password 
   };
   static CREM_OSC rem_osc(cont_dma, set_init);  // Дистанционный осцилограф (ESP32 c WiFi модулем).Карту каналов DMA с.м. в controllerDMA.hpp               // 
-  
+                                                // Передача данных (метод send_data()) осуществляется в точке, где отображаемые переменные обновлены,
+                                                // например в СИФУ. В примере, send_data() вызывается в классе теста ИУ (имитация СИФУ)
+                                                // с.м файл обработчиков прерываний "handlers_IRQ.cpp" и "Puls.cpp"
   /*--Объекты классов тестов--*/
 
-  static CPULS puls;            // Тест импульсов управления             
+  static CPULS puls(rem_osc);   // Тест импульсов управления. Выдаётся классическая последовательность СИФУ, передаются данные в ESP32             
 
   static CCOMPARE compare;      // Тест компараторов. Измеряет частоту синхронизации и напряжения статора
   
-  CProxyHandlerTIMER123::getInstance().set_pointers(&puls, &compare); // Proxy Singleton доступа к Handler TIMER2,3 создаётся здесь (паттерн Майерса)
-                                                                      // Данный патерн позволяет избежать глобальных ссылок на puls и compare
+  CProxyHandlerTIMER123::getInstance().set_pointers(&puls, &compare); // Proxy Singleton доступа к Handler TIMER1,2,3 создаётся здесь (паттерн Майерса)
+                                                                      // Данная технология позволяет избежать глобальных ссылок на puls и compare
   puls.start();                 // Старт теста ИУ
   compare.start();              // Старт теста компараторов
   
@@ -243,7 +245,7 @@ void main(void)
     // Terminal (индикация и управление тестами)
     terminal.terminal();        
     
-    Pause_us(3000);
+    Pause_us(100);
   } 
 }
 

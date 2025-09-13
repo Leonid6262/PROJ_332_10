@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LPC407x_8x_177x_8x.h"
+#include "rem_osc.hpp"
 
 class CPULS
 { 
@@ -12,8 +13,9 @@ private:
   
 public:
   
-  CPULS();
-
+  CREM_OSC& rRem_osc;
+  CPULS(CREM_OSC&);
+ 
   static const char pulses[];
   
   bool forcing_bridge;
