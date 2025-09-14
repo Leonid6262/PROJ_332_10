@@ -7,7 +7,7 @@
       - В RAM добавлен блок (4К) DMA_BUFFERS, под DMA 
         UART, SPI, CD (#pragma location = ".dma_buffers").
       - HEAP (0.5К) хотя и не используется, оставлена на не непредвиденный случай.
-    3.Все внедряемые зависимости, кроме crc16 - Reference.
+    3.Все внедряемые зависимости, кроме зависимостей Singleton - Reference.
     4.Вместо устаревших конструкций include guards используются директивы #pragma once.
     5.В большинстве нумерованных списков enum, применяется рекомндуемый, типобезопасный enum class.
     6.Приведение типов используются, только, операторами static_cast<>, const_cast<> и reinterpret_cast<>.
@@ -120,44 +120,51 @@ void main(void)
   static CREM_OSC::SSET_init set_init
   {
     {
-      // Указатели на отображаемые переменные
-      &adc.data[CADC::ROTOR_CURRENT], &adc.data[CADC::STATOR_CURRENT],
-      &adc.data[CADC::ROTOR_VOLTAGE], &adc.data[CADC::STATOR_VOLTAGE]
-      // По pData[NUMBER_TRACKS] определяется фактическое количество треков. 
+      // Указатели на отображаемые переменные.
+      // В рабочем проекте, скорее всего, отображаемые переменные будут уже объявлены.
+      // Здесь же, они объявляются, и соответственно прописываются в set_init в классе test_ESP32.
+      nullptr,  // pointer test_var_1
+      nullptr,  // pointer test_var_2
+      nullptr,  // pointer test_var_3
+      nullptr,  // pointer test_var_4
     },
     {
       // Имена треков (как будут подписаны в ПО ПК)
-      "IROT","ISTAT","UROT","USTAT"
+      "Name1","Name2","Name3","Namr4" // В рабочем проекте,например: "IROT","ISTAT","UROT","USTAT"
     },
     {
       // Коэффициенты отображения (дискрет на 100%)
-      CEEPSettings::getInstance().getSettings().disp_c.p_ROTOR_CURRENT,
-      CEEPSettings::getInstance().getSettings().disp_c.p_STATOR_CURRENT,
-      CEEPSettings::getInstance().getSettings().disp_c.p_ROTOR_VOLTAGE,
-      CEEPSettings::getInstance().getSettings().disp_c.p_STATOR_VOLTAGE
+      CEEPSettings::getInstance().getSettings().disp_c.p_var1,
+      CEEPSettings::getInstance().getSettings().disp_c.p_var2,
+      CEEPSettings::getInstance().getSettings().disp_c.p_var3,
+      CEEPSettings::getInstance().getSettings().disp_c.p_var4
+      // По d_100p[NUMBER_TRACKS] определяется фактическое количество треков. 
     },
     // Режим работы Access_point или Station
     CREM_OSC::Operating_mode::Access_point,
     // Серийный номер платы контроллера (задаётся для режима Access_point)
     CEEPSettings::getInstance().getSettings().SNboard_number,
     // Имя сети и пароль (задаются для режима Station)
-    // Как задавать ssid и password пока не ясно. При отсутствии панели оператора
-    // и сетевых интерфейсов, возможно с ноутбука. Задавать с ПТ удовольствие так себе.
+    /* Как задавать ssid и password пока не ясно. При отсутствии панели оператора
+       и сетевых интерфейсов, возможно с ноутбука. Задавать с ПТ удовольствие так себе.*/
     CEEPSettings::getInstance().getSettings().ssid,
     CEEPSettings::getInstance().getSettings().password 
   };
   static CREM_OSC rem_osc(cont_dma, set_init);  // Дистанционный осцилограф (ESP32 c WiFi модулем).Карту каналов DMA с.м. в controllerDMA.hpp               // 
                                                 // Передача данных (метод send_data()) осуществляется в точке, где отображаемые переменные обновлены,
-                                                // например в СИФУ. В примере, send_data() вызывается в классе теста ИУ (имитация СИФУ)
+                                                // например в IRQ ИУ. В примере, send_data() вызывается в handler TIMER2 (имитация СИФУ)
                                                 // с.м файл обработчиков прерываний "handlers_IRQ.cpp" и "Puls.cpp"
   /*--Объекты классов тестов--*/
-
-  static CPULS puls(rem_osc);   // Тест импульсов управления. Выдаётся классическая последовательность СИФУ, передаются данные в ESP32             
+  
+  static CTestESP32 test_esp32(rem_osc);        // Тест ESP32. Имитация изменений/вычислений отображаемых переменных
+  
+  static CPULS puls;            // Тест импульсов управления. Выдаётся классическая последовательность СИФУ, передаются данные в ESP32             
 
   static CCOMPARE compare;      // Тест компараторов. Измеряет частоту синхронизации и напряжения статора
   
-  CProxyHandlerTIMER123::getInstance().set_pointers(&puls, &compare); // Proxy Singleton доступа к Handler TIMER1,2,3 создаётся здесь (паттерн Майерса)
-                                                                      // Данная технология позволяет избежать глобальных ссылок на puls и compare
+  CProxyHandlerTIMER123::getInstance().set_pointers(&puls, &compare, &rem_osc); // Proxy Singleton доступа к Handler TIMER1,2,3.
+                                                                                // Данный патерн позволяет избежать глобальных 
+                                                                                // ссылок на puls, compare и rem_osc
   puls.start();                 // Старт теста ИУ
   compare.start();              // Старт теста компараторов
   
@@ -166,7 +173,7 @@ void main(void)
   /* 
     Тесты CAN1, CAN2, RS485-1, RS485-2, DAC0, PWM_DAC1, PWM_DAC2.
     Так как интерфейсы CAN и UART проверяются на функционирование,
-    в UART используются FIFO (к DMA и Interrupts не подвязаны).
+    в UART используются голое FIFO (к DMA и Interrupts не подвязаны).
   */
   static CTESTS tests(RS485_01, RS485_02, can1, can2, dac0, pwm_dac1, pwm_dac2); 
   
@@ -207,7 +214,7 @@ void main(void)
        CADC::LOAD_NODE_CURRENT   
          );
     /* 
-      Для сокращения записи аргументов здесь использован enum вмесо enum class.
+      Для сокращения записи аргументов здесь использована си нотация enum, вмесо типобезопасной enum class c++.
       CADC::ROTOR_CURRENT вместо static_cast<char>(CADC::EADC_NameCh::ROTOR_CURRENT) - считаю, разумный компромисс.
       Пример доступа к измеренным значениям - rADC.data[CADC::ROTOR_CURRENT] 
     */
@@ -241,6 +248,9 @@ void main(void)
     
     // Обновление экземпляра структуы SDateTime данными из RTC
     rt_clock.update_now();
+    
+    // Имитация вычислений/измерений отображаемых переменных для ESP32
+    test_esp32.test();
     
     // Terminal (индикация и управление тестами)
     terminal.terminal();        

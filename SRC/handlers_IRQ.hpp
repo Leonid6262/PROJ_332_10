@@ -26,11 +26,12 @@ public:
   
   CPULS* pPuls;
   CCOMPARE* pCompare;
-  void set_pointers(CPULS*, CCOMPARE*);
+  CREM_OSC* pRem_osc;
+  void set_pointers(CPULS*, CCOMPARE*, CREM_OSC*);
   
-  static constexpr unsigned int IRQ_CAP1 = 0x20;
-  static constexpr unsigned int IRQ_MR0  = 0x01;
-  static constexpr unsigned int IRQ_MR1  = 0x02;
+  const unsigned int IRQ_CAP1 = 0x20;
+  const unsigned int IRQ_MR0  = 0x01;
+  const unsigned int IRQ_MR1  = 0x02;
   
 private:
   

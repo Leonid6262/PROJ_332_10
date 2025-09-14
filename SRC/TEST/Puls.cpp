@@ -3,7 +3,7 @@
 
 const char CPULS::pulses[] = {0x03, 0x06, 0x0C, 0x18, 0x30, 0x21};
 
-CPULS::CPULS(CREM_OSC& rRem_osc) : rRem_osc(rRem_osc)
+CPULS::CPULS()
 {  
   LPC_SC->PCONP   |= CLKPWR_PCONP_PCPWM0;       //PWM0 power/clock control bit.
   LPC_PWM0->PR     = PWM_div_0 - 1;             //при PWM_div=60, F=60МГц/60=1МГц, 1тик=1мкс       

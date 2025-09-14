@@ -4,10 +4,11 @@
 
 CProxyHandlerTIMER123::CProxyHandlerTIMER123(){}; // Прокси для доступа к Timers IRQ Handlers
 
-void CProxyHandlerTIMER123::set_pointers(CPULS* pPuls, CCOMPARE* pCompare)  
+void CProxyHandlerTIMER123::set_pointers(CPULS* pPuls, CCOMPARE* pCompare, CREM_OSC* pRem_osc)  
 {
   this->pPuls = pPuls;
   this->pCompare = pCompare;
+  this->pRem_osc = pRem_osc;
 }
 
 extern "C" 
@@ -21,7 +22,7 @@ extern "C"
 
     CProxyHandlerTIMER123& rProxy = CProxyHandlerTIMER123::getInstance();
     
-    if (IRQ & CProxyHandlerTIMER123::IRQ_MR0)                           //Прерывание по Compare с MR0 (P->1)
+    if (IRQ & rProxy.IRQ_MR0)                           //Прерывание по Compare с MR0 (P->1)
     {                          
   
       if(rProxy.pPuls->forcing_bridge)   
@@ -53,12 +54,12 @@ extern "C"
      
        
       /*--- Здесь передаются отображаемые данные в ESP32 ---*/
-      rProxy.pPuls->rRem_osc.send_data();
+      rProxy.pRem_osc->send_data();
       /*–-------------------------–-------------------------*/
       
     }
     
-    if (IRQ & CProxyHandlerTIMER123::IRQ_MR1)          //Прерывание по Compare с MR1 (P->0)
+    if (IRQ & rProxy.IRQ_MR1)          //Прерывание по Compare с MR1 (P->0)
     {            
       
       LPC_GPIO3->SET  = CPULS::OFF_PULSES;              
@@ -86,7 +87,7 @@ extern "C"
     LPC_TIM3->IR = 0xFFFFFFFF;   
     CProxyHandlerTIMER123& rProxy = CProxyHandlerTIMER123::getInstance();
     
-    if (TIMER3_IRQ & CProxyHandlerTIMER123::IRQ_CAP1)       //Прерывание T3 по CAP1 (Sync)
+    if (TIMER3_IRQ & rProxy.IRQ_CAP1)       //Прерывание T3 по CAP1 (Sync)
     {            
       unsigned int time_diff = LPC_TIM3->TC - rProxy.pCompare->sync_time;      
       rProxy.pCompare->sync_f = CCOMPARE::TIC_SEC / static_cast<float>(time_diff);           
@@ -102,7 +103,7 @@ extern "C"
     LPC_TIM1->IR = 0xFFFFFFFF;
     CProxyHandlerTIMER123& rProxy = CProxyHandlerTIMER123::getInstance();
     
-    if (TIMER1_IRQ & CProxyHandlerTIMER123::IRQ_CAP1)       //Прерывание T1 по CAP1 (Us)
+    if (TIMER1_IRQ & rProxy.IRQ_CAP1)       //Прерывание T1 по CAP1 (Us)
     {            
       unsigned int time_diff = LPC_TIM1->TC - rProxy.pCompare->Us_time;
       rProxy.pCompare->Us_f = CCOMPARE::TIC_SEC / static_cast<float>(time_diff);      

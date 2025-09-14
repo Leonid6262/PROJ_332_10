@@ -78,7 +78,7 @@ public:
     unsigned char* pSSID;
     unsigned char* pPassword;
   };
-  const SSET_init& set_init;
+  SSET_init& set_init;
   
   CREM_OSC(CDMAcontroller&, SSET_init&);
   

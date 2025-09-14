@@ -27,3 +27,4 @@
 #include "rem_osc.hpp"
 #include "rtc.hpp"
 #include "Tests.hpp"
+#include "testESP32.hpp"

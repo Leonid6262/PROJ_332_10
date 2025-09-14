@@ -13,8 +13,7 @@ private:
   
 public:
   
-  CREM_OSC& rRem_osc;
-  CPULS(CREM_OSC&);
+  CPULS();
  
   static const char pulses[];
   

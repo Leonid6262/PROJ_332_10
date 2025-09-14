@@ -27,14 +27,14 @@ private:
     signed short shift_dac0;                            // 5 Смещение DAC0
     struct Disp_c                                       // 6 Коэффициенты для отображения: p_NAME в % (дискрет/100%)
     {                                                   //                                 c_NAME в единицах СИ
-      unsigned short p_ROTOR_CURRENT;
-      float          c_ROTOR_CURRENT;
-      unsigned short p_STATOR_CURRENT;
-      float          c_STATOR_CURRENT;
-      unsigned short p_ROTOR_VOLTAGE;
-      float          c_ROTOR_VOLTAGE;
-      unsigned short p_STATOR_VOLTAGE; 
-      float          c_STATOR_VOLTAGE;
+      unsigned short p_var1;
+      float          c_var1;
+      unsigned short p_var2;
+      float          c_var2;
+      unsigned short p_var3;
+      float          c_var3;
+      unsigned short p_var4; 
+      float          c_var4;
     } disp_c;
     unsigned char din_Pi0_invert;                       // 7 Признак инвертирования входов порта Pi0
     unsigned char din_Pi1_invert;                       // 8 Признак инвертирования входов порта Pi1
@@ -66,14 +66,14 @@ private:
     .shift_dac0 = 0,
     .disp_c = 
     {
-      .p_ROTOR_CURRENT  = 2047,
-      .c_ROTOR_CURRENT  = 0.5f,
-      .p_STATOR_CURRENT = 2047,
-      .c_STATOR_CURRENT = 0.5f,
-      .p_ROTOR_VOLTAGE  = 2047,
-      .c_ROTOR_VOLTAGE  = 0.5f,
-      .p_STATOR_VOLTAGE = 2047,
-      .c_STATOR_VOLTAGE = 0.5f  
+      .p_var1 = 2047,
+      .c_var1 = 0.5f,
+      .p_var2 = 2047,
+      .c_var2 = 0.5f,
+      .p_var3 = 2047,
+      .c_var3 = 0.5f,
+      .p_var4 = 2047,
+      .c_var4 = 0.5f  
     },
     .din_Pi0_invert = 0,
     .din_Pi1_invert = 0,

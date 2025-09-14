@@ -72,7 +72,7 @@ void CREM_OSC::send_data()
 unsigned char CREM_OSC::get_actual_number()
 {
   unsigned char count = 0;
-  while ((count < NUMBER_TRACKS) && set_init.pData[count]) 
+  while ((count < NUMBER_TRACKS) && set_init.d_100p[count]) 
   {
     ++count;
   }
