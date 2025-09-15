@@ -12,7 +12,8 @@ private:
   static constexpr unsigned int CH_ADC_IOCON = 1;
   static constexpr unsigned int PDN = 1UL << 21;
   static constexpr unsigned int SB_CLKDIV = 8;
-  static constexpr unsigned int START = (0x000000FF | (1UL << 24));
+  static constexpr unsigned int CLEAR = ~(0x000000FF | (1UL << 24));
+  static constexpr unsigned int START = 1UL << 24;
   static constexpr unsigned int DONE = 1UL << 31;
   
   static constexpr unsigned int DELAY = 120; // 120*0.1 =12 us

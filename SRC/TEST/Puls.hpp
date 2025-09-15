@@ -7,14 +7,14 @@ class CPULS
 { 
 
 private:
-
+ 
   static constexpr unsigned int IOCON_P1_PWM = 0x03;                         //Тип портов - PWM
   static constexpr unsigned int PWM_div_0    = 60;                           //Делитель частоты
   
 public:
   
   CPULS();
- 
+
   static const char pulses[];
   
   bool forcing_bridge;

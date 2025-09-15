@@ -51,8 +51,7 @@ extern "C"
       }            
       LPC_TIM2->MR1 = LPC_TIM2->TC + CPULS::PULSE_WIDTH; 
       LPC_TIM2->MCR = CPULS::TIM2_COMPARE_MR1;
-     
-       
+      
       /*--- Здесь передаются отображаемые данные в ESP32 ---*/
       rProxy.pRem_osc->send_data();
       /*–-------------------------–-------------------------*/
