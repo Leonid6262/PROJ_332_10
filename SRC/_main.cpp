@@ -205,13 +205,13 @@ void main(void)
     // Измерение всех используемых (в ВТЕ) аналоговых сигналов (внешнее ADC)
     adc.conv
       (
-       //CADC::ROTOR_CURRENT,         
-       //CADC::STATOR_CURRENT,             
-       //CADC::ROTOR_VOLTAGE,            
-       CADC::STATOR_VOLTAGE            
-       //CADC::LEAKAGE_CURRENT,       
-       //CADC::EXTERNAL_SETTINGS,     
-       //CADC::LOAD_NODE_CURRENT   
+       CADC::ROTOR_CURRENT,         
+       CADC::STATOR_CURRENT,             
+       CADC::ROTOR_VOLTAGE,            
+       CADC::STATOR_VOLTAGE,            
+       CADC::LEAKAGE_CURRENT,       
+       CADC::EXTERNAL_SETTINGS,     
+       CADC::LOAD_NODE_CURRENT   
          );
     /* 
       Для сокращения записи аргументов здесь использована си нотация enum, вмесо типобезопасной enum class c++.
@@ -256,7 +256,7 @@ void main(void)
     terminal.terminal();        
     
     Pause_us(100);
-    Pause_us(200);
+
   } 
 }
 

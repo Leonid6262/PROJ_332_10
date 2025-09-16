@@ -74,7 +74,7 @@ CADC::CADC()
   LPC_SSP1->CR0 = SPI_Config::CR0_DSS(bits_tr) | SPI_Config::CR0_CPOL_HI ;
   LPC_SSP1->CR1 = 0 ; 
   SPI_Config::set_spi_clock(LPC_SSP1, Hz_SPI, PeripheralClock );
-  LPC_SSP1->CR1 |=SPI_Config:: CR1_SSP_EN ;
+  LPC_SSP1->CR1 |= SPI_Config:: CR1_SSP_EN ;
   
   unsigned short tmp_dat;
   LPC_SSP1->DR = (1UL << 12) | (1UL << 11); //0x1800 - manual mode and prog b0...b6
