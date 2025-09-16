@@ -27,7 +27,8 @@ StatusRet CIADC::measure_5V()
       return StatusRet::ERROR;
     }
   }
-  P5_A = K_P5 * ((LPC_ADC->DR[CH_P5] >> 4) & 0xFFF);
+  P5_prev = K_P5 * ((LPC_ADC->DR[CH_P5] >> 4) & 0xFFF);
+  P5_A = (P5_A + P5_prev) / 2.0f; 
  
   //Измерение напряжение питания -5V
   LPC_ADC->CNR &= CLEAR;
@@ -42,7 +43,8 @@ StatusRet CIADC::measure_5V()
       return StatusRet::ERROR;
     }
   }  
-  N5_A = (K_N5 * ((LPC_ADC->DR[CH_N5] >> 4) & 0xFFF)) - 3*P5_A;
+  N5_prev = (K_N5 * ((LPC_ADC->DR[CH_N5] >> 4) & 0xFFF)) - (3 * P5_A);
+  N5_A = (N5_A + N5_prev) / 2.0f;
   return StatusRet::SUCCESS;
 }
 

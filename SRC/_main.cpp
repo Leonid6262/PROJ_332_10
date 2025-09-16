@@ -256,6 +256,7 @@ void main(void)
     terminal.terminal();        
     
     Pause_us(100);
+    Pause_us(200);
   } 
 }
 

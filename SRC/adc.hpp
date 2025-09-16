@@ -9,22 +9,20 @@ private:
   
   static constexpr unsigned int D_MODE_PULLUP   = 0x02 <<3 ;
   static constexpr unsigned int IOCON_SPI       = 0x03;
-  static constexpr unsigned int Hz_SPI          = 20000000;
+  static constexpr unsigned int Hz_SPI          = 1000000;
   static constexpr unsigned int bits_tr         = 16;
   
   // Данные для запуска конвертации (формат - см. док.)
   static const unsigned short cN_CH[G_CONST::NUMBER_CHANNELS];
-  
-#pragma inline = forced
-  unsigned short setChannel(unsigned short n_ch)          // Запуск текущей и считывание результата предыдущих конвертаций
+  //#pragma inline = forced
+  inline unsigned short setChannel(unsigned short n_ch)          // Запуск текущей и считывание результата предыдущих конвертаций
   {
     LPC_SSP1->DR = cN_CH[n_ch];
     while (LPC_SSP1->SR & SPI_Config::SR_BSY);
     return LPC_SSP1->DR;
   }
-  
-#pragma inline = forced
-  void getData(unsigned short raw_adc_data)               // Обработка и фиксация полученных данных измерения
+  //#pragma inline = forced
+  inline void getData(unsigned short raw_adc_data)               // Обработка и фиксация полученных данных измерения
   {
     unsigned short tmp_Nch = (raw_adc_data & 0xF000) >> 12;
     if( tmp_Nch < G_CONST::NUMBER_CHANNELS ) 

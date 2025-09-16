@@ -22,13 +22,14 @@ void CADC::conv(short c1, short c2)
   getData(setChannel(c2));      //r-c1
   setChannel(ch_HRf);
   getData(setChannel(ch_HRf));  //r-c2
+  
 }
 
 void CADC::conv(short c1, short c2, short c3)
 {
   setChannel(c1);
   setChannel(ch_HRf);  
-  getData(setChannel(c2));      //r-c1
+  getData(setChannel(c2));      //r-c1 
   setChannel(ch_HRf); 
   getData(setChannel(c3));      //r-c2
   setChannel(ch_HRf);
@@ -49,7 +50,7 @@ void CADC::conv(short c1, short c2, short c3, short c4, short c5, short c6, shor
   setChannel(ch_HRf); 
   getData(setChannel(c4));    //r-c3
   setChannel(ch_HRf); 
-  getData(setChannel(c5));    //r-c4
+  getData(setChannel(c5));    //r-c4 
   setChannel(ch_HRf);
   getData(setChannel(c6));    //r-c5
   setChannel(ch_HRf); 

@@ -11,7 +11,8 @@ const char* CTerminal::header_str[] = {
     "\r\nRS-485 loop test\r\n",
     "\r\nCAN loop test   \r\n",   
     "\r\nETH Tx[0], Rx[0]\r\n",
-    "\r\nCD card RCA     \r\n"
+    "\r\nCD card RCA     \r\n",
+    "\r\nP5, N5         V\r\n"
 };
 
 CTerminal::CTerminal(const SDependencies& deps) : deps(deps)
@@ -240,7 +241,13 @@ void CTerminal::terminal()
     sprintf(formVar, "%05d     \r", deps.rSD_card.RCA);
     deps.rComPort.transfer_string(formVar);
     break;
-    
+   
+  case 11:     
+    sprintf(formVar, "%+.2f ", deps.rI_adc.P5_A);
+    deps.rComPort.transfer_string(formVar);
+    sprintf(formVar, "%+.2f     \r", deps.rI_adc.N5_A);
+    deps.rComPort.transfer_string(formVar);
+    break;  
   }
   
   prev_TC0 = LPC_TIM0->TC;
