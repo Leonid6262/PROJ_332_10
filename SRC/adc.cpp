@@ -12,6 +12,7 @@ void CADC::conv(short c1)
 {  
   setChannel(c1);
   setChannel(ch_HRf);
+  setChannel(ch_HRf);
   getData(setChannel(ch_HRf));  //r-c1
 }
 
