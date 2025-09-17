@@ -26,7 +26,7 @@ __root signed short CREM_OSC::rx_dma_buffer[CREM_OSC::TRANSACTION_LENGTH];
 void UserStartInit()
 {     
   SetDiscreteOutputs();    // Определение дискретных выходов микроконтроллера (pins)
-  UserLedOn();             // Включается для визуального контроля инициализации
+  CDout_cpu::UserLedOn();  // Включается для визуального контроля инициализации
   EMC_Init_Check();        // Инициализации exr RAM и шины расширения. Контроль exr RAM
 }
 
@@ -198,20 +198,20 @@ void main(void)
   };
   static CTerminal terminal(deps); // Класс CTerminal НЕ ПО ПТ! Используется, только для индикации и управления тестами
   
-  UserLedOff();  // Визуальный контроль окончания инициализации (львинную долю времени занимает CD и Ethernet)
+  CDout_cpu::UserLedOff();  // Визуальный контроль окончания инициализации (львинную долю времени занимает CD и Ethernet)
   
   while(true)
   {              
     // Измерение всех используемых (в ВТЕ) аналоговых сигналов (внешнее ADC)
     adc.conv
       (
-       CADC::ROTOR_CURRENT,         
-       CADC::STATOR_CURRENT,             
-       CADC::ROTOR_VOLTAGE,            
-       CADC::STATOR_VOLTAGE,            
-       CADC::LEAKAGE_CURRENT,       
-       CADC::EXTERNAL_SETTINGS,     
-       CADC::LOAD_NODE_CURRENT   
+       CADC::ROTOR_CURRENT         
+       //CADC::STATOR_CURRENT,             
+       //CADC::ROTOR_VOLTAGE,            
+       //CADC::STATOR_VOLTAGE,            
+       //CADC::LEAKAGE_CURRENT,       
+       //CADC::EXTERNAL_SETTINGS,     
+       //CADC::LOAD_NODE_CURRENT   
          );
     /* 
       Для сокращения записи аргументов здесь использована си нотация enum, вмесо типобезопасной enum class c++.

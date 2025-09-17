@@ -132,11 +132,11 @@ void EMC_Init_Check( void )
         Counter_Err_RAM = (Counter_Err_RAM + 1) & 0x1FFFF;
         if(Counter_Err_RAM < 0x10000) 
         {
-          UserLedOn();
+          CDout_cpu::UserLedOn();
         }
         else
         {
-          UserLedOff();
+          CDout_cpu::UserLedOff();
         }
       }
       

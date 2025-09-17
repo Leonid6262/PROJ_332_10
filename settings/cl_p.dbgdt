@@ -860,7 +860,7 @@
                     <item>tmp_dat2</item>
                     <item>tmp_dat3</item>
                     <item>tmp_dat4</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

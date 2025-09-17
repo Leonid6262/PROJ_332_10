@@ -53,7 +53,7 @@ void CADC::conv(short c1, short c2, short c3, short c4, short c5, short c6, shor
   setChannel(ch_HRf); 
   getData(setChannel(c5));    //r-c4 
   setChannel(ch_HRf);
-  getData(setChannel(c6));    //r-c5
+  getData(setChannel(c6));    //r-c5 
   setChannel(ch_HRf); 
   getData(setChannel(c7));    //r-c6  
   setChannel(ch_HRf); 
