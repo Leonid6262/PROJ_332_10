@@ -12,7 +12,7 @@
         <ByteLimit>50</ByteLimit>
     </Stack>
     <DebugChecksum>
-        <Checksum>3252156648</Checksum>
+        <Checksum>2807244877</Checksum>
     </DebugChecksum>
     <CodeCoverage>
         <Enabled>_ 0</Enabled>
@@ -156,11 +156,6 @@
         <FreqHi>0</FreqHi>
         <MultiCoreRunAll>1</MultiCoreRunAll>
     </Simulator>
-    <LogFile>
-        <LoggingEnabled>_ 0</LoggingEnabled>
-        <LogFile>_ "$PROJ_DIR$\LogFile1.log"</LogFile>
-        <Category2>_ 2</Category2>
-    </LogFile>
     <struct_types>
         <Fmt0>LPC_CAN_TypeDef-BTR	3	0</Fmt0>
         <Fmt1>LPC_CAN_TypeDef-GSR	1	0</Fmt1>
@@ -326,29 +321,23 @@
         <Fmt121>{W}42:tim0_data	3	0</Fmt121>
         <Fmt122>{W}42:tm	4	0</Fmt122>
         <Fmt123>{W}42:tmp	1	0</Fmt123>
-        <Fmt124>{W}42:tmp2	3	0</Fmt124>
-        <Fmt125>{W}42:year	3	0</Fmt125>
+        <Fmt124>{W}42:tmp1	1	0</Fmt124>
+        <Fmt125>{W}42:tmp2	3	0</Fmt125>
+        <Fmt126>{W}42:tmp3	3	0</Fmt126>
+        <Fmt127>{W}42:tmp4	3	0</Fmt127>
+        <Fmt128>{W}42:tmp5	3	0</Fmt128>
+        <Fmt129>{W}42:tmp6	3	0</Fmt129>
+        <Fmt130>{W}42:tmp7	3	0</Fmt130>
+        <Fmt131>{W}42:year	3	0</Fmt131>
     </watch_formats>
     <Trace2>
         <Enabled>0</Enabled>
         <ShowSource>0</ShowSource>
     </Trace2>
-    <DisassembleMode>
-        <mode>0</mode>
-    </DisassembleMode>
-    <Breakpoints2>
-        <Count>0</Count>
-    </Breakpoints2>
     <TermIOLog>
         <LoggingEnabled>_ 0</LoggingEnabled>
         <LogFile>_ ""</LogFile>
     </TermIOLog>
-    <Aliases>
-        <A0>_ "G:\S\Programs\IAR_N\SPI_WIFI_2\SRC\INIT\emc.c" ""</A0>
-        <A1>_ "G:\S\Programs\IAR_N\SPI_WIFI_2\SRC\main.cpp" ""</A1>
-        <Count>2</Count>
-        <SuppressDialog>0</SuppressDialog>
-    </Aliases>
     <DriverProfiling>
         <Enabled>0</Enabled>
         <Mode>1</Mode>
@@ -361,4 +350,21 @@
     <CallStackStripe>
         <ShowTiming>1</ShowTiming>
     </CallStackStripe>
+    <LogFile>
+        <LoggingEnabled>_ 0</LoggingEnabled>
+        <LogFile>_ "$PROJ_DIR$\LogFile1.log"</LogFile>
+        <Category2>_ 2</Category2>
+    </LogFile>
+    <DisassembleMode>
+        <mode>0</mode>
+    </DisassembleMode>
+    <Breakpoints2>
+        <Count>0</Count>
+    </Breakpoints2>
+    <Aliases>
+        <A0>_ "G:\S\Programs\IAR_N\SPI_WIFI_2\SRC\INIT\emc.c" ""</A0>
+        <A1>_ "G:\S\Programs\IAR_N\SPI_WIFI_2\SRC\main.cpp" ""</A1>
+        <Count>2</Count>
+        <SuppressDialog>0</SuppressDialog>
+    </Aliases>
 </settings>

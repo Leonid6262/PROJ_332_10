@@ -206,12 +206,12 @@ void main(void)
     adc.conv
       (
        CADC::ROTOR_CURRENT,         
-       CADC::STATOR_CURRENT,             
-       CADC::ROTOR_VOLTAGE,            
-       CADC::STATOR_VOLTAGE,            
-       CADC::LEAKAGE_CURRENT,       
-       CADC::EXTERNAL_SETTINGS,     
-       CADC::LOAD_NODE_CURRENT   
+       //CADC::STATOR_CURRENT,             
+       //CADC::ROTOR_VOLTAGE,            
+       CADC::STATOR_VOLTAGE            
+       //CADC::LEAKAGE_CURRENT,       
+       //CADC::EXTERNAL_SETTINGS,     
+       //CADC::LOAD_NODE_CURRENT   
          );
     /* 
       Для сокращения записи аргументов здесь использована си нотация enum, вмесо типобезопасной enum class c++.
