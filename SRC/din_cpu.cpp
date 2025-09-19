@@ -1,14 +1,6 @@
 #include "din_cpu.hpp"
 #include "settings_eep.hpp"
 
-// Постоянные времени интегрирования фильтра (ms первый множитель) din портов. 
-// TIC_ms = 10000 дискрет таймера на 1ms.  
-// То есть, 50*TIC_ms = 50ms, 0*TIC_ms - нет фильтрации, и т.п. 
-const unsigned int CDin_cpu::cConst_integr_Pi0[N_BITS] = 
-{
-  50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms
-};
-
 CDin_cpu::CDin_cpu()
 {
   //Инициализация фильтра

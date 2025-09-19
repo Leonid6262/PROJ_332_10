@@ -15,9 +15,16 @@ private:
   static constexpr unsigned int B3_PORT1_IN = 10;      // 3-й бит порта. Начало 2-й группы Pi1 в PORT0 контроллера
   static constexpr unsigned int MASK_G2   = 0xF8;      // Маска бит 2-й группы
   
-  static const unsigned int cConst_integr_Pi0[N_BITS];  //Постоянные времени интегрирования фильтра  
-  signed int integrator[N_BITS];                        //Интеграторы
-  unsigned int prev_TC0;                                //Значение таймера на предыдыущем цикле
+  signed int integrator[N_BITS];                       //Интеграторы
+  unsigned int prev_TC0;                               //Значение таймера на предыдыущем цикле
+  
+  // Постоянные времени интегрирования фильтра (ms первый множитель) din портов. 
+  // TIC_ms = 10000 дискрет таймера на 1ms.  
+  // То есть, 50*TIC_ms = 50ms, 0*TIC_ms - нет фильтрации, и т.п. 
+  static constexpr unsigned int cConst_integr_Pi0[N_BITS] = 
+  {
+    50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms
+  };
   
 public:  
   
