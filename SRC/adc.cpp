@@ -16,7 +16,7 @@ void CADC::conv(short c1)
 }
 
 
-signed short tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
+signed short data0, data1, data2, data3;
 void CADC::conv(short c1, short c2)
 {
   //setChannel(c1);
@@ -24,34 +24,11 @@ void CADC::conv(short c1, short c2)
   //getData(setChannel(c2));      //r-c1
   //setChannel(ch_HRf);
   //getData(setChannel(ch_HRf));  //r-c2
-  setChannel(0);
-  setChannel(ch_HRf);  
-  tmp1 = setChannel(ch_HRf);
+  data2 = setChannel(0);
+  data3 = setChannel(1);  
+  data0 = setChannel(2); 
+  data1 = setChannel(3);
   
-  setChannel(1);
-  setChannel(ch_HRf);  
-  tmp2 = setChannel(ch_HRf);
-  
-  setChannel(2);
-  setChannel(ch_HRf);  
-  tmp3 = setChannel(ch_HRf);
-  
-  setChannel(3);
-  setChannel(ch_HRf);  
-  tmp4 = setChannel(ch_HRf);
-  
-  setChannel(4);
-  setChannel(ch_HRf);  
-  tmp5 = setChannel(ch_HRf);
-  
-  setChannel(5);
-  setChannel(ch_HRf);  
-  tmp6 = setChannel(ch_HRf);
-  
-  setChannel(6);
-  setChannel(ch_HRf);  
-  tmp7 = setChannel(ch_HRf);
-
 }
 
 void CADC::conv(short c1, short c2, short c3)
