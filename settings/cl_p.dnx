@@ -12,7 +12,7 @@
         <ByteLimit>50</ByteLimit>
     </Stack>
     <DebugChecksum>
-        <Checksum>2807244877</Checksum>
+        <Checksum>3683417473</Checksum>
     </DebugChecksum>
     <CodeCoverage>
         <Enabled>_ 0</Enabled>
@@ -32,10 +32,10 @@
         <TraceBufferSize>0x00010000</TraceBufferSize>
         <TraceStallIfFIFOFull>0x00000000</TraceStallIfFIFOFull>
         <TracePortSize>0x00000004</TracePortSize>
-        <jlinkResetStyle>12</jlinkResetStyle>
-        <jlinkResetStrategy>0</jlinkResetStrategy>
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
         <CStepIntDis>_ 0</CStepIntDis>
+        <jlinkResetStyle>12</jlinkResetStyle>
+        <jlinkResetStrategy>0</jlinkResetStrategy>
     </JLinkDriver>
     <SWOTraceHWSettings>
         <OverrideDefaultClocks>0</OverrideDefaultClocks>
@@ -156,6 +156,11 @@
         <FreqHi>0</FreqHi>
         <MultiCoreRunAll>1</MultiCoreRunAll>
     </Simulator>
+    <LogFile>
+        <LoggingEnabled>_ 0</LoggingEnabled>
+        <LogFile>_ "$PROJ_DIR$\LogFile1.log"</LogFile>
+        <Category2>_ 2</Category2>
+    </LogFile>
     <struct_types>
         <Fmt0>LPC_CAN_TypeDef-BTR	3	0</Fmt0>
         <Fmt1>LPC_CAN_TypeDef-GSR	1	0</Fmt1>
@@ -175,7 +180,7 @@
         <Fmt2>int[8]	3	0</Fmt2>
         <Fmt3>short (const)[3]	3	0</Fmt3>
         <Fmt4>short[11]	3	0</Fmt4>
-        <Fmt5>short[16]	3	0</Fmt5>
+        <Fmt5>short[16]	1	0</Fmt5>
         <Fmt6>short[3]	4	0</Fmt6>
         <Fmt7>short[4]	3	0</Fmt7>
         <Fmt8>signed char[128]	4	0</Fmt8>
@@ -248,11 +253,11 @@
         <Fmt48>{W}42:dac_s	3	0</Fmt48>
         <Fmt49>{W}42:dat	3	0</Fmt49>
         <Fmt50>{W}42:data	4	0</Fmt50>
-        <Fmt51>{W}42:data0	3	0</Fmt51>
-        <Fmt52>{W}42:data1	3	0</Fmt52>
+        <Fmt51>{W}42:data0	1	0</Fmt51>
+        <Fmt52>{W}42:data1	1	0</Fmt52>
         <Fmt53>{W}42:data12	4	0</Fmt53>
-        <Fmt54>{W}42:data2	3	0</Fmt54>
-        <Fmt55>{W}42:data3	3	0</Fmt55>
+        <Fmt54>{W}42:data2	1	0</Fmt54>
+        <Fmt55>{W}42:data3	1	0</Fmt55>
         <Fmt56>{W}42:dataA	4	0</Fmt56>
         <Fmt57>{W}42:dataB	4	0</Fmt57>
         <Fmt58>{W}42:dataTDA	4	0</Fmt58>
@@ -334,10 +339,22 @@
         <Enabled>0</Enabled>
         <ShowSource>0</ShowSource>
     </Trace2>
+    <DisassembleMode>
+        <mode>0</mode>
+    </DisassembleMode>
+    <Breakpoints2>
+        <Count>0</Count>
+    </Breakpoints2>
     <TermIOLog>
         <LoggingEnabled>_ 0</LoggingEnabled>
         <LogFile>_ ""</LogFile>
     </TermIOLog>
+    <Aliases>
+        <A0>_ "G:\S\Programs\IAR_N\SPI_WIFI_2\SRC\INIT\emc.c" ""</A0>
+        <A1>_ "G:\S\Programs\IAR_N\SPI_WIFI_2\SRC\main.cpp" ""</A1>
+        <Count>2</Count>
+        <SuppressDialog>0</SuppressDialog>
+    </Aliases>
     <DriverProfiling>
         <Enabled>0</Enabled>
         <Mode>1</Mode>
@@ -350,21 +367,4 @@
     <CallStackStripe>
         <ShowTiming>1</ShowTiming>
     </CallStackStripe>
-    <LogFile>
-        <LoggingEnabled>_ 0</LoggingEnabled>
-        <LogFile>_ "$PROJ_DIR$\LogFile1.log"</LogFile>
-        <Category2>_ 2</Category2>
-    </LogFile>
-    <DisassembleMode>
-        <mode>0</mode>
-    </DisassembleMode>
-    <Breakpoints2>
-        <Count>0</Count>
-    </Breakpoints2>
-    <Aliases>
-        <A0>_ "G:\S\Programs\IAR_N\SPI_WIFI_2\SRC\INIT\emc.c" ""</A0>
-        <A1>_ "G:\S\Programs\IAR_N\SPI_WIFI_2\SRC\main.cpp" ""</A1>
-        <Count>2</Count>
-        <SuppressDialog>0</SuppressDialog>
-    </Aliases>
 </settings>

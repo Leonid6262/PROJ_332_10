@@ -22,7 +22,6 @@ __root signed short CREM_OSC::tx_dma_buffer[CREM_OSC::TRANSACTION_LENGTH];
 #pragma location = ".dma_buffers"
 __root signed short CREM_OSC::rx_dma_buffer[CREM_OSC::TRANSACTION_LENGTH];
 
-
 void UserStartInit()
 {     
   SetDiscreteOutputs();    // Определение дискретных выходов микроконтроллера (pins)
@@ -165,8 +164,8 @@ void main(void)
   CProxyHandlerTIMER123::getInstance().set_pointers(&puls, &compare, &rem_osc); // Proxy Singleton доступа к Handler TIMER1,2,3.
                                                                                 // Данный патерн позволяет избежать глобальных 
                                                                                 // ссылок на puls, compare и rem_osc
-  puls.start();                 // Старт теста ИУ
-  compare.start();              // Старт теста компараторов
+  //puls.start();                 // Старт теста ИУ
+  //compare.start();              // Старт теста компараторов
   
   static CTEST_ETH test_eth(emac_drv);  // loop Test Ethernet. По физической петле передаёт/принимает тестовые raw кадры 
 
@@ -201,20 +200,18 @@ void main(void)
   CDout_cpu::UserLedOff();  // Визуальный контроль окончания инициализации (львинную долю времени занимает CD и Ethernet)
   
   while(true)
-  {              
+  {       
+     
     // Измерение всех используемых (в ВТЕ) аналоговых сигналов (внешнее ADC)
     adc.conv
       (
        CADC::ROTOR_CURRENT,         
-       //CADC::STATOR_CURRENT,             
-       //CADC::ROTOR_VOLTAGE,            
-       CADC::STATOR_VOLTAGE            
-       //CADC::STATOR_CURRENT,             
-       //CADC::ROTOR_VOLTAGE,            
-       //CADC::STATOR_VOLTAGE,            
-       //CADC::LEAKAGE_CURRENT,       
-       //CADC::EXTERNAL_SETTINGS,     
-       //CADC::LOAD_NODE_CURRENT   
+       CADC::STATOR_CURRENT,             
+       CADC::ROTOR_VOLTAGE,            
+       CADC::STATOR_VOLTAGE,                                                         
+       CADC::LEAKAGE_CURRENT,       
+       CADC::EXTERNAL_SETTINGS,     
+       CADC::LOAD_NODE_CURRENT   
          );
     /* 
       Для сокращения записи аргументов здесь использована си нотация enum, вмесо типобезопасной enum class c++.
