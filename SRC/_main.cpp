@@ -164,8 +164,8 @@ void main(void)
   CProxyHandlerTIMER123::getInstance().set_pointers(&puls, &compare, &rem_osc); // Proxy Singleton доступа к Handler TIMER1,2,3.
                                                                                 // Данный патерн позволяет избежать глобальных 
                                                                                 // ссылок на puls, compare и rem_osc
-  //puls.start();                 // Старт теста ИУ
-  //compare.start();              // Старт теста компараторов
+  puls.start();                 // Старт теста ИУ
+  compare.start();              // Старт теста компараторов
   
   static CTEST_ETH test_eth(emac_drv);  // loop Test Ethernet. По физической петле передаёт/принимает тестовые raw кадры 
 
