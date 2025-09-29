@@ -72,7 +72,7 @@ CADC::CADC()
 
   LPC_SC->PCONP |= CLKPWR_PCONP_PCSSP1; 
   LPC_SSP1->CR0 = 0;
-  LPC_SSP1->CR0 = bits_tr - 1; // 15 -> 16 bits 
+  LPC_SSP1->CR0 = bits_tr - 1; // (16 - 1) -> 16 bits 
   LPC_SSP1->CR1 = 0 ; 
   SPI_Config::set_spi_clock(LPC_SSP1, Hz_SPI, PeripheralClock );
   LPC_SSP1->CR1 |= SPI_Config:: CR1_SSP_EN ;

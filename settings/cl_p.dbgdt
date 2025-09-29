@@ -144,7 +144,7 @@
                     <item>tests</item>
                     <item>adc</item>
                     <item>rt_clock</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>
