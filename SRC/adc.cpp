@@ -2,15 +2,6 @@
 #include "system_LPC177x.h"
 #include <math.h>
 
-/* cN_CH - данные для запуска конвертации (формат - см. док.) 
-  000m.0ccc.c000.0000 m - Manual mode, cccc - N channel (0...15)
-*/
-const unsigned short CADC::cN_CH[G_CONST::NUMBER_CHANNELS] = 
-{
-  0x1000, 0x1080, 0x1100, 0x1180, 0x1200, 0x1280, 0x1300, 0x1380, 
-  0x1400, 0x1480, 0x1500, 0x1580, 0x1600, 0x1680, 0x1700, 0x1780
-};
-
 void CADC::conv(short c1)
 {  
   setChannel(c1);

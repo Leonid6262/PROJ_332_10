@@ -7,13 +7,20 @@ class CADC{
   
 private:
   
+  /* 
+  cN_CH - данные для запуска конвертации (формат - см. док.) 
+  000m.0ccc.c000.0000 m - Manual mode, cccc - N channel (0...15)
+  */
+  static constexpr unsigned short cN_CH[G_CONST::NUMBER_CHANNELS] = 
+  {
+    0x1000, 0x1080, 0x1100, 0x1180, 0x1200, 0x1280, 0x1300, 0x1380, 
+    0x1400, 0x1480, 0x1500, 0x1580, 0x1600, 0x1680, 0x1700, 0x1780
+  };
+    
   static constexpr unsigned int D_MODE_PULLUP   = 0x02 <<3 ;
   static constexpr unsigned int IOCON_SPI       = 0x03;
   static constexpr unsigned int Hz_SPI          = 4000000;//20000000
   static constexpr unsigned int bits_tr         = 16;
-  
-  // Данные для запуска конвертации (формат - см. док.)
-  static const unsigned short cN_CH[G_CONST::NUMBER_CHANNELS];
 
   inline unsigned short setChannel(unsigned short n_ch)          // Запуск текущей и считывание результата предыдущих конвертаций
   {
