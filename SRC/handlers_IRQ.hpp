@@ -18,6 +18,11 @@ class CProxyHandlerTIMER123
 {
 public:
   
+  static constexpr unsigned int IOCON_P_PWM  = 0x03;                            //Тип портов - PWM
+  static constexpr unsigned int IOCON_P_PORT = 0x00;                            //Тип портов - Port
+  static constexpr unsigned int P1_2 = 0x02;                                    //Port1:2
+  static constexpr unsigned int P1_3 = 0x03;                                    //Port1:3
+  
   static CProxyHandlerTIMER123& getInstance() 
   {
     static CProxyHandlerTIMER123 instance;
@@ -34,6 +39,8 @@ public:
   const unsigned int IRQ_MR1  = 0x02;
   
 private:
+  
+    
   
     CProxyHandlerTIMER123(); 
     CProxyHandlerTIMER123(const CProxyHandlerTIMER123&) = delete;

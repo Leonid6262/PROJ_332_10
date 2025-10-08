@@ -24,12 +24,11 @@ public:
   
   void start();
 
-  static constexpr unsigned int PWM_WIDTH        = 10;                           //us
-  static constexpr unsigned int PULSE_WIDTH      = 500 - (PWM_WIDTH / 2);        //us
-  static constexpr unsigned int PULSE_PERIOD     = 3333;                         //us
+  static constexpr unsigned int PWM_WIDTH        = 10;                          //us
+  static constexpr unsigned int PULSE_WIDTH      = 560;                         //us
+  static constexpr unsigned int PULSE_PERIOD     = 3333;                        //us
   static constexpr unsigned int N_PULSES         = 6;
   static constexpr unsigned int OFF_PULSES       = 0x003F0000;                   //Импульсы в порту
-  static constexpr unsigned int DELAY_PWM        = 460;
   static constexpr unsigned int FIRS_PULS_PORT   = 16;                           //1-й импульс в порту 
   
   static constexpr unsigned int PCR_PWMENA1      = 0x200;

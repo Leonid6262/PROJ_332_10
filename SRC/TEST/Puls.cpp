@@ -23,8 +23,6 @@ void CPULS::start()
   LPC_TIM2->IR   = 0xFFFFFFFF;          //Очистка флагов прерываний  
   LPC_TIM2->TCR |= TIM2_TCR_START;      //Старт таймера TIM2
   
-  LPC_IOCON->P1_2     = IOCON_P1_PWM;   //P1_2->PWM0:1 (SUM-1) 
-  LPC_IOCON->P1_3     = IOCON_P1_PWM;   //P1_3->PWM0:2 (SUM-2) 
   LPC_PWM0->PCR       = 0x00;           //Отключение PWM0 
   LPC_PWM0->MR0       = PWM_WIDTH * 2;  //Период ШИМ. MR0 - включение
   LPC_PWM0->MR1       = PWM_WIDTH;      //Выключение PWM0:1 по MR1
