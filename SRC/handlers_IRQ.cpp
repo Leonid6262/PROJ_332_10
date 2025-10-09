@@ -28,19 +28,20 @@ extern "C"
       if(rProxy.pPuls->main_bridge)   
       {
         LPC_GPIO3->CLR  = rProxy.pPuls->pulses[rProxy.pPuls->N_Pulse - 1] << CPULS::FIRS_PULS_PORT;
-        LPC_IOCON->P1_2   = CProxyHandlerTIMER123::IOCON_P_PWM;   //P1_2->PWM0:1 (SUM-1)                 
-        LPC_PWM0->PCR     = CPULS::PCR_PWMENA1; 
+        LPC_IOCON->P1_2 = CProxyHandlerTIMER123::IOCON_P_PWM;   //P1_2->PWM0:1 (SUM-1)                 
+        LPC_PWM0->PCR   = CPULS::PCR_PWMENA1; 
+        LPC_PWM0->TCR   = CPULS::COUNTER_START;      //Старт счётчик b1<-0
+        LPC_PWM0->LER   = CPULS::LER_012;            //Обновление MR0,MR1 и MR2 
       }
       //Старт ИУ рабочего моста
       if(rProxy.pPuls->forcing_bridge)      
       {
         LPC_GPIO3->CLR  = rProxy.pPuls->pulses[rProxy.pPuls->N_Pulse - 1] << CPULS::FIRS_PULS_PORT;
-        LPC_IOCON->P1_3   = CProxyHandlerTIMER123::IOCON_P_PWM;   //P1_3->PWM0:2 (SUM-2)        
-        LPC_PWM0->PCR     = CPULS::PCR_PWMENA2;        
+        LPC_IOCON->P1_3 = CProxyHandlerTIMER123::IOCON_P_PWM;   //P1_3->PWM0:2 (SUM-2)        
+        LPC_PWM0->PCR   = CPULS::PCR_PWMENA2; 
+        LPC_PWM0->TCR   = CPULS::COUNTER_START;      //Старт счётчик b1<-0
+        LPC_PWM0->LER   = CPULS::LER_012;            //Обновление MR0,MR1 и MR2 
       }
-      
-      LPC_PWM0->TCR       = CPULS::COUNTER_START;      //Старт счётчик b1<-0
-      LPC_PWM0->LER       = CPULS::LER_012;            //Обновление MR0,MR1 и MR2     
       
       LPC_TIM2->MR1 = LPC_TIM2->TC + CPULS::PULSE_WIDTH; 
       LPC_TIM2->MCR = CPULS::TIM2_COMPARE_MR1;
@@ -52,11 +53,10 @@ extern "C"
     }
     
     if (IRQ & rProxy.IRQ_MR1)          //Прерывание по Compare с MR1 (P->0)
-    {            
-      
+    {                 
       LPC_IOCON->P1_2 = CProxyHandlerTIMER123::IOCON_P_PORT; //P1_2 - Port
-      LPC_IOCON->P1_3 = CProxyHandlerTIMER123::IOCON_P_PORT; //P1_3 - Port
       LPC_GPIO1->CLR  = 1UL << CProxyHandlerTIMER123::P1_2;
+      LPC_IOCON->P1_3 = CProxyHandlerTIMER123::IOCON_P_PORT; //P1_3 - Port
       LPC_GPIO1->CLR  = 1UL << CProxyHandlerTIMER123::P1_3;      
       
       LPC_GPIO3->SET   = CPULS::OFF_PULSES;              

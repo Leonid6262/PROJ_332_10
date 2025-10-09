@@ -18,11 +18,7 @@ void CPULS::start()
   main_bridge    = false;
   
   N_Pulse = 1;
-  
-  LPC_TIM2->MCR  = 0x00000000;          //Compare TIM3 с MR0 и MR1, с прерываниями (disabled)
-  LPC_TIM2->IR   = 0xFFFFFFFF;          //Очистка флагов прерываний  
-  LPC_TIM2->TCR |= TIM2_TCR_START;      //Старт таймера TIM2
-  
+
   LPC_PWM0->PCR       = 0x00;           //Отключение PWM0 
   LPC_PWM0->MR0       = PWM_WIDTH * 2;  //Период ШИМ. MR0 - включение
   LPC_PWM0->MR1       = PWM_WIDTH;      //Выключение PWM0:1 по MR1
@@ -30,7 +26,12 @@ void CPULS::start()
   
   LPC_PWM0->LER       = LER_012;        //Обновление MR0,MR1 и MR2
   LPC_PWM0->TCR       = COUNTER_STOP;   //Включение PWM. Счётчик - стоп
+  LPC_PWM0->TCR       = COUNTER_RESET;
   
+  LPC_TIM2->MCR  = 0x00000000;          //Compare TIM3 с MR0 и MR1, с прерываниями (disabled)
+  LPC_TIM2->IR   = 0xFFFFFFFF;          //Очистка флагов прерываний  
+  LPC_TIM2->TCR |= TIM2_TCR_START;      //Старт таймера TIM2
+  LPC_TIM2->MR0 = LPC_TIM2->TC + PULSE_PERIOD;
   LPC_TIM2->MR1 = LPC_TIM2->TC + PULSE_WIDTH;    
   LPC_TIM2->MCR = TIM2_COMPARE_MR1;     //Compare TIM2 с MR1- enabled
   
