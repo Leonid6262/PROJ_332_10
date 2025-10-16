@@ -15,8 +15,9 @@ namespace G_CONST
 class CEEPSettings {
   
 private:
+  
   // --- Структура уставок ---
-  #pragma pack(push, 2) // Выравнивание по 2 байта
+#pragma pack(push, 2) // Выравнивание по 2 байта
   struct WorkSettings 
   {
     unsigned short checkSum;                            // 0 Контрольная сумма
@@ -44,10 +45,11 @@ private:
     unsigned char password[G_CONST::SSID_PS_L];         //12 Пароль
     // Добавляя новые уставки сюда, не забывайте обновлять defaultSettings ниже!!!
   };
-  #pragma pack(pop)
-  //  Статические константные уставки по умолчанию (во Flash) ---
-  // 'static const inline' позволяет определить ее прямо здесь, в .h файле.
-  #pragma pack(push, 2) // Выравнивание по 2 байта
+  
+#pragma pack(pop)
+//  Статические константные уставки по умолчанию (во Flash) ---
+// 'static const inline' позволяет определить ее прямо здесь, в .h файле.
+#pragma pack(push, 2) // Выравнивание по 2 байта
   static const inline WorkSettings defaultSettings 
   {
     .checkSum = 0x0000, 
@@ -82,7 +84,7 @@ private:
     .ssid = "NetName",
     .password = "Password"
   };
-  #pragma pack(pop)
+#pragma pack(pop)
   
   // Текущий набор уставок, хранящийся в RAM ---
   WorkSettings settings;
@@ -91,19 +93,19 @@ private:
   CEEPSettings(); // Приватный конструктор
   CEEPSettings(const CEEPSettings&) = delete; // Запрещаем копирование
   CEEPSettings& operator=(const CEEPSettings&) = delete; // Запрещаем присваивание
-
+  
   // Приватные методы для работы с EEP  ---
   StatusRet readFromEEPInternal(WorkSettings& outSettings);      // Чтение в WorkSettings
   void writeToEEPInternal(WorkSettings& inSettings);             // Запись из WorkSettings
   
   CCRC16* pCRC16;
-
+  
   void EEP_init(void);
   void EEPr(uint16_t page_offset, uint16_t page_address, void* data, EEPROM_Mode_Type mode, uint32_t count);
   void EEPw(uint16_t page_offset, uint16_t page_address, void* data, EEPROM_Mode_Type mode, uint32_t count);
-
+  
 public:
-    
+  
   // Публичный метод для получения единственного экземпляра ---
   static CEEPSettings& getInstance();
   
@@ -117,6 +119,8 @@ public:
     return settings;
   }
   
-  void init_EEP(CCRC16*);   
+  void init_EEP(CCRC16*); 
+  
   
 };
+        

@@ -19,7 +19,7 @@ private:
     
   static constexpr unsigned int D_MODE_PULLUP   = 0x02 <<3 ;
   static constexpr unsigned int IOCON_SPI       = 0x03;
-  static constexpr unsigned int Hz_SPI          = 4000000;//20000000
+  static constexpr unsigned int Hz_SPI          = 5000000;//4000000;//20000000
   static constexpr unsigned int bits_tr         = 16;
 
   inline unsigned short setChannel(unsigned short n_ch)          // Запуск текущей и считывание результата предыдущих конвертаций

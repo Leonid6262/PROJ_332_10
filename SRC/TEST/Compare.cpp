@@ -33,17 +33,17 @@ void CCOMPARE::test()
   else
   {
     SYNC_FREQUENCY = 0;
+    sync_f_comp = false;
   }
   if(Us_f_comp) 
   {
     STATOR_FREQUENCY = Us_f;
+    Us_f_comp = false;  
   }
   else
   {
     STATOR_FREQUENCY = 0;
-  }
-  sync_f_comp = false;
-  Us_f_comp = false;  
+  } 
 }
 
 
