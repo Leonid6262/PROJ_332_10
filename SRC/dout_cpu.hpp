@@ -6,8 +6,9 @@ class CDout_cpu
 {
 private:
   
-  static constexpr unsigned short B_ULED       = 9;   // Бит U-LED
-  static constexpr unsigned short B0_PORT_OUT = 24;   // 1-й бит порта
+  static constexpr unsigned short B_ULED       =  9;   // Бит U-LED
+  static constexpr unsigned short B_Q1VF       = 13;   // Бит Q1VF
+  static constexpr unsigned short B0_PORT_OUT  = 24;   // 1-й бит порта
   
 public:
   
@@ -21,6 +22,7 @@ public:
     LPC_GPIO0->SET = (1UL << B_ULED);
   }
   
+  
   inline void bNamePo0B0(bool state)    {edit_bit(0, state);}
   inline void REL_LEAKAGE_P(bool state) {edit_bit(1, state);} // Реле контроля изоляции К1
   inline void REL_LEAKAGE_N(bool state) {edit_bit(2, state);} // Реле контроля изоляции К2
@@ -31,5 +33,6 @@ public:
   inline void bNamePo0B7(bool state)    {edit_bit(7, state);}
   
   void edit_bit(char, bool); 
+  void Q1VF(bool);
   
 };

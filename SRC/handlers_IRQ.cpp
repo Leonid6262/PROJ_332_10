@@ -81,30 +81,34 @@ extern "C"
   void TIMER3_IRQHandler( void )
   {   
     unsigned short TIMER3_IRQ = LPC_TIM3->IR;
-    LPC_TIM3->IR = 0xFFFFFFFF;   
+    LPC_TIM3->IR = 0xFFFFFFFF;
+    
     CProxyHandlerTIMER123& rProxy = CProxyHandlerTIMER123::getInstance();
     
     if (TIMER3_IRQ & rProxy.IRQ_CAP1)       //Прерывание T3 по CAP1 (Sync)
     {            
-      unsigned int time_diff = LPC_TIM3->TC - rProxy.pCompare->sync_time;      
-      rProxy.pCompare->sync_f = CCOMPARE::TIC_SEC / static_cast<float>(time_diff);           
-      rProxy.pCompare->sync_time = LPC_TIM3->TC;
+      unsigned int CR1 = LPC_TIM3->CR1;
+      unsigned int time_diff = CR1 - rProxy.pCompare->sync_time;
+      rProxy.pCompare->sync_time = CR1;      
+      rProxy.pCompare->sync_f = CCOMPARE::TIC_SEC / static_cast<float>(time_diff);                 
       rProxy.pCompare->sync_f_comp = true;
     }
   }
-  
+
   // По capture таймера 1 измеряется частота напряжения статора
   void TIMER1_IRQHandler( void )
   {   
     unsigned short TIMER1_IRQ = LPC_TIM1->IR;
     LPC_TIM1->IR = 0xFFFFFFFF;
+    
     CProxyHandlerTIMER123& rProxy = CProxyHandlerTIMER123::getInstance();
     
     if (TIMER1_IRQ & rProxy.IRQ_CAP1)       //Прерывание T1 по CAP1 (Us)
     {            
-      unsigned int time_diff = LPC_TIM1->TC - rProxy.pCompare->Us_time;
-      rProxy.pCompare->Us_f = CCOMPARE::TIC_SEC / static_cast<float>(time_diff);      
-      rProxy.pCompare->Us_time = LPC_TIM1->TC;
+      unsigned int CR1 = LPC_TIM1->CR1;
+      unsigned int time_diff = CR1 - rProxy.pCompare->Us_time;
+      rProxy.pCompare->Us_time = CR1;
+      rProxy.pCompare->Us_f = CCOMPARE::TIC_SEC / static_cast<float>(time_diff);            
       rProxy.pCompare->Us_f_comp = true;  
     }
   }

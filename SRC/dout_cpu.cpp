@@ -12,6 +12,20 @@ void CDout_cpu::edit_bit(char bit_number, bool type_op)
   }
 }
   
+void CDout_cpu::Q1VF(bool  type_op)
+{
+  if(type_op)
+  {
+    LPC_GPIO1->CLR = (1UL << B_Q1VF);
+  }
+  else
+  {
+    LPC_GPIO1->SET = (1UL << B_Q1VF);
+  }
+}
+
+
+
   
   
   

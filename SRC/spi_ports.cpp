@@ -17,7 +17,7 @@ void CSPI_ports::rw()
   unsigned int dT = LPC_TIM0->TC - prev_TC0; //Текущая дельта [0.1*mks]
   prev_TC0 = LPC_TIM0->TC;
  
-  for(char byte = 0; byte < G_CONST::BYTES_RW; byte++) 
+  for(char byte = 0; byte < BYTES_RW_REAL; byte++) 
   {
     //Запись в dout с учётом инверсии
     LPC_SSP0->DR = UData_dout[byte].all ^ CEEPSettings::getInstance().getSettings().dout_spi_invert[byte]; 

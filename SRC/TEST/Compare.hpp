@@ -7,8 +7,8 @@ class CCOMPARE
 
 private:
   
-  static constexpr unsigned int IOCON_T3_CAP1 = 0x03;
-  static constexpr unsigned int IOCON_T1_CAP1 = 0x03;
+  static constexpr unsigned int IOCON_T3_CAP1 = 0x23;
+  static constexpr unsigned int IOCON_T1_CAP1 = 0x23;
   
   static constexpr unsigned int TIM3_TCR_START = 0x01;
   static constexpr unsigned int TIM1_TCR_START = 0x01;

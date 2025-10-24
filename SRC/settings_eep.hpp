@@ -7,9 +7,9 @@
 // Пространство имён глобальных констант
 namespace G_CONST 
 {
-  constexpr unsigned short NUMBER_CHANNELS = 16;     //Количество какналов АЦП
-  constexpr unsigned short BYTES_RW = 3;             //Количество байт чтения/записи по SPI (один в контроллере, два на S600)
-  constexpr unsigned short SSID_PS_L = 20;          // Максимальная длина имени и пароля WiFi сети 20 символов
+  constexpr unsigned short NUMBER_CHANNELS = 16;     // Количество какналов АЦП
+  constexpr unsigned short BYTES_RW = 3;             // Количество байт чтения/записи по SPI (один в контроллере, два на S600)
+  constexpr unsigned short SSID_PS_L = 20;           // Максимальная длина имени и пароля WiFi сети 20 символов
 }
 
 class CEEPSettings {

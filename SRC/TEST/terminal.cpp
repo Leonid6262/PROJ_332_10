@@ -12,7 +12,14 @@ const char* CTerminal::header_str[] = {
     "\r\nCAN loop test   \r\n",   
     "\r\nETH Tx[0], Rx[0]\r\n",
     "\r\nCD card RCA     \r\n",
-    "\r\nP5, N5         V\r\n"
+    "\r\nP5, N5         V\r\n",
+    "\r\nI-ROTOR        d\r\n",
+    "\r\nU-STATOR       d\r\n",
+    "\r\nU-ROTOR        d\r\n",
+    "\r\nI-LEAKAGE      d\r\n",
+    "\r\nI-STATOR       d\r\n",
+    "\r\nI-NODE         d\r\n",
+    "\r\nE-SETTINGS     d\r\n"
 };
 
 CTerminal::CTerminal(const SDependencies& deps) : deps(deps)
@@ -202,16 +209,19 @@ void CTerminal::terminal()
       deps.rComPort.transfer_string(const_cast<char*>("REL OFF         \r"));
       deps.rDout_cpu.REL_LEAKAGE_P(OFF);
       deps.rDout_cpu.REL_LEAKAGE_N(OFF);
+      deps.rDout_cpu.Q1VF(OFF);
       break;
     case 1:
       deps.rComPort.transfer_string(const_cast<char*>("REL P is ON     \r"));
       deps.rDout_cpu.REL_LEAKAGE_P(ON);
       deps.rDout_cpu.REL_LEAKAGE_N(OFF);
+      deps.rDout_cpu.Q1VF(ON);      
       break;
     case 2:
       deps.rComPort.transfer_string(const_cast<char*>("REL N is ON      \r"));
       deps.rDout_cpu.REL_LEAKAGE_P(OFF);
       deps.rDout_cpu.REL_LEAKAGE_N(ON);
+      deps.rDout_cpu.Q1VF(OFF);      
       break;
     }
     break;
@@ -241,13 +251,49 @@ void CTerminal::terminal()
     sprintf(formVar, "%05d     \r", deps.rSD_card.RCA);
     deps.rComPort.transfer_string(formVar);
     break;
-   
+    
   case 11:     
     sprintf(formVar, "%+.2f ", deps.rI_adc.P5_A);
     deps.rComPort.transfer_string(formVar);
     sprintf(formVar, "%+.2f     \r", deps.rI_adc.N5_A);
     deps.rComPort.transfer_string(formVar);
     break;  
+    
+  case 12:     
+    sprintf(formVar, "%5d     \r", deps.rADC.data[CADC::ROTOR_CURRENT]);
+    deps.rComPort.transfer_string(formVar);
+    break;
+    
+  case 13:     
+    sprintf(formVar, "%5d     \r", deps.rADC.data[CADC::STATOR_VOLTAGE]);
+    deps.rComPort.transfer_string(formVar);
+    break;
+    
+  case 14:     
+    sprintf(formVar, "%5d     \r", deps.rADC.data[CADC::ROTOR_VOLTAGE]);
+    deps.rComPort.transfer_string(formVar);
+    break;
+    
+  case 15:     
+    sprintf(formVar, "%5d     \r", deps.rADC.data[CADC::LEAKAGE_CURRENT]);
+    deps.rComPort.transfer_string(formVar);
+    break;
+    
+  case 16:     
+    sprintf(formVar, "%5d     \r", deps.rADC.data[CADC::STATOR_CURRENT]);
+    deps.rComPort.transfer_string(formVar);
+    break;
+    
+  case 17:     
+    sprintf(formVar, "%5d     \r", deps.rADC.data[CADC::LOAD_NODE_CURRENT]);
+    deps.rComPort.transfer_string(formVar);
+    break;
+    
+  case 18:     
+    sprintf(formVar, "%5d     \r", deps.rADC.data[CADC::EXTERNAL_SETTINGS]);
+    deps.rComPort.transfer_string(formVar);
+    break;
+    
   }
   
   prev_TC0 = LPC_TIM0->TC;
