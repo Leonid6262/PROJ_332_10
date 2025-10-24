@@ -119,15 +119,17 @@ public:
   void rw();
   
 private:
+  
+  static constexpr unsigned short BYTES_RW_REAL = G_CONST::BYTES_RW; // Фактическое количество байт чтения/записи по SPI 
     
   static constexpr unsigned int IOCON_SPI = 0x02;
   static constexpr unsigned int Hz_SPI    = 900000;
-  static constexpr unsigned int bits_tr = 8;
+  static constexpr unsigned int bits_tr   = 8;
   
-  static constexpr unsigned short N_BITS = 8;                           // Количество бит в портах
-  static const unsigned int const_integr_spi[G_CONST::BYTES_RW][N_BITS];// Постоянные интегрирования
-  signed int integrator[G_CONST::BYTES_RW][N_BITS];                     // Интегратор   
-  unsigned int prev_TC0;                                                // Значение таймера на предыдыущем цикле
+  static constexpr unsigned short N_BITS = 8;                            // Количество бит в портах
+  static const unsigned int const_integr_spi[G_CONST::BYTES_RW][N_BITS]; // Постоянные интегрирования
+  signed int integrator[G_CONST::BYTES_RW][N_BITS];                      // Интегратор   
+  unsigned int prev_TC0;                                                 // Значение таймера на предыдыущем цикле
 
   static constexpr unsigned int TIC_ms = 10000;
   static constexpr unsigned int OUT_E = 1UL << 8;

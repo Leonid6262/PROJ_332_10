@@ -129,7 +129,7 @@ void main(void)
     },
     {
       // Имена треков (как будут подписаны в ПО ПК)
-      "Name1","Name2","Name3","Namr4" // В рабочем проекте,например: "IROT","ISTAT","UROT","USTAT"
+      "Name1","Name2","Name3","Name4" // В рабочем проекте,например: "IROT","ISTAT","UROT","USTAT"
     },
     {
       // Коэффициенты отображения (дискрет на 100%)
@@ -197,12 +197,15 @@ void main(void)
   };
   static CTerminal terminal(deps); // Класс CTerminal НЕ ПО ПТ! Используется, только для индикации и управления тестами
   
+  static auto& tempSettings = CEEPSettings::getInstance().getSettings();
+  
   CDout_cpu::UserLedOff();  // Визуальный контроль окончания инициализации (львинную долю времени занимает CD и Ethernet)
   
   while(true)
   {       
-     
+    
     // Измерение всех используемых (в ВТЕ) аналоговых сигналов (внешнее ADC)
+    //adc.conv(CADC::EXTERNAL_SETTINGS);
     adc.conv
       (
        CADC::ROTOR_CURRENT,         
@@ -255,7 +258,7 @@ void main(void)
     // Terminal (индикация и управление тестами)
     terminal.terminal();        
     
-    Pause_us(100);
+    Pause_us(3);
 
   } 
 }

@@ -169,11 +169,11 @@ StatusRet CREM_OSC::transfer_SN_ID()
   {
     memset(rx_dma_buffer, 0, TRANSACTION_LENGTH*2);
     start_dma_transfer();
-    Pause_us(6000);
-    if(echo_check() == StatusRet::SUCCESS)
-    {
-      return StatusRet::SUCCESS;
-    }
+    Pause_us(6000);    
+  }
+  if(echo_check() == StatusRet::SUCCESS)
+  {
+    return StatusRet::SUCCESS;
   }
   return StatusRet::ERROR;
 }

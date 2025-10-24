@@ -5,27 +5,24 @@
 void CADC::conv(short c1)
 {  
   setChannel(c1);
-  setChannel(ch_HRf);
+  setChannel(c1);
   getData(setChannel(ch_HRf));  //r-c1
 }
 
 void CADC::conv(short c1, short c2)
 {
   setChannel(c1);
-  setChannel(ch_HRf);
-  getData(setChannel(c2));      //r-c1
-  setChannel(ch_HRf);
-  getData(setChannel(ch_HRf));  //r-c2  
+  setChannel(c2);
+  getData(setChannel(ch_HRf));    //r-c1  
+  getData(setChannel(ch_HRf));    //r-c2
 }
 
 void CADC::conv(short c1, short c2, short c3)
 {
   setChannel(c1);
-  setChannel(ch_HRf);  
-  getData(setChannel(c2));      //r-c1 
-  setChannel(ch_HRf); 
-  getData(setChannel(c3));      //r-c2
-  setChannel(ch_HRf);
+  setChannel(c2);  
+  getData(setChannel(c3));      //r-c1 
+  getData(setChannel(ch_HRf));  //r-c2
   getData(setChannel(ch_HRf));  //r-c3
 }
 
@@ -36,20 +33,14 @@ void CADC::conv(short c1, short c2, short c3)
 void CADC::conv(short c1, short c2, short c3, short c4, short c5, short c6, short c7)
 {
   setChannel(c1);
-  setChannel(ch_HRf); 
-  getData(setChannel(c2));    //r-c1          
-  setChannel(ch_HRf); 
-  getData(setChannel(c3));    //r-c2
-  setChannel(ch_HRf); 
-  getData(setChannel(c4));    //r-c3
-  setChannel(ch_HRf); 
-  getData(setChannel(c5));    //r-c4 
-  setChannel(ch_HRf);
-  getData(setChannel(c6));    //r-c5 
-  setChannel(ch_HRf); 
-  getData(setChannel(c7));    //r-c6  
-  setChannel(ch_HRf); 
-  getData(setChannel(ch_HRf));//r-c7
+  setChannel(c2); 
+  getData(setChannel(c3));      //r-c1          
+  getData(setChannel(c4));      //r-c2 
+  getData(setChannel(c5));      //r-c3
+  getData(setChannel(c6));      //r-c4 
+  getData(setChannel(c7));      //r-c5 
+  getData(setChannel(ch_HRf));  //r-c6  
+  getData(setChannel(ch_HRf));  //r-c7
 }
 
 CADC::CADC()
