@@ -49,7 +49,7 @@ public:
     SIZE_256 = 7
   };
   
-  // Номер подалючения
+  // Номер подключения
   enum class EConnNumber : unsigned int {
     MCI        = 1,
     SSP0_Tx    = 2,

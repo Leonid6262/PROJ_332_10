@@ -150,7 +150,7 @@
                     <item>CREM_OSC::tx_dma_buffer</item>
                     <item>CREM_OSC::rx_dma_buffer</item>
                     <item>TIMER1_IRQ_tmp</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

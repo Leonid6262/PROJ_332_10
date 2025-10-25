@@ -35,6 +35,7 @@ public:
   inline bool DinEx1B0b5() const {return UData_din_f[static_cast<char>(EBytesDinNumber::BYTE_0_DIN_EX1)].b5;}
   inline bool DinEx1B0b6() const {return UData_din_f[static_cast<char>(EBytesDinNumber::BYTE_0_DIN_EX1)].b6;}
   inline bool DinEx1B0b7() const {return UData_din_f[static_cast<char>(EBytesDinNumber::BYTE_0_DIN_EX1)].b7;}
+  
   inline bool DinEx1B2b0() const {return UData_din_f[static_cast<char>(EBytesDinNumber::BYTE_1_DIN_EX1)].b0;}
   inline bool DinEx1B2b1() const {return UData_din_f[static_cast<char>(EBytesDinNumber::BYTE_1_DIN_EX1)].b1;}
   inline bool DinEx1B2b2() const {return UData_din_f[static_cast<char>(EBytesDinNumber::BYTE_1_DIN_EX1)].b2;}
@@ -118,13 +119,13 @@ public:
   
   void rw();
   
-private:
-  
-  static constexpr unsigned short BYTES_RW_REAL = G_CONST::BYTES_RW; // Фактическое количество байт чтения/записи по SPI 
+private:  
     
   static constexpr unsigned int IOCON_SPI = 0x02;
   static constexpr unsigned int Hz_SPI    = 900000;
   static constexpr unsigned int bits_tr   = 8;
+  
+  static const unsigned short BYTES_RW_REAL; // Фактическое количество байт чтения/записи по SPI
   
   static constexpr unsigned short N_BITS = 8;                            // Количество бит в портах
   static const unsigned int const_integr_spi[G_CONST::BYTES_RW][N_BITS]; // Постоянные интегрирования

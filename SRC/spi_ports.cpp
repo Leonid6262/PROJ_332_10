@@ -2,10 +2,12 @@
 #include "spi_init.hpp"
 #include "system_LPC177x.h"
 
+const unsigned short CSPI_ports::BYTES_RW_REAL = G_CONST::BYTES_RW; // Фактическое количество байт чтения/записи по SPI 
+
 // Постоянные времени интегрирования фильтра (ms первый множитель) din портов. 
 // TIC_ms = 10000 дискрет таймера на 1ms.  
 // То есть, 50*TIC_ms = 50ms, 0*TIC_ms - нет фильтрации, и т.п. 
-const unsigned int CSPI_ports::const_integr_spi[G_CONST::BYTES_RW][8] = 
+const unsigned int CSPI_ports::const_integr_spi[G_CONST::BYTES_RW][N_BITS] = 
 {
   {50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms}, // Контроллер
   {50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms}, // S600 - байт-0
@@ -16,14 +18,17 @@ void CSPI_ports::rw()
 {  
   unsigned int dT = LPC_TIM0->TC - prev_TC0; //Текущая дельта [0.1*mks]
   prev_TC0 = LPC_TIM0->TC;
- 
+  
+  auto& settings = CEEPSettings::getInstance().getSettings();
+  
   for(char byte = 0; byte < BYTES_RW_REAL; byte++) 
   {
     //Запись в dout с учётом инверсии
-    LPC_SSP0->DR = UData_dout[byte].all ^ CEEPSettings::getInstance().getSettings().dout_spi_invert[byte]; 
+    LPC_SSP0->DR = UData_dout[byte + (G_CONST::BYTES_RW - BYTES_RW_REAL)].all 
+      ^ settings.dout_spi_invert[byte + (G_CONST::BYTES_RW - BYTES_RW_REAL)]; 
     
     //data_din_invert - входные данные (предыдущего цикла r/w) din портов  с учётом инверсии
-    unsigned char data_din_invert = data_din[byte] ^ CEEPSettings::getInstance().getSettings().din_spi_invert[byte];
+    unsigned char data_din_invert = data_din[byte] ^ settings.din_spi_invert[byte];
     
     //Фильтр 8-ми бит
     for(char b = 0; b < N_BITS; b++){      
@@ -59,7 +64,7 @@ void CSPI_ports::rw()
     
   } 
   
-  //Захват din и обновление dout (1-0-1 HOLD bit).
+  //Захват din и обновление dout (1->0->1 HOLD bit).
   LPC_GPIO0->CLR = HOLD;
   for(short Counter = 0x7; Counter > 0; Counter--){}
   LPC_GPIO0->SET = HOLD;  

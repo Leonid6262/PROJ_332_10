@@ -26,7 +26,7 @@ void UserStartInit()
 {     
   SetDiscreteOutputs();    // Определение дискретных выходов микроконтроллера (pins)
   CDout_cpu::UserLedOn();  // Включается для визуального контроля инициализации
-  EMC_Init_Check();        // Инициализации exr RAM и шины расширения. Контроль exr RAM
+  EMC_Init_Check();        // Инициализации ext RAM и шины расширения. Контроль ext RAM
 }
 
 /* 
@@ -196,8 +196,6 @@ void main(void)
     compare 
   };
   static CTerminal terminal(deps); // Класс CTerminal НЕ ПО ПТ! Используется, только для индикации и управления тестами
-  
-  static auto& tempSettings = CEEPSettings::getInstance().getSettings();
   
   CDout_cpu::UserLedOff();  // Визуальный контроль окончания инициализации (львинную долю времени занимает CD и Ethernet)
   
