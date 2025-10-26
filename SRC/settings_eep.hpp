@@ -8,8 +8,9 @@
 namespace G_CONST 
 {
   constexpr unsigned short NUMBER_CHANNELS = 16;     // Количество какналов АЦП
-  constexpr unsigned short BYTES_RW = 3;             // Количество байт чтения/записи по SPI (один в контроллере, два на S600)
   constexpr unsigned short SSID_PS_L = 20;           // Максимальная длина имени и пароля WiFi сети 20 символов
+  constexpr unsigned short BYTES_RW_MAX = 3;         // Макс. количество байт чтения/записи по SPI (кол. структур в CSPI_ports)
+  constexpr unsigned short BYTES_RW_REAL = 3;        // Фактическое количество байт чтения/записи по SPI (определяется схемой)
 }
 
 class CEEPSettings {
@@ -37,12 +38,12 @@ private:
       unsigned short p_var4; 
       float          c_var4;
     } disp_c;
-    unsigned char din_Pi0_invert;                       // 7 Признак инвертирования входов порта Pi0
-    unsigned char din_Pi1_invert;                       // 8 Признак инвертирования входов порта Pi1
-    unsigned char din_spi_invert[G_CONST::BYTES_RW];    // 9 Признак инвертирования SPI входов 
-    unsigned char dout_spi_invert[G_CONST::BYTES_RW];   //10 Признак инвертирования SPI выходов
-    unsigned char ssid[G_CONST::SSID_PS_L];             //11 Имя сети
-    unsigned char password[G_CONST::SSID_PS_L];         //12 Пароль
+    unsigned char din_Pi0_invert;                               // 7 Признак инвертирования входов порта Pi0
+    unsigned char din_Pi1_invert;                               // 8 Признак инвертирования входов порта Pi1
+    unsigned char din_spi_invert[G_CONST::BYTES_RW_MAX];        // 9 Признак инвертирования SPI входов 
+    unsigned char dout_spi_invert[G_CONST::BYTES_RW_MAX];       //10 Признак инвертирования SPI выходов
+    unsigned char ssid[G_CONST::SSID_PS_L];                     //11 Имя сети
+    unsigned char password[G_CONST::SSID_PS_L];                 //12 Пароль
     // Добавляя новые уставки сюда, не забывайте обновлять defaultSettings ниже!!!
   };
   
@@ -120,7 +121,6 @@ public:
   }
   
   void init_EEP(CCRC16*); 
-  
-  
+   
 };
         

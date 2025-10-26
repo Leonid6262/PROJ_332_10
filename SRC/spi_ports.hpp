@@ -97,9 +97,9 @@ public:
       unsigned char   b6 : 1;
       unsigned char   b7 : 1;
     };
-  }UData_dout[G_CONST::BYTES_RW];               //Данные для записи в д.выходы
+  }UData_dout[G_CONST::BYTES_RW_MAX];               //Данные для записи в д.выходы
 
-  unsigned char data_din[G_CONST::BYTES_RW];    //Входные данные din портов 
+  unsigned char data_din[G_CONST::BYTES_RW_MAX];    //Входные данные din портов 
   
   union
   {
@@ -115,23 +115,21 @@ public:
       unsigned char   b6 : 1;
       unsigned char   b7 : 1;
     };
-  }UData_din_f[G_CONST::BYTES_RW];               //Данные din портов после фильтра
+  }UData_din_f[G_CONST::BYTES_RW_MAX];               //Данные din портов после фильтра
   
   void rw();
   
-private:  
-    
+private: 
+  
+  static constexpr unsigned short N_BITS = 8;                                   // Количество бит в портах
+  static const unsigned int const_integr_spi[G_CONST::BYTES_RW_MAX][N_BITS];    // Постоянные интегрирования
+  signed int integrator[G_CONST::BYTES_RW_MAX][N_BITS];                         // Интегратор   
+  unsigned int prev_TC0;                                                        // Значение таймера на предыдыущем цикле
+   
   static constexpr unsigned int IOCON_SPI = 0x02;
   static constexpr unsigned int Hz_SPI    = 900000;
   static constexpr unsigned int bits_tr   = 8;
-  
-  static const unsigned short BYTES_RW_REAL; // Фактическое количество байт чтения/записи по SPI
-  
-  static constexpr unsigned short N_BITS = 8;                            // Количество бит в портах
-  static const unsigned int const_integr_spi[G_CONST::BYTES_RW][N_BITS]; // Постоянные интегрирования
-  signed int integrator[G_CONST::BYTES_RW][N_BITS];                      // Интегратор   
-  unsigned int prev_TC0;                                                 // Значение таймера на предыдыущем цикле
-
+    
   static constexpr unsigned int TIC_ms = 10000;
   static constexpr unsigned int OUT_E = 1UL << 8;
   static constexpr unsigned int HOLD  = 1UL << 7;
