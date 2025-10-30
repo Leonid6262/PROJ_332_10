@@ -12,7 +12,7 @@
         <ByteLimit>50</ByteLimit>
     </Stack>
     <DebugChecksum>
-        <Checksum>1880928881</Checksum>
+        <Checksum>3299027559</Checksum>
     </DebugChecksum>
     <CodeCoverage>
         <Enabled>_ 0</Enabled>
@@ -187,14 +187,15 @@
         <Fmt14>unsigned char[2]	1	0</Fmt14>
         <Fmt15>unsigned char[32]	4	0</Fmt15>
         <Fmt16>unsigned char[3]	1	0</Fmt16>
-        <Fmt17>unsigned char[60]	3	0</Fmt17>
-        <Fmt18>unsigned char[64]	3	0</Fmt18>
-        <Fmt19>unsigned char[8]	4	0</Fmt19>
-        <Fmt20>unsigned int[128]	3	0</Fmt20>
-        <Fmt21>unsigned int[16]	1	0</Fmt21>
-        <Fmt22>unsigned short[10]	3	0</Fmt22>
-        <Fmt23>unsigned short[4]	3	0</Fmt23>
-        <Fmt24>unsigned short[8]	4	0</Fmt24>
+        <Fmt17>unsigned char[5]	1	0</Fmt17>
+        <Fmt18>unsigned char[60]	3	0</Fmt18>
+        <Fmt19>unsigned char[64]	3	0</Fmt19>
+        <Fmt20>unsigned char[8]	4	0</Fmt20>
+        <Fmt21>unsigned int[128]	3	0</Fmt21>
+        <Fmt22>unsigned int[16]	1	0</Fmt22>
+        <Fmt23>unsigned short[10]	3	0</Fmt23>
+        <Fmt24>unsigned short[4]	3	0</Fmt24>
+        <Fmt25>unsigned short[8]	4	0</Fmt25>
     </array_types>
     <watch_formats>
         <Fmt0>{W}1:sizeof(Test_SWD)	4	0</Fmt0>

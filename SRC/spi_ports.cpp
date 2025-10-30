@@ -58,13 +58,13 @@ void CSPI_ports::rw()
     // учитывая, что процесс фильтрации происходит на фоне транзакции spi,ожидания 
     // при частотах spi до 900 кГц в while (LPC_SSP0->SR & SR_BSY){} - не происходит
     while (LPC_SSP0->SR & SPI_Config::SR_BSY){}
-    data_din[byte] = LPC_SSP0->DR;
+    data_din[byte] = ~LPC_SSP0->DR;
     
   } 
   
   //Захват din и обновление dout (1->0->1 HOLD bit).
   LPC_GPIO0->CLR = HOLD;
-  for(short Counter = 0x7; Counter > 0; Counter--){}
+  for(short Counter = 0x10; Counter > 0; Counter--){}
   LPC_GPIO0->SET = HOLD;  
 }
 
@@ -77,7 +77,7 @@ CSPI_ports::CSPI_ports()
   
   LPC_SC->PCONP |= CLKPWR_PCONP_PCSSP0;
   LPC_SSP0->CR0 = 0;
-  LPC_SSP0->CR0 = SPI_Config::CR0_DSS(bits_tr);// | CR0_CPOL_HI;// | CR0_CPHA_SECOND;
+  LPC_SSP0->CR0 = SPI_Config::CR0_DSS(bits_tr);
   LPC_SSP0->CR1 = 0;
   SPI_Config::set_spi_clock(LPC_SSP0, Hz_SPI, PeripheralClock );
   LPC_SSP0->CR1 |= SPI_Config::CR1_SSP_EN; 

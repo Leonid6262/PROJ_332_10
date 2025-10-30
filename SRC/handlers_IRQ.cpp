@@ -18,7 +18,7 @@ extern "C"
   { 
     
     unsigned short IRQ = LPC_TIM2->IR;
-    LPC_TIM2->IR &= 0xFFFFFFFF;
+    LPC_TIM2->IR = 0xFFFFFFFF;
     
     CProxyHandlerTIMER123& rProxy = CProxyHandlerTIMER123::getInstance();
     

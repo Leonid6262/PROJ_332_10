@@ -53,30 +53,30 @@ void CDMAcontroller::init_M2P2M_Channel(const SChannelConfig *cfg)
   
   switch (cfg->transferType) 
   {
-
+    
   case ETransferType::TYPE_M2P:
     // Адрес перифери (адрес регистра назначения)
     ch->CDestAddr = static_cast<unsigned int>((long long)(LUTPerAddr[static_cast<unsigned int>(cfg->Conn)]));   
     ch->CControl |= bSI; // Control_SI
-	
+    
     /* Enable DMA channels, little endian */
     LPC_GPDMA->Config = DMACConfig_E;
     while (!(LPC_GPDMA->Config & DMACConfig_E)){};
     
     ch->CConfig = ((static_cast<unsigned int>(cfg->transferType) & 0x07) << bTransferType) |
-              ((static_cast<unsigned int>(cfg->Conn) & 0x1F) << bDestPeripheral);  
+      ((static_cast<unsigned int>(cfg->Conn) & 0x1F) << bDestPeripheral);  
     break;
   case ETransferType::TYPE_P2M:
     // Адрес перифери (адрес регистра источника)
     ch->CSrcAddr = static_cast<unsigned int>((long long)(LUTPerAddr[static_cast<unsigned int>(cfg->Conn)]));    
     ch->CControl |=  bDI; // Control_DI 
-                    
+    
     /* Enable DMA channels, little endian */
     LPC_GPDMA->Config = DMACConfig_E;
     while (!(LPC_GPDMA->Config & DMACConfig_E)){};
     
     ch->CConfig = ((static_cast<unsigned int>(cfg->transferType) & 0x07) << bTransferType) |
-              ((static_cast<unsigned int>(cfg->Conn) & 0x1F) << bSrcPeripheral);
+      ((static_cast<unsigned int>(cfg->Conn) & 0x1F) << bSrcPeripheral);
     break;
   }
   // Прерывания по ошибкам (IE) не используется. Если события окончания передачи разрешены,

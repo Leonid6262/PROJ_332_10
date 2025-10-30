@@ -106,7 +106,7 @@ public:
 private:
   
   static constexpr unsigned char MaxChannels = 8;
-  static constexpr unsigned int TransferSize_MASK = 0x00000FFF;
+  static constexpr unsigned int  TransferSize_MASK = 0x00000FFF;
 
   static constexpr LPC_GPDMACH_TypeDef* const DmaChannels[MaxChannels] = {
     LPC_GPDMACH0,
@@ -163,7 +163,7 @@ private:
   static constexpr unsigned int  bSI     = 1UL << 26;
   static constexpr unsigned int  bDI     = 1UL << 27;
   
-  static constexpr unsigned int  DMACConfig_E =	0x01;
+  static constexpr unsigned int  DMACConfig_E     = 0x01;
   static constexpr unsigned int  DMACCxConfig_E   = 1UL << 0;
   static constexpr unsigned int  DMACCxConfig_IE  = 1UL << 14;
   static constexpr unsigned int  DMACCxControl_I  = 1UL << 31;

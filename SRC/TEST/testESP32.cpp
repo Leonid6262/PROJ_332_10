@@ -1,6 +1,7 @@
 #include "testESP32.hpp"
 
-CTestESP32::CTestESP32(CREM_OSC& rRem_osc) : rRem_osc(rRem_osc)
+
+CTestESP32::CTestESP32(CREM_OSC& rRem_osc, CADC& rAdc) : rRem_osc(rRem_osc), rAdc(rAdc)
 {
   test_var_1 = 0;
   test_var_2 = 0;
@@ -20,9 +21,14 @@ void CTestESP32::test()
   if(dTrs < 33333) return;  
   prev_TC0 = LPC_TIM0->TC;
   
+  //test_var_1 = rAdc.data[CADC::ROTOR_CURRENT];  
+  //test_var_2 = rAdc.data[CADC::ROTOR_VOLTAGE];  
+  //test_var_3 = rAdc.data[CADC::STATOR_CURRENT];  
+  //test_var_4 = rAdc.data[CADC::STATOR_VOLTAGE];  
+  
   // Измеренные/вычисленные значения отображаемых переменных
   test_var_1 += 10;  if(test_var_1 > 1900) test_var_1 = 0; 
   test_var_2 += 120; if(test_var_2 > 1400) test_var_2 = 0;
-  test_var_3 += 60;  if(test_var_2 > 1500) test_var_3 = -1500;
+  test_var_3 += 60;  if(test_var_2 > 1500) test_var_3 = -150;
   test_var_4 -= 40;  if(test_var_2 < -900) test_var_4 = 0;
 }

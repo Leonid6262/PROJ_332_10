@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rem_osc.hpp"
+#include "adc.hpp"
 
 class CTestESP32{ 
   
@@ -8,7 +9,8 @@ class CTestESP32{
 public:
   
   CREM_OSC& rRem_osc;
-  CTestESP32(CREM_OSC&);
+  CADC& rAdc;
+  CTestESP32(CREM_OSC&, CADC&);
   
   void test();
    

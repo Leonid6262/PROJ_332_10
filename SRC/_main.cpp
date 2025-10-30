@@ -53,7 +53,8 @@ void main(void)
       Вывести сообщение на ПТ: "Ошибка CRC. Используются уставки по умолчанию!"  
   */
   }  
-
+  
+  
   /*
     Объявление объектов классов устройств. Намеренно создаются как static в main().
     Без внедрения зависимостей, по "найди меня" (extern MyClass myObj) - ВИДНЫ НЕ БУДУТ!
@@ -125,7 +126,7 @@ void main(void)
       nullptr,  // pointer test_var_1
       nullptr,  // pointer test_var_2
       nullptr,  // pointer test_var_3
-      nullptr,  // pointer test_var_4
+      nullptr   // pointer test_var_4
     },
     {
       // Имена треков (как будут подписаны в ПО ПК)
@@ -155,7 +156,7 @@ void main(void)
                                                 // с.м файл обработчиков прерываний "handlers_IRQ.cpp" и "Puls.cpp"
   /*--Объекты классов тестов--*/
   
-  static CTestESP32 test_esp32(rem_osc);        // Тест ESP32. Имитация изменений/вычислений отображаемых переменных
+  static CTestESP32 test_esp32(rem_osc, adc);        // Тест ESP32. Имитация изменений/вычислений отображаемых переменных
   
   static CPULS puls;            // Тест импульсов управления. Выдаётся классическая последовательность СИФУ, передаются данные в ESP32             
 
@@ -199,8 +200,11 @@ void main(void)
   
   CDout_cpu::UserLedOff();  // Визуальный контроль окончания инициализации (львинную долю времени занимает CD и Ethernet)
   
+  static auto& settings = CEEPSettings::getInstance().getSettings(); // Тестовый указатель
+  
   while(true)
   {       
+    settings = CEEPSettings::getInstance().getSettings(); 
     
     // Измерение всех используемых (в ВТЕ) аналоговых сигналов (внешнее ADC)
     //adc.conv(CADC::EXTERNAL_SETTINGS);
