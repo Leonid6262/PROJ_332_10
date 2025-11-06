@@ -33,7 +33,7 @@ void UserStartInit()
     Фактически, вызов EMC_Init_Check() в SystemInit() нужен для корректной инициализации в секции data, глобальных,
     объявленных в статической области файла system_LPC177x.c, переменных SystemCoreClock, PeripheralClock и EMCClock.
 */
-static signed short data_dac = 400;
+
 void main(void)
 {                   
 
@@ -167,7 +167,7 @@ void main(void)
 
   static CCOMPARE compare;      // Тест компараторов. Измеряет частоту синхронизации и напряжения статора
   
-  CProxyHandlerTIMER123::getInstance().set_pointers(&puls, &compare, &rem_osc); // Proxy Singleton доступа к Handler TIMER1,2,3.
+  CProxyHandlerTIMER123::getInstance().set_pointers(&puls, &compare, &rem_osc, &adc); // Proxy Singleton доступа к Handler TIMER1,2,3.
                                                                                 // Данный патерн позволяет избежать глобальных 
                                                                                 // ссылок на puls, compare и rem_osc
   puls.start();                 // Старт теста ИУ
@@ -208,32 +208,12 @@ void main(void)
   static auto& settings = CEEPSettings::getInstance().getSettings(); // Тестовый указатель
   
   while(true)
-  {       
- 
+  {        
     settings = CEEPSettings::getInstance().getSettings(); 
     
-    // Измерение всех используемых (в ВТЕ) аналоговых сигналов (внешнее ADC)
-    CDout_cpu::UserLedOn();
-    adc.conv
-      ({
-        CADC::ROTOR_CURRENT, 
-        CADC::STATOR_VOLTAGE, 
-        CADC::ROTOR_VOLTAGE, 
-        CADC::EXTERNAL_SETTINGS
-      });
-    adc.conv
-      ({
-        CADC::LEAKAGE_CURRENT, 
-        CADC::STATOR_CURRENT, 
-        CADC::LOAD_NODE_CURRENT
-      });
-    CDout_cpu::UserLedOff();
-    /* 
-      Для сокращения записи аргументов здесь использована си нотация enum, вмесо типобезопасной enum class c++.
-      CADC::ROTOR_CURRENT вместо static_cast<char>(CADC::EADC_NameCh::ROTOR_CURRENT) - считаю, разумный компромисс.
-      Пример доступа к измеренным значениям - rADC.data[CADC::ROTOR_CURRENT] 
-    */
-    
+    /* Измерение всех используемых (в ВТЕ) аналоговых сигналов (внешнее ADC)
+       производится в "handlers_IRQ.cpp" */
+
     // Измерение напряжения питания +/- 5V (внутреннее ADC)
     i_adc.measure_5V();
     
@@ -245,32 +225,29 @@ void main(void)
     spi_ports.rw();
     
     // loop test RS485
-    //tests.testRS485();
+    tests.testRS485();
     
     // loop Test CAN
-    //tests.testCAN();
+    tests.testCAN();
     
     // Тест DAC-0, PWM-DAC1, PWM-DAC2 (контроль функционированя - осцилографом)
-    tests.testDAC0(data_dac);
-    //tests.testDAC1_PWM();
-    //tests.testDAC2_PWM();
+    tests.testDAC0();
+    tests.testDAC1_PWM();
+    tests.testDAC2_PWM();
     
     // Тест компараторов (индикация измеренных частот Sync и Us)
-    //compare.test();    
+    compare.test();    
     
     // loop Test Ethernet
-    //test_eth.test();
+    test_eth.test();
     
     // Обновление экземпляра структуы SDateTime данными из RTC
     rt_clock.update_now();
     
-    // Имитация вычислений/измерений отображаемых переменных для ESP32
-    //test_esp32.test();
-    
     // Terminal (индикация и управление тестами)
     terminal.terminal();        
     
-    Pause_us(3333);
+    Pause_us(3);
 
   } 
 }

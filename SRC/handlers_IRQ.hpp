@@ -2,6 +2,7 @@
 
 #include "Puls.hpp"
 #include "Compare.hpp"
+#include "adc.hpp"
 
 extern "C" 
 {
@@ -32,16 +33,15 @@ public:
   CPULS* pPuls;
   CCOMPARE* pCompare;
   CREM_OSC* pRem_osc;
-  void set_pointers(CPULS*, CCOMPARE*, CREM_OSC*);
+  CADC* pAdc;
+  void set_pointers(CPULS*, CCOMPARE*, CREM_OSC*, CADC*);
   
   const unsigned int IRQ_CAP1 = 0x20;
   const unsigned int IRQ_MR0  = 0x01;
   const unsigned int IRQ_MR1  = 0x02;
   
 private:
-  
-    
-  
+
     CProxyHandlerTIMER123(); 
     CProxyHandlerTIMER123(const CProxyHandlerTIMER123&) = delete;
     CProxyHandlerTIMER123& operator=(const CProxyHandlerTIMER123&) = delete; 

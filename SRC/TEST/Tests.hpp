@@ -37,7 +37,7 @@ public:
   
   void testRS485();
   void testCAN();
-  void testDAC0(signed short);  
+  void testDAC0();  
   void testDAC1_PWM();
   void testDAC2_PWM();
   
