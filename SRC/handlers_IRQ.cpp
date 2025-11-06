@@ -1,14 +1,16 @@
 #include "handlers_IRQ.hpp"
 #include "system_LPC177x.h"
+#include "dout_cpu.hpp"
 #include "LPC407x_8x_177x_8x.h"
 
 CProxyHandlerTIMER123::CProxyHandlerTIMER123(){}; // Прокси для доступа к Timers IRQ Handlers
 
-void CProxyHandlerTIMER123::set_pointers(CPULS* pPuls, CCOMPARE* pCompare, CREM_OSC* pRem_osc)  
+void CProxyHandlerTIMER123::set_pointers(CPULS* pPuls, CCOMPARE* pCompare, CREM_OSC* pRem_osc, CADC* pAdc)  
 {
   this->pPuls = pPuls;
   this->pCompare = pCompare;
   this->pRem_osc = pRem_osc;
+  this->pAdc = pAdc;
 }
 
 extern "C" 
@@ -16,12 +18,12 @@ extern "C"
   // Compare таймера 2 используются для выдачи классической последовательности СИФУ
   void TIMER2_IRQHandler( void )
   { 
-    
-    unsigned short IRQ = LPC_TIM2->IR;
-    LPC_TIM2->IR = 0xFFFFFFFF;
-    
+  
     CProxyHandlerTIMER123& rProxy = CProxyHandlerTIMER123::getInstance();
     
+    unsigned int IRQ = LPC_TIM2->IR;
+    LPC_TIM2->IR = 0xFFFFFFFF;
+
     if (IRQ & rProxy.IRQ_MR0)                           //Прерывание по Compare с MR0 (P->1)
     {                          
       //Старт ИУ форсировочного моста
@@ -46,9 +48,45 @@ extern "C"
       LPC_TIM2->MR1 = LPC_TIM2->TC + CPULS::PULSE_WIDTH; 
       LPC_TIM2->MCR = CPULS::TIM2_COMPARE_MR1;
       
+      // Измерение всех используемых (в ВТЕ) аналоговых сигналов (внешнее ADC)
+      CDout_cpu::UserLedOn();
+      rProxy.pAdc->conv
+        ({
+          CADC::ROTOR_CURRENT, 
+          CADC::STATOR_VOLTAGE, 
+          CADC::ROTOR_VOLTAGE, 
+          CADC::EXTERNAL_SETTINGS
+        });
+      rProxy.pAdc->conv
+        ({
+          CADC::LEAKAGE_CURRENT, 
+          CADC::STATOR_CURRENT, 
+          CADC::LOAD_NODE_CURRENT
+        });
+      CDout_cpu::UserLedOff();
+    /* 
+      Для сокращения записи аргументов здесь использована си нотация enum, вмесо типобезопасной enum class c++.
+      CADC::ROTOR_CURRENT вместо static_cast<char>(CADC::EADC_NameCh::ROTOR_CURRENT) - считаю, разумный компромисс.
+      Пример доступа к измеренным значениям - rADC.data[CADC::ROTOR_CURRENT] 
+    */
+      //----------------------------------------------------------------------
+      
       /*--- Здесь передаются отображаемые данные в ESP32 ---*/
       rProxy.pRem_osc->send_data();
       /*–-------------------------–-------------------------*/
+      
+      // По capture таймера 3 измеряется частота синхронизации
+      unsigned int TIMER3_IRQ = LPC_TIM3->IR;
+      LPC_TIM3->IR = 0xFFFFFFFF;
+      
+      if(TIMER3_IRQ & rProxy.IRQ_CAP1)
+      {      
+        unsigned int CR1 = LPC_TIM3->CR1;
+        unsigned int time_diff = CR1 - rProxy.pCompare->sync_time;
+        rProxy.pCompare->sync_time = CR1;      
+        rProxy.pCompare->sync_f = CCOMPARE::TIC_SEC / static_cast<float>(time_diff);                 
+        rProxy.pCompare->sync_f_comp = true;
+      }
       
     }
     
@@ -75,30 +113,12 @@ extern "C"
   }  
 }
 
-// По capture таймера 3 измеряется частота синхронизации
+// По capture таймера 1 измеряется частота напряжения статора
 extern "C" 
 {
-  void TIMER3_IRQHandler( void )
-  {   
-    unsigned short TIMER3_IRQ = LPC_TIM3->IR;
-    LPC_TIM3->IR = 0xFFFFFFFF;
-    
-    CProxyHandlerTIMER123& rProxy = CProxyHandlerTIMER123::getInstance();
-    
-    if (TIMER3_IRQ & rProxy.IRQ_CAP1)       //Прерывание T3 по CAP1 (Sync)
-    {            
-      unsigned int CR1 = LPC_TIM3->CR1;
-      unsigned int time_diff = CR1 - rProxy.pCompare->sync_time;
-      rProxy.pCompare->sync_time = CR1;      
-      rProxy.pCompare->sync_f = CCOMPARE::TIC_SEC / static_cast<float>(time_diff);                 
-      rProxy.pCompare->sync_f_comp = true;
-    }
-  }
-
-  // По capture таймера 1 измеряется частота напряжения статора
   void TIMER1_IRQHandler( void )
   {   
-    unsigned short TIMER1_IRQ = LPC_TIM1->IR;
+    unsigned int TIMER1_IRQ = LPC_TIM1->IR;
     LPC_TIM1->IR = 0xFFFFFFFF;
     
     CProxyHandlerTIMER123& rProxy = CProxyHandlerTIMER123::getInstance();

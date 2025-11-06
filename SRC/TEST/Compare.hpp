@@ -13,8 +13,8 @@ private:
   static constexpr unsigned int TIM3_TCR_START = 0x01;
   static constexpr unsigned int TIM1_TCR_START = 0x01;
   
-  static constexpr unsigned int TIM3_CAPTURE_R = 0x28;
-  static constexpr unsigned int TIM1_CAPTURE_R = 0x28;
+  static constexpr unsigned int TIM3_CAPTURE_RI = 0x28;
+  static constexpr unsigned int TIM1_CAPTURE_RI = 0x28;
   
   static constexpr unsigned int _100ms = 1000000;
    

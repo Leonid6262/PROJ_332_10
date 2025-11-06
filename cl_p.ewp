@@ -2158,9 +2158,6 @@
                 <name>$PROJ_DIR$\SRC\TEST\test_eth.cpp</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\SRC\TEST\testESP32.cpp</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\SRC\TEST\Tests.cpp</name>
             </file>
         </group>

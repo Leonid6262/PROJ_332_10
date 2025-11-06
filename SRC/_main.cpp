@@ -119,25 +119,29 @@ void main(void)
   // Пример структуры инициализирующих значений CREM_OSC. Дистанционный осцилограф (ESP32 c WiFi модулем)
   static CREM_OSC::SSET_init set_init
   {
-    {
+    {      
       // Указатели на отображаемые переменные.
-      // В рабочем проекте, скорее всего, отображаемые переменные будут уже объявлены.
-      // Здесь же, они объявляются, и соответственно прописываются в set_init в классе test_ESP32.
-      nullptr,  // pointer test_var_1
-      nullptr,  // pointer test_var_2
-      nullptr,  // pointer test_var_3
-      nullptr   // pointer test_var_4
+       &adc.data[CADC::ROTOR_CURRENT],         
+       &adc.data[CADC::STATOR_VOLTAGE],             
+       &adc.data[CADC::ROTOR_VOLTAGE],            
+       &adc.data[CADC::LEAKAGE_CURRENT],                                                         
+       &adc.data[CADC::STATOR_CURRENT],       
+       &adc.data[CADC::LOAD_NODE_CURRENT],
+       &adc.data[CADC::EXTERNAL_SETTINGS]      
     },
     {
       // Имена треков (как будут подписаны в ПО ПК)
-      "Name1","Name2","Name3","Name4" // В рабочем проекте,например: "IROT","ISTAT","UROT","USTAT"
+      "I_ROT","USTAT","U_ROT","I_LEK","ISTAT","I_NOD","E_SET"
     },
     {
       // Коэффициенты отображения (дискрет на 100%)
       CEEPSettings::getInstance().getSettings().disp_c.p_var1,
       CEEPSettings::getInstance().getSettings().disp_c.p_var2,
       CEEPSettings::getInstance().getSettings().disp_c.p_var3,
-      CEEPSettings::getInstance().getSettings().disp_c.p_var4
+      CEEPSettings::getInstance().getSettings().disp_c.p_var4,
+      CEEPSettings::getInstance().getSettings().disp_c.p_var5,
+      CEEPSettings::getInstance().getSettings().disp_c.p_var6,
+      CEEPSettings::getInstance().getSettings().disp_c.p_var7
       // По d_100p[NUMBER_TRACKS] определяется фактическое количество треков. 
     },
     // Режим работы Access_point или Station
@@ -154,15 +158,16 @@ void main(void)
                                                 // Передача данных (метод send_data()) осуществляется в точке, где отображаемые переменные обновлены,
                                                 // например в IRQ ИУ. В примере, send_data() вызывается в handler TIMER2 (имитация СИФУ)
                                                 // с.м файл обработчиков прерываний "handlers_IRQ.cpp" и "Puls.cpp"
+  
   /*--Объекты классов тестов--*/
   
-  static CTestESP32 test_esp32(rem_osc, adc);        // Тест ESP32. Имитация изменений/вычислений отображаемых переменных
+  //static CTestESP32 test_esp32(rem_osc, adc);        // Тест ESP32. Имитация изменений/вычислений отображаемых переменных
   
   static CPULS puls;            // Тест импульсов управления. Выдаётся классическая последовательность СИФУ, передаются данные в ESP32             
 
   static CCOMPARE compare;      // Тест компараторов. Измеряет частоту синхронизации и напряжения статора
   
-  CProxyHandlerTIMER123::getInstance().set_pointers(&puls, &compare, &rem_osc); // Proxy Singleton доступа к Handler TIMER1,2,3.
+  CProxyHandlerTIMER123::getInstance().set_pointers(&puls, &compare, &rem_osc, &adc); // Proxy Singleton доступа к Handler TIMER1,2,3.
                                                                                 // Данный патерн позволяет избежать глобальных 
                                                                                 // ссылок на puls, compare и rem_osc
   puls.start();                 // Старт теста ИУ
@@ -203,27 +208,12 @@ void main(void)
   static auto& settings = CEEPSettings::getInstance().getSettings(); // Тестовый указатель
   
   while(true)
-  {       
+  {        
     settings = CEEPSettings::getInstance().getSettings(); 
     
-    // Измерение всех используемых (в ВТЕ) аналоговых сигналов (внешнее ADC)
-    //adc.conv(CADC::EXTERNAL_SETTINGS);
-    adc.conv
-      (
-       CADC::ROTOR_CURRENT,         
-       CADC::STATOR_CURRENT,             
-       CADC::ROTOR_VOLTAGE,            
-       CADC::STATOR_VOLTAGE,                                                         
-       CADC::LEAKAGE_CURRENT,       
-       CADC::EXTERNAL_SETTINGS,     
-       CADC::LOAD_NODE_CURRENT   
-         );
-    /* 
-      Для сокращения записи аргументов здесь использована си нотация enum, вмесо типобезопасной enum class c++.
-      CADC::ROTOR_CURRENT вместо static_cast<char>(CADC::EADC_NameCh::ROTOR_CURRENT) - считаю, разумный компромисс.
-      Пример доступа к измеренным значениям - rADC.data[CADC::ROTOR_CURRENT] 
-    */
-    
+    /* Измерение всех используемых (в ВТЕ) аналоговых сигналов (внешнее ADC)
+       производится в "handlers_IRQ.cpp" */
+
     // Измерение напряжения питания +/- 5V (внутреннее ADC)
     i_adc.measure_5V();
     
@@ -253,9 +243,6 @@ void main(void)
     
     // Обновление экземпляра структуы SDateTime данными из RTC
     rt_clock.update_now();
-    
-    // Имитация вычислений/измерений отображаемых переменных для ESP32
-    test_esp32.test();
     
     // Terminal (индикация и управление тестами)
     terminal.terminal();        

@@ -2,45 +2,43 @@
 #include "system_LPC177x.h"
 #include <math.h>
 
-void CADC::conv(short c1)
-{  
-  setChannel(c1);
-  setChannel(c1);
-  getData(setChannel(ch_HRf));  //r-c1
-}
-
-void CADC::conv(short c1, short c2)
+void CADC::conv(std::initializer_list<char> list)
 {
-  setChannel(c1);
-  setChannel(c2);
-  getData(setChannel(ch_HRf));    //r-c1  
-  getData(setChannel(ch_HRf));    //r-c2
-}
-
-void CADC::conv(short c1, short c2, short c3)
-{
-  setChannel(c1);
-  setChannel(c2);  
-  getData(setChannel(c3));      //r-c1 
-  getData(setChannel(ch_HRf));  //r-c2
-  getData(setChannel(ch_HRf));  //r-c3
-}
-
-//void ADC::conv(short c1, short c2, short c3, short c4)
-//void ADC::conv(short c1, short c2, short c3, short c4, short c5)
-//void ADC::conv(short c1, short c2, short c3, short c4, short c5, short c6)
-
-void CADC::conv(short c1, short c2, short c3, short c4, short c5, short c6, short c7)
-{
-  setChannel(c1);
-  setChannel(c2); 
-  getData(setChannel(c3));      //r-c1          
-  getData(setChannel(c4));      //r-c2 
-  getData(setChannel(c5));      //r-c3
-  getData(setChannel(c6));      //r-c4 
-  getData(setChannel(c7));      //r-c5 
-  getData(setChannel(ch_HRf));  //r-c6  
-  getData(setChannel(ch_HRf));  //r-c7
+  // Ожидание полной готовности SPI перед burst-записью
+  while (!((LPC_SSP0->SR & SPI_Config::SR_TFE) && !(LPC_SSP0->SR & SPI_Config::SR_BSY))) {}
+  
+  // Запись
+  char N_ch = list.size();
+  if(N_ch > 6) N_ch = 6;        //Ограничение связанное с размером FIFO в 8 фреймов
+  
+  for(char i = 0; i < N_ch; i++)
+  {
+    LPC_SSP1->DR = cN_CH[*(list.begin() + i)];
+  }
+  LPC_SSP1->DR = cN_CH[ch_HRf];
+  LPC_SSP1->DR = cN_CH[ch_HRf];
+ 
+  // Чтение и обработка по мере поступления данных
+  unsigned short raw_adc_data;
+  unsigned short tmp_Nch;
+  for(char i = 0; i < (N_ch + 2); i++)
+  {
+    while(!(LPC_SSP1->SR & SPI_Config::SR_RNE)){}    
+    raw_adc_data = LPC_SSP1->DR;
+    tmp_Nch = (raw_adc_data & 0xF000) >> 12;
+    if( tmp_Nch < G_CONST::NUMBER_CHANNELS ) 
+    {
+      data[tmp_Nch] = ((raw_adc_data & 0x0FFF) - CEEPSettings::getInstance().getSettings().shift_adc[tmp_Nch]) *
+        (1.0f + CEEPSettings::getInstance().getSettings().incline_adc[tmp_Nch]);
+    }
+  }  
+  
+  // Контрольная проверка и очистка FIFO
+  while(LPC_SSP1->SR & SPI_Config::SR_RNE)
+  {
+    raw_adc_data = LPC_SSP1->DR;
+  } 
+  
 }
 
 CADC::CADC()

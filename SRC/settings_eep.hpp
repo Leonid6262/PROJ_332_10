@@ -35,8 +35,20 @@ private:
       float          c_var2;
       unsigned short p_var3;
       float          c_var3;
-      unsigned short p_var4; 
+      unsigned short p_var4;
       float          c_var4;
+      unsigned short p_var5;
+      float          c_var5;
+      unsigned short p_var6;
+      float          c_var6;
+      unsigned short p_var7;
+      float          c_var7;
+      unsigned short p_var8;
+      float          c_var8;
+      unsigned short p_var9;
+      float          c_var9;
+      unsigned short p_var10;
+      float          c_var10;
     } disp_c;
     unsigned char din_Pi0_invert;                               // 7 Признак инвертирования входов порта Pi0
     unsigned char din_Pi1_invert;                               // 8 Признак инвертирования входов порта Pi1
@@ -69,14 +81,26 @@ private:
     .shift_dac0 = 0,
     .disp_c = 
     {
-      .p_var1 = 2047,
+      .p_var1 = 100,
       .c_var1 = 0.5f,
-      .p_var2 = 2047,
+      .p_var2 = 100,
       .c_var2 = 0.5f,
-      .p_var3 = 2047,
+      .p_var3 = 100,
       .c_var3 = 0.5f,
-      .p_var4 = 2047,
-      .c_var4 = 0.5f  
+      .p_var4 = 100,
+      .c_var4 = 0.5f,  
+      .p_var5 = 100,
+      .c_var5 = 0.5f,
+      .p_var6 = 100,
+      .c_var6 = 0.5f,
+      .p_var7 = 100,
+      .c_var7 = 0.5f,
+      .p_var8 = 100,
+      .c_var8 = 0.5f,  
+      .p_var9 = 100,
+      .c_var9 = 0.5f,
+      .p_var10 = 100,
+      .c_var10 = 0.5f  
     },
     .din_Pi0_invert = 0,
     .din_Pi1_invert = 0,
