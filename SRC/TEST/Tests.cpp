@@ -19,21 +19,21 @@ CTESTS::CTESTS(CUART&    rRS485_1,
     receive_RS485_2 = 0x01; 
   }
   
-void CTESTS::testDAC0()
+void CTESTS::testDAC0(signed short d_data)
 {  
-  static signed short data = CDAC0::DAC0_MIN_VAL;
+  //static signed short data = CDAC0::DAC0_MIN_VAL;
   static unsigned int prev_TC0;
   
   unsigned int dTrs = LPC_TIM0->TC - prev_TC0; //Текущая дельта [0.1*mks]
   if(dTrs < 10000) return;  
   prev_TC0 = LPC_TIM0->TC;
   
-  data++;
-  if(data > CDAC0::DAC0_MAX_VAL) 
+  //data++;
+  if(d_data > CDAC0::DAC0_MAX_VAL) 
   {
-    data = CDAC0::DAC0_MIN_VAL;
+    d_data = CDAC0::DAC0_MIN_VAL;
   }
-  rDAC0.conv(data);
+  rDAC0.conv(d_data);
 }
 
 void CTESTS::testDAC1_PWM()
