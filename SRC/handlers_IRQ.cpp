@@ -12,7 +12,8 @@ void CProxyHandlerTIMER123::set_pointers(CPULS* pPuls, CCOMPARE* pCompare, CREM_
   this->pCompare = pCompare;
   this->pRem_osc = pRem_osc;
   this->pAdc = pAdc;
-  pRem_osc->set_init.pData[1] = &pPuls->u_stat_avr;
+  pRem_osc->set_init.pData[1] = &pPuls->U_STATORA;
+  pRem_osc->set_init.pData[2] = &pPuls->I_STATORA;
 }
 
 extern "C" 
@@ -76,7 +77,7 @@ extern "C"
       rProxy.pRem_osc->send_data();
       /*–-------------------------–-------------------------*/
       
-      // По capture таймера 3 измеряется частота синхронизации
+      //---По capture таймера 3 измеряется частота синхронизации-----
       unsigned int TIMER3_IRQ = LPC_TIM3->IR;
       LPC_TIM3->IR = 0xFFFFFFFF;
       
@@ -88,6 +89,20 @@ extern "C"
         rProxy.pCompare->sync_f = CCOMPARE::TIC_SEC / static_cast<float>(time_diff);                 
         rProxy.pCompare->sync_f_comp = true;
       }
+      //–---–----------------------------------------------------------
+      //---По capture таймера 1 измеряется частота напряжения статора-----
+        unsigned int TIMER1_IRQ = LPC_TIM1->IR;
+        LPC_TIM1->IR = 0xFFFFFFFF;
+        
+        if (TIMER1_IRQ & rProxy.IRQ_CAP1)       
+        {            
+          unsigned int CR1 = LPC_TIM1->CR1;
+          unsigned int time_diff = CR1 - rProxy.pCompare->Us_time;
+          rProxy.pCompare->Us_time = CR1;
+          rProxy.pCompare->Us_f = CCOMPARE::TIC_SEC / static_cast<float>(time_diff);            
+          rProxy.pCompare->Us_f_comp = true;  
+        }
+      //–---–----------------------------------------------------------
       
     }
     
@@ -114,23 +129,3 @@ extern "C"
   }  
 }
 
-// По capture таймера 1 измеряется частота напряжения статора
-extern "C" 
-{
-  void TIMER1_IRQHandler( void )
-  {   
-    unsigned int TIMER1_IRQ = LPC_TIM1->IR;
-    LPC_TIM1->IR = 0xFFFFFFFF;
-    
-    CProxyHandlerTIMER123& rProxy = CProxyHandlerTIMER123::getInstance();
-    
-    if (TIMER1_IRQ & rProxy.IRQ_CAP1)       //Прерывание T1 по CAP1 (Us)
-    {            
-      unsigned int CR1 = LPC_TIM1->CR1;
-      unsigned int time_diff = CR1 - rProxy.pCompare->Us_time;
-      rProxy.pCompare->Us_time = CR1;
-      rProxy.pCompare->Us_f = CCOMPARE::TIC_SEC / static_cast<float>(time_diff);            
-      rProxy.pCompare->Us_f_comp = true;  
-    }
-  }
-}

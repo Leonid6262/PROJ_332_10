@@ -122,21 +122,21 @@ void main(void)
     {      
       // Указатели на отображаемые переменные.
        &adc.data[CADC::ROTOR_CURRENT],         
-       nullptr,             
+       nullptr,                         // Зарезервировано для напряжения статора (1)
+       nullptr,                         // Зарезервировано для тока статора (2)
        &adc.data[CADC::ROTOR_VOLTAGE],            
-       &adc.data[CADC::LEAKAGE_CURRENT],                                                         
-       &adc.data[CADC::STATOR_CURRENT],       
+       &adc.data[CADC::LEAKAGE_CURRENT],                                                                
        &adc.data[CADC::LOAD_NODE_CURRENT],
        &adc.data[CADC::EXTERNAL_SETTINGS]      
     },
     {
       // Имена треков (как будут подписаны в ПО ПК)
-      "I_ROT","USTAT","U_ROT","I_LEK","ISTAT","I_NOD","E_SET"
+      "I_ROT","USTAT","ISTAT","U_ROT","I_LEK","I_NOD","E_SET"
     },
     {
       // Коэффициенты отображения (дискрет на 100%)
       CEEPSettings::getInstance().getSettings().disp_c.p_var1,
-      1380,
+      CEEPSettings::getInstance().getSettings().disp_c.p_var2,
       CEEPSettings::getInstance().getSettings().disp_c.p_var3,
       CEEPSettings::getInstance().getSettings().disp_c.p_var4,
       CEEPSettings::getInstance().getSettings().disp_c.p_var5,

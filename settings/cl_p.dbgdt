@@ -152,7 +152,7 @@
                     <item>adc.data[CADC::ROTOR_CURRENT]</item>
                     <item>settings</item>
                     <item>puls</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

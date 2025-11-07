@@ -1,6 +1,6 @@
 #include "Puls.hpp"
-#include <cmath>
 #include "system_LPC177x.h"
+#include <cmath>
 
 const char CPULS::pulses[] = {0x03, 0x06, 0x0C, 0x18, 0x30, 0x21};
 
@@ -17,28 +17,56 @@ CPULS::CPULS()
 
 void CPULS::calc(CADC* pAdc) 
 {  
+  /*
+    Восстановление сигналов произвадится по двум мгновенным значениям и углу (Theta) между ними:
+    A = sqrt( (u1*u1 + u2*u2 - 2 * u1*u2 * cos(Theta)) / (sin(Theta) * sin(Theta)) );
+  */
+  
+  // Напряжение статора
   u_stator_2 = pAdc->data[CADC::STATOR_VOLTAGE];
-  timing_stator_2 = pAdc->timings[CADC::STATOR_VOLTAGE + 1];
+  timing_ustator_2 = pAdc->timings[CADC::STATOR_VOLTAGE + 1];
   
   unsigned int us1us1  =  u_stator_1 * u_stator_1;
   unsigned int us2us2  =  u_stator_2 * u_stator_2;
   signed int   us1us2  =  u_stator_1 * u_stator_2;
 
-  dTrs = timing_stator_2 - timing_stator_1;
+  dT_ustator = timing_ustator_2 - timing_ustator_1;
   
   u_stator_1 = u_stator_2;
-  timing_stator_1 = timing_stator_2;
+  timing_ustator_1 = timing_ustator_2;
   
-  float theta = (2.0f * pi * 50.0 * dTrs) / 1000000.0f;
+  float u_theta = (2.0f * pi * freq * dT_ustator) / 1000000.0f;
   
-  float cos = std::cos(theta);
-  float sin = std::sin(theta);
+  float ucos = std::cos(u_theta);
+  float usin = std::sin(u_theta);
+   
+  // Ток статора
+  i_stator_2 = pAdc->data[CADC::STATOR_CURRENT];
+  timing_istator_2 = pAdc->timings[CADC::STATOR_CURRENT + 1];
   
+  unsigned int is1is1  =  i_stator_1 * i_stator_1;
+  unsigned int is2is2  =  i_stator_2 * i_stator_2;
+  signed int   is1is2  =  i_stator_1 * i_stator_2;
+
+  dT_istator = timing_istator_2 - timing_istator_1;
+  
+  i_stator_1 = i_stator_2;
+  timing_istator_1 = timing_istator_2;
+  
+  float i_theta = (2.0f * pi * freq * dT_istator) / 1000000.0f;
+  
+  float icos = std::cos(i_theta);
+  float isin = std::sin(i_theta);
+  
+  // Скользящее среднее по 6-ти пульсам
   ind_d_avr++;
-  if(ind_d_avr > 5) ind_d_avr = 0;
-  u_stat[ind_d_avr] = sqrt(((us1us1 + us2us2) - (us1us2 * 2 * cos)) / (sin * sin));
+  if(ind_d_avr > (puls_avr - 1)) ind_d_avr = 0;
   
-  u_stat_avr = round((u_stat[0] + u_stat[1] + u_stat[2] + u_stat[3] + u_stat[4] + u_stat[5]) / 6.0f);
+  u_stat[ind_d_avr] = sqrt(((us1us1 + us2us2) - (us1us2 * 2 * ucos)) / (usin * usin));  
+  U_STATORA = round((u_stat[0] + u_stat[1] + u_stat[2] + u_stat[3] + u_stat[4] + u_stat[5]) / puls_avr);
+  
+  i_stat[ind_d_avr] = sqrt(((is1is1 + is2is2) - (is1is2 * 2 * icos)) / (isin * isin));  
+  I_STATORA = round((i_stat[0] + i_stat[1] + i_stat[2] + i_stat[3] + i_stat[4] + i_stat[5]) / puls_avr);
 
 }
 

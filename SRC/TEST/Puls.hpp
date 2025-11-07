@@ -9,8 +9,10 @@ class CPULS
 
 private:
  
-  static constexpr unsigned int IOCON_P1_PWM = 0x03;                         //Тип портов - PWM
-  static constexpr unsigned int PWM_div_0    = 60;                           //Делитель частоты
+  static constexpr unsigned int IOCON_P1_PWM = 0x03;                         // Тип портов - PWM
+  static constexpr unsigned int PWM_div_0    = 60;                           // Делитель частоты
+  static constexpr char puls_avr = 6;                                        // Пульсов усреднения
+  static constexpr float freq = 50.0f;                                       // Частота сети
   static constexpr float pi = 3.141592653589793;
   
 public:
@@ -26,13 +28,22 @@ public:
   
   signed short u_stator_1;
   signed short u_stator_2;
-  unsigned int timing_stator_1;
-  unsigned int timing_stator_2;
-  unsigned short dTrs;
+  unsigned int timing_ustator_1;
+  unsigned int timing_ustator_2;
+  unsigned short dT_ustator;
+  
+  signed short i_stator_1;
+  signed short i_stator_2;
+  unsigned int timing_istator_1;
+  unsigned int timing_istator_2;
+  unsigned short dT_istator;
     
   char ind_d_avr;
-  float u_stat[6]; 
-  signed short u_stat_avr;
+  
+  float u_stat[puls_avr]; 
+  signed short U_STATORA;
+  float i_stat[puls_avr]; 
+  signed short I_STATORA;
   
   void start();
   void calc(CADC*);
