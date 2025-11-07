@@ -2,44 +2,76 @@
 #include "system_LPC177x.h"
 #include <math.h>
 
-void CADC::conv(std::initializer_list<char> list)
+void CADC::conv_tnf(std::initializer_list<char> list)
 {
-  // Ожидание полной готовности SPI перед burst-записью
-  while (!((LPC_SSP0->SR & SPI_Config::SR_TFE) && !(LPC_SSP0->SR & SPI_Config::SR_BSY))) {}
   
-  // Запись
   char N_ch = list.size();
-  if(N_ch > 6) N_ch = 6;        //Ограничение связанное с размером FIFO в 8 фреймов
   
-  for(char i = 0; i < N_ch; i++)
-  {
-    LPC_SSP1->DR = cN_CH[*(list.begin() + i)];
-  }
-  LPC_SSP1->DR = cN_CH[ch_HRf];
-  LPC_SSP1->DR = cN_CH[ch_HRf];
- 
-  // Чтение и обработка по мере поступления данных
+  char index_wr = 0;
+  char timing_index = 0;
+  char index_rd = 0;  
+  char ending_index = 0;
+  
   unsigned short raw_adc_data;
   unsigned short tmp_Nch;
-  for(char i = 0; i < (N_ch + 2); i++)
-  {
-    while(!(LPC_SSP1->SR & SPI_Config::SR_RNE)){}    
-    raw_adc_data = LPC_SSP1->DR;
-    tmp_Nch = (raw_adc_data & 0xF000) >> 12;
-    if( tmp_Nch < G_CONST::NUMBER_CHANNELS ) 
-    {
-      data[tmp_Nch] = ((raw_adc_data & 0x0FFF) - CEEPSettings::getInstance().getSettings().shift_adc[tmp_Nch]) *
-        (1.0f + CEEPSettings::getInstance().getSettings().incline_adc[tmp_Nch]);
-    }
-  }  
   
-  // Контрольная проверка и очистка FIFO
+  while (true)
+  {
+    
+    // Запись
+    if(index_wr < N_ch)
+    {     
+      if(LPC_SSP0->SR & SPI_Config::SR_TNF)
+      {
+        LPC_SSP1->DR = cN_CH[*(list.begin() + index_wr)];               
+        timings[timing_index] = LPC_TIM2->TC;
+        index_wr++;
+        timing_index++;
+      }           
+    }
+    else
+    {
+      // Выталкиваем два последних байта из FIFO
+      if(ending_index < 2)
+      {
+        ending_index++;
+        LPC_SSP1->DR = cN_CH[ch_HRf];
+        timings[timing_index] = LPC_TIM2->TC;
+        timing_index++;
+      }
+    }
+    
+    // Чтение
+    if(index_rd < (N_ch + 2))
+    {
+      if(LPC_SSP1->SR & SPI_Config::SR_RNE)
+      {
+        raw_adc_data = LPC_SSP1->DR;
+        tmp_Nch = (raw_adc_data & 0xF000) >> 12;
+        if( tmp_Nch < G_CONST::NUMBER_CHANNELS ) 
+        {
+          data[tmp_Nch] = ((raw_adc_data & 0x0FFF) - CEEPSettings::getInstance().getSettings().shift_adc[tmp_Nch]) *
+            (1.0f + CEEPSettings::getInstance().getSettings().incline_adc[tmp_Nch]);
+        }
+        index_rd++;
+      }         
+    }
+    
+    // Все байты записаны и прочитаны
+    if((index_wr == N_ch) && (index_rd == (N_ch + 2)) && (ending_index == 2))
+    {
+      break;
+    }
+  }
+  
+  // Контрольная очистка FIFO
   while(LPC_SSP1->SR & SPI_Config::SR_RNE)
   {
     raw_adc_data = LPC_SSP1->DR;
   } 
   
 }
+
 
 CADC::CADC()
 {  

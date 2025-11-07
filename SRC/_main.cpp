@@ -122,7 +122,7 @@ void main(void)
     {      
       // Указатели на отображаемые переменные.
        &adc.data[CADC::ROTOR_CURRENT],         
-       &adc.data[CADC::STATOR_VOLTAGE],             
+       nullptr,             
        &adc.data[CADC::ROTOR_VOLTAGE],            
        &adc.data[CADC::LEAKAGE_CURRENT],                                                         
        &adc.data[CADC::STATOR_CURRENT],       
@@ -136,7 +136,7 @@ void main(void)
     {
       // Коэффициенты отображения (дискрет на 100%)
       CEEPSettings::getInstance().getSettings().disp_c.p_var1,
-      CEEPSettings::getInstance().getSettings().disp_c.p_var2,
+      1380,
       CEEPSettings::getInstance().getSettings().disp_c.p_var3,
       CEEPSettings::getInstance().getSettings().disp_c.p_var4,
       CEEPSettings::getInstance().getSettings().disp_c.p_var5,
@@ -160,16 +160,20 @@ void main(void)
                                                 // с.м файл обработчиков прерываний "handlers_IRQ.cpp" и "Puls.cpp"
   
   /*--Объекты классов тестов--*/
-  
-  //static CTestESP32 test_esp32(rem_osc, adc);        // Тест ESP32. Имитация изменений/вычислений отображаемых переменных
-  
+    
   static CPULS puls;            // Тест импульсов управления. Выдаётся классическая последовательность СИФУ, передаются данные в ESP32             
 
   static CCOMPARE compare;      // Тест компараторов. Измеряет частоту синхронизации и напряжения статора
   
-  CProxyHandlerTIMER123::getInstance().set_pointers(&puls, &compare, &rem_osc, &adc); // Proxy Singleton доступа к Handler TIMER1,2,3.
-                                                                                // Данный патерн позволяет избежать глобальных 
-                                                                                // ссылок на puls, compare и rem_osc
+  CProxyHandlerTIMER123::getInstance().set_pointers     // Proxy Singleton доступа к Handler TIMER1,2.
+    (                                                   // Данный патерн позволяет избежать глобальных 
+     &puls,                                             // ссылок на puls, compare, adc и rem_osc
+     &compare, 
+     &rem_osc, 
+     &adc
+       ); 
+  
+                                                                                      
   puls.start();                 // Старт теста ИУ
   compare.start();              // Старт теста компараторов
   

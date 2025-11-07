@@ -1,4 +1,5 @@
 #include "Puls.hpp"
+#include <cmath>
 #include "system_LPC177x.h"
 
 const char CPULS::pulses[] = {0x03, 0x06, 0x0C, 0x18, 0x30, 0x21};
@@ -10,6 +11,35 @@ CPULS::CPULS()
   
   LPC_PWM0->TCR    = COUNTER_CLR;               //Сброс регистра таймера
   LPC_PWM0->TCR    = COUNTER_RESET;             //Сброс таймера 
+  
+  ind_d_avr = 0;
+}
+
+void CPULS::calc(CADC* pAdc) 
+{  
+  u_stator_2 = pAdc->data[CADC::STATOR_VOLTAGE];
+  timing_stator_2 = pAdc->timings[CADC::STATOR_VOLTAGE + 1];
+  
+  unsigned int us1us1  =  u_stator_1 * u_stator_1;
+  unsigned int us2us2  =  u_stator_2 * u_stator_2;
+  signed int   us1us2  =  u_stator_1 * u_stator_2;
+
+  dTrs = timing_stator_2 - timing_stator_1;
+  
+  u_stator_1 = u_stator_2;
+  timing_stator_1 = timing_stator_2;
+  
+  float theta = (2.0f * pi * 50.0 * dTrs) / 1000000.0f;
+  
+  float cos = std::cos(theta);
+  float sin = std::sin(theta);
+  
+  ind_d_avr++;
+  if(ind_d_avr > 5) ind_d_avr = 0;
+  u_stat[ind_d_avr] = sqrt(((us1us1 + us2us2) - (us1us2 * 2 * cos)) / (sin * sin));
+  
+  u_stat_avr = round((u_stat[0] + u_stat[1] + u_stat[2] + u_stat[3] + u_stat[4] + u_stat[5]) / 6.0f);
+
 }
 
 void CPULS::start() 

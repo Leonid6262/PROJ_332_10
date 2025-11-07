@@ -2,6 +2,7 @@
 
 #include "LPC407x_8x_177x_8x.h"
 #include "rem_osc.hpp"
+#include "adc.hpp"
 
 class CPULS
 { 
@@ -10,6 +11,7 @@ private:
  
   static constexpr unsigned int IOCON_P1_PWM = 0x03;                         //Тип портов - PWM
   static constexpr unsigned int PWM_div_0    = 60;                           //Делитель частоты
+  static constexpr float pi = 3.141592653589793;
   
 public:
   
@@ -22,7 +24,18 @@ public:
   
   unsigned char N_Pulse;
   
+  signed short u_stator_1;
+  signed short u_stator_2;
+  unsigned int timing_stator_1;
+  unsigned int timing_stator_2;
+  unsigned short dTrs;
+    
+  char ind_d_avr;
+  float u_stat[6]; 
+  signed short u_stat_avr;
+  
   void start();
+  void calc(CADC*);
 
   static constexpr unsigned int PWM_WIDTH        = 10;                          //us
   static constexpr unsigned int PULSE_WIDTH      = 560;                         //us

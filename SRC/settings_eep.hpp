@@ -83,8 +83,8 @@ private:
     {
       .p_var1 = 100,
       .c_var1 = 0.5f,
-      .p_var2 = 100,
-      .c_var2 = 0.5f,
+      .p_var2 = 1380,
+      .c_var2 = 13.8f,
       .p_var3 = 100,
       .c_var3 = 0.5f,
       .p_var4 = 100,

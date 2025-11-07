@@ -14,6 +14,7 @@ namespace SPI_Config {
   constexpr unsigned int SR_BSY          = 1UL << 4;
   constexpr unsigned int SR_RNE          = 1UL << 2;
   constexpr unsigned int SR_TFE          = 1UL << 0;
+  constexpr unsigned int SR_TNF          = 1UL << 1;
   
   void inline set_spi_clock(LPC_SSP_TypeDef* pLPC_SSP, unsigned int Hz, unsigned long P_Clock)
   {

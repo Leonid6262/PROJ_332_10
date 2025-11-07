@@ -1,6 +1,7 @@
 #include "handlers_IRQ.hpp"
 #include "system_LPC177x.h"
 #include "dout_cpu.hpp"
+#include <cmath>
 #include "LPC407x_8x_177x_8x.h"
 
 CProxyHandlerTIMER123::CProxyHandlerTIMER123(){}; // Прокси для доступа к Timers IRQ Handlers
@@ -11,6 +12,7 @@ void CProxyHandlerTIMER123::set_pointers(CPULS* pPuls, CCOMPARE* pCompare, CREM_
   this->pCompare = pCompare;
   this->pRem_osc = pRem_osc;
   this->pAdc = pAdc;
+  pRem_osc->set_init.pData[1] = &pPuls->u_stat_avr;
 }
 
 extern "C" 
@@ -50,15 +52,12 @@ extern "C"
       
       // Измерение всех используемых (в ВТЕ) аналоговых сигналов (внешнее ADC)
       CDout_cpu::UserLedOn();
-      rProxy.pAdc->conv
+      rProxy.pAdc->conv_tnf
         ({
           CADC::ROTOR_CURRENT, 
           CADC::STATOR_VOLTAGE, 
           CADC::ROTOR_VOLTAGE, 
-          CADC::EXTERNAL_SETTINGS
-        });
-      rProxy.pAdc->conv
-        ({
+          CADC::EXTERNAL_SETTINGS,
           CADC::LEAKAGE_CURRENT, 
           CADC::STATOR_CURRENT, 
           CADC::LOAD_NODE_CURRENT
@@ -70,6 +69,8 @@ extern "C"
       Пример доступа к измеренным значениям - rADC.data[CADC::ROTOR_CURRENT] 
     */
       //----------------------------------------------------------------------
+      
+      rProxy.pPuls->calc(rProxy.pAdc);
       
       /*--- Здесь передаются отображаемые данные в ESP32 ---*/
       rProxy.pRem_osc->send_data();

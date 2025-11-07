@@ -51,8 +51,9 @@ public:
   // Массив измеренных значений.
   // Пример доступа - adc.data[CADC::Rotor_current] 
   signed short data[G_CONST::NUMBER_CHANNELS];
+  unsigned int timings[G_CONST::NUMBER_CHANNELS + 2];
   
   // Метод конвертации
-  void conv(std::initializer_list<char>);
+  void conv_tnf(std::initializer_list<char>);
   
 };
