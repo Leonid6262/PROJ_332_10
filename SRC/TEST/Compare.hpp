@@ -16,6 +16,8 @@ private:
   static constexpr unsigned int TIM3_CAPTURE_RI = 0x28;
   static constexpr unsigned int TIM1_CAPTURE_RI = 0x28;
   
+  static constexpr unsigned int IRQ_CAP1 = 0x20;
+  
   static constexpr unsigned int _100ms = 1000000;
    
 public:

@@ -11,13 +11,16 @@ private:
  
   static constexpr unsigned int IOCON_P1_PWM = 0x03;                         // Тип портов - PWM
   static constexpr unsigned int PWM_div_0    = 60;                           // Делитель частоты
-  static constexpr char puls_avr = 6;                                        // Пульсов усреднения
+  static constexpr char PULS_AVR = 6;                                        // Пульсов усреднения
   static constexpr float freq = 50.0f;                                       // Частота сети
   static constexpr float pi = 3.141592653589793;
   
 public:
   
-  CPULS();
+  CPULS(signed short*, unsigned int*);
+  
+  signed short* adc_data;
+  unsigned int* adc_timings;
 
   static const char pulses[];
   
@@ -40,13 +43,21 @@ public:
     
   char ind_d_avr;
   
-  float u_stat[puls_avr]; 
+  float u_stat[PULS_AVR]; 
   signed short U_STATORA;
-  float i_stat[puls_avr]; 
+  float i_stat[PULS_AVR]; 
   signed short I_STATORA;
   
   void start();
-  void calc(CADC*);
+  void start_main_bridge();
+  void start_puls();
+  void stop_puls();
+  void sin_restoration();
+  
+  static constexpr unsigned int IOCON_P_PWM  = 0x03;                            //Тип портов - PWM
+  static constexpr unsigned int IOCON_P_PORT = 0x00;                            //Тип портов - Port
+  static constexpr unsigned int P1_2 = 0x02;                                    //Port1:2
+  static constexpr unsigned int P1_3 = 0x03;                                    //Port1:3  
 
   static constexpr unsigned int PWM_WIDTH        = 10;                          //us
   static constexpr unsigned int PULSE_WIDTH      = 560;                         //us

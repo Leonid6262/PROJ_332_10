@@ -1,21 +1,62 @@
 #include "Puls.hpp"
 #include "system_LPC177x.h"
-#include <cmath>
 
 const char CPULS::pulses[] = {0x03, 0x06, 0x0C, 0x18, 0x30, 0x21};
 
-CPULS::CPULS()
+CPULS::CPULS(signed short* adc_data, unsigned int* adc_timings) : adc_data(adc_data), adc_timings(adc_timings)
 {  
   LPC_SC->PCONP   |= CLKPWR_PCONP_PCPWM0;       //PWM0 power/clock control bit.
   LPC_PWM0->PR     = PWM_div_0 - 1;             //при PWM_div=60, F=60МГц/60=1МГц, 1тик=1мкс       
   
   LPC_PWM0->TCR    = COUNTER_CLR;               //Сброс регистра таймера
   LPC_PWM0->TCR    = COUNTER_RESET;             //Сброс таймера 
-  
-  ind_d_avr = 0;
+
 }
 
-void CPULS::calc(CADC* pAdc) 
+void CPULS::start_puls()
+{
+  //Старт ИУ форсировочного моста
+  if(main_bridge)   
+  {
+    LPC_GPIO3->CLR  = pulses[N_Pulse - 1] << FIRS_PULS_PORT;
+    LPC_IOCON->P1_2 = IOCON_P_PWM;        //P1_2->PWM0:1 (SUM-1)                 
+    LPC_PWM0->PCR   = PCR_PWMENA1; 
+    LPC_PWM0->TCR   = COUNTER_START;      //Старт счётчик b1<-0
+    LPC_PWM0->LER   = LER_012;            //Обновление MR0,MR1 и MR2 
+  }
+  //Старт ИУ рабочего моста
+  if(forcing_bridge)      
+  {
+    LPC_GPIO3->CLR  = pulses[N_Pulse - 1] << FIRS_PULS_PORT;
+    LPC_IOCON->P1_3 = IOCON_P_PWM;        //P1_3->PWM0:2 (SUM-2)        
+    LPC_PWM0->PCR   = PCR_PWMENA2; 
+    LPC_PWM0->TCR   = COUNTER_START;      //Старт счётчик b1<-0
+    LPC_PWM0->LER   = LER_012;            //Обновление MR0,MR1 и MR2 
+  }
+  
+  LPC_TIM2->MR1 = LPC_TIM2->TC + CPULS::PULSE_WIDTH; 
+  LPC_TIM2->MCR = TIM2_COMPARE_MR1;  
+}
+
+void CPULS::stop_puls()
+{
+  LPC_IOCON->P1_2 = IOCON_P_PORT; //P1_2 - Port
+  LPC_GPIO1->CLR  = 1UL << P1_2;
+  LPC_IOCON->P1_3 = IOCON_P_PORT; //P1_3 - Port
+  LPC_GPIO1->CLR  = 1UL << P1_3;      
+  
+  LPC_GPIO3->SET   = OFF_PULSES;              
+  LPC_TIM2->MR0   += PULSE_PERIOD;
+  LPC_TIM2->MCR    = TIM2_COMPARE_MR0;            
+  
+  LPC_PWM0->TCR  = COUNTER_STOP;            //Стоп счётчик b1<-1
+  LPC_PWM0->TCR  = COUNTER_RESET;
+  
+  N_Pulse = (N_Pulse % N_PULSES) + 1;
+  
+}
+
+void CPULS::sin_restoration() 
 {  
   /*
     Восстановление сигналов произвадится по двум мгновенным значениям и углу (Theta) между ними:
@@ -23,8 +64,8 @@ void CPULS::calc(CADC* pAdc)
   */
   
   // Напряжение статора
-  u_stator_2 = pAdc->data[CADC::STATOR_VOLTAGE];
-  timing_ustator_2 = pAdc->timings[CADC::STATOR_VOLTAGE + 1];
+  u_stator_2 = adc_data[CADC::STATOR_VOLTAGE];
+  timing_ustator_2 = adc_timings[CADC::STATOR_VOLTAGE + 1];
   
   unsigned int us1us1  =  u_stator_1 * u_stator_1;
   unsigned int us2us2  =  u_stator_2 * u_stator_2;
@@ -41,8 +82,8 @@ void CPULS::calc(CADC* pAdc)
   float usin = std::sin(u_theta);
    
   // Ток статора
-  i_stator_2 = pAdc->data[CADC::STATOR_CURRENT];
-  timing_istator_2 = pAdc->timings[CADC::STATOR_CURRENT + 1];
+  i_stator_2 = adc_data[CADC::STATOR_CURRENT];
+  timing_istator_2 = adc_timings[CADC::STATOR_CURRENT + 1];
   
   unsigned int is1is1  =  i_stator_1 * i_stator_1;
   unsigned int is2is2  =  i_stator_2 * i_stator_2;
@@ -59,15 +100,16 @@ void CPULS::calc(CADC* pAdc)
   float isin = std::sin(i_theta);
   
   // Скользящее среднее по 6-ти пульсам
-  ind_d_avr++;
-  if(ind_d_avr > (puls_avr - 1)) ind_d_avr = 0;
+  ind_d_avr = (ind_d_avr + 1) % PULS_AVR;
   
   u_stat[ind_d_avr] = sqrt(((us1us1 + us2us2) - (us1us2 * 2 * ucos)) / (usin * usin));  
-  U_STATORA = round((u_stat[0] + u_stat[1] + u_stat[2] + u_stat[3] + u_stat[4] + u_stat[5]) / puls_avr);
+  float uavr = (u_stat[0] + u_stat[1] + u_stat[2] + u_stat[3] + u_stat[4] + u_stat[5]) / PULS_AVR;
+  U_STATORA = static_cast<int>(uavr + 0.5f);
   
   i_stat[ind_d_avr] = sqrt(((is1is1 + is2is2) - (is1is2 * 2 * icos)) / (isin * isin));  
-  I_STATORA = round((i_stat[0] + i_stat[1] + i_stat[2] + i_stat[3] + i_stat[4] + i_stat[5]) / puls_avr);
-
+  float iavr = (i_stat[0] + i_stat[1] + i_stat[2] + i_stat[3] + i_stat[4] + i_stat[5]) / PULS_AVR;
+  I_STATORA = static_cast<int>(iavr + 0.5f);
+  
 }
 
 void CPULS::start() 
@@ -75,7 +117,8 @@ void CPULS::start()
   forcing_bridge = false;
   main_bridge    = false;
   
-  N_Pulse = 1;
+  N_Pulse = 1;    
+  ind_d_avr = 0;
 
   LPC_PWM0->PCR       = 0x00;           //Отключение PWM0 
   LPC_PWM0->MR0       = PWM_WIDTH * 2;  //Период ШИМ. MR0 - включение

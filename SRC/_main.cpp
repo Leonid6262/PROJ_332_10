@@ -116,14 +116,18 @@ void main(void)
                                   rRt_clockc.setDateTime(CurDateTime); <--данные пишутся в RTC в момент выполнения setDateTime(CurDateTime)
                               */
   
+  static CPULS puls(adc.data, adc.timings); /* Тест импульсов управления. Выдаётся классическая последовательность СИФУ,
+                                               передаются данные в ESP32, восстанавливаются сигналы напряжения и тока статора.                                                         
+                                            */
+  
   // Пример структуры инициализирующих значений CREM_OSC. Дистанционный осцилограф (ESP32 c WiFi модулем)
   static CREM_OSC::SSET_init set_init
   {
     {      
       // Указатели на отображаемые переменные.
        &adc.data[CADC::ROTOR_CURRENT],         
-       nullptr,                         // Зарезервировано для напряжения статора (1)
-       nullptr,                         // Зарезервировано для тока статора (2)
+       &puls.U_STATORA,                         // Восстановленное напряжение статора
+       &puls.I_STATORA,                         // Восстановленный ток статора
        &adc.data[CADC::ROTOR_VOLTAGE],            
        &adc.data[CADC::LEAKAGE_CURRENT],                                                                
        &adc.data[CADC::LOAD_NODE_CURRENT],
@@ -161,19 +165,15 @@ void main(void)
   
   /*--Объекты классов тестов--*/
     
-  static CPULS puls;            // Тест импульсов управления. Выдаётся классическая последовательность СИФУ, передаются данные в ESP32             
-
   static CCOMPARE compare;      // Тест компараторов. Измеряет частоту синхронизации и напряжения статора
   
-  CProxyHandlerTIMER123::getInstance().set_pointers     // Proxy Singleton доступа к Handler TIMER1,2.
-    (                                                   // Данный патерн позволяет избежать глобальных 
-     &puls,                                             // ссылок на puls, compare, adc и rem_osc
-     &compare, 
+  CProxyHandlerTIMER::getInstance().set_pointers     // Proxy Singleton доступа к Handler TIMER.
+    (                                                // Данный патерн позволяет избежать глобальных 
+     &puls,                                          // ссылок на puls, adc и rem_osc
      &rem_osc, 
      &adc
        ); 
-  
-                                                                                      
+                                                                                       
   puls.start();                 // Старт теста ИУ
   compare.start();              // Старт теста компараторов
   
