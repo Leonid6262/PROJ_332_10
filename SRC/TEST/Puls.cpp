@@ -34,9 +34,37 @@ void CPULS::start_puls()
     LPC_PWM0->LER   = LER_012;            //Обновление MR0,MR1 и MR2 
   }
   
-  LPC_TIM2->MR1 = LPC_TIM2->TC + CPULS::PULSE_WIDTH; 
+  LPC_TIM2->MR1 = LPC_TIM2->TC + PULSE_WIDTH; 
   LPC_TIM2->MCR = TIM2_COMPARE_MR1;  
 }
+
+/*void CPULS::start_puls()
+{
+  //Старт ИУ форсировочного моста
+  if(main_bridge)   
+  {
+    LPC_GPIO3->CLR  = pulses[N_Pulse - 1] << FIRS_PULS_PORT;
+    LPC_IOCON->P1_2 = IOCON_P_PWM;        //P1_2->PWM0:1 (SUM-1)                 
+    LPC_PWM0->PCR   = PCR_PWMENA1; 
+    LPC_PWM0->TCR   = COUNTER_START;      //Старт счётчик b1<-0
+    LPC_PWM0->LER   = LER_012;            //Обновление MR0,MR1 и MR2 
+  }
+  //Старт ИУ рабочего моста
+  if(forcing_bridge)      
+  {
+    LPC_GPIO3->CLR  = pulses[N_Pulse - 1] << FIRS_PULS_PORT;
+    LPC_IOCON->P1_3 = IOCON_P_PWM;        //P1_3->PWM0:2 (SUM-2)        
+    LPC_PWM0->PCR   = PCR_PWMENA2; 
+    LPC_PWM0->TCR   = COUNTER_START;      //Старт счётчик b1<-0
+    LPC_PWM0->LER   = LER_012;            //Обновление MR0,MR1 и MR2 
+  }
+    
+    LPC_TIM2->MR1 = LPC_TIM2->MR0 + PULSE_WIDTH;        // Окончание текущего
+    LPC_TIM2->MR0 = LPC_TIM2->MR0 + PULSE_PERIOD;       // Старт следующего
+     
+                                                        ////LPC_TIM2->MR1 = LPC_TIM2->TC + CPULS::PULSE_WIDTH; 
+                                                        ////LPC_TIM2->MCR = TIM2_COMPARE_MR1;  
+}*/
 
 void CPULS::stop_puls()
 {
@@ -52,9 +80,24 @@ void CPULS::stop_puls()
   LPC_PWM0->TCR  = COUNTER_STOP;            //Стоп счётчик b1<-1
   LPC_PWM0->TCR  = COUNTER_RESET;
   
-  N_Pulse = (N_Pulse % N_PULSES) + 1;
-  
+  N_Pulse = (N_Pulse % N_PULSES) + 1;  
 }
+/*void CPULS::stop_puls()
+{
+  LPC_IOCON->P1_2 = IOCON_P_PORT; //P1_2 - Port
+  LPC_GPIO1->CLR  = 1UL << P1_2;
+  LPC_IOCON->P1_3 = IOCON_P_PORT; //P1_3 - Port
+  LPC_GPIO1->CLR  = 1UL << P1_3;      
+  
+  LPC_GPIO3->SET   = OFF_PULSES;              
+                                      ////LPC_TIM2->MR0   += PULSE_PERIOD;
+                                      ////LPC_TIM2->MCR    = TIM2_COMPARE_MR0;            
+  
+  LPC_PWM0->TCR  = COUNTER_STOP;            //Стоп счётчик b1<-1
+  LPC_PWM0->TCR  = COUNTER_RESET;
+  
+  N_Pulse = (N_Pulse % N_PULSES) + 1;  
+}*/
 
 void CPULS::sin_restoration() 
 {  
@@ -135,6 +178,12 @@ void CPULS::start()
   LPC_TIM2->MR0 = LPC_TIM2->TC + PULSE_PERIOD;
   LPC_TIM2->MR1 = LPC_TIM2->TC + PULSE_WIDTH;    
   LPC_TIM2->MCR = TIM2_COMPARE_MR1;     //Compare TIM2 с MR1- enabled
+  
+  //LPC_TIM2->TC = 0;
+  //LPC_TIM2->MR0 = PULSE_PERIOD;
+  //LPC_TIM2->MR1 = PULSE_PERIOD + PULSE_WIDTH;  
+  //LPC_TIM2->MCR  = TIM2_COMPARE_MR0;     //Compare TIM2 с MR0- enabled
+  //LPC_TIM2->MCR |= TIM2_COMPARE_MR1;     //Compare TIM2 с MR1- enabled
   
   NVIC_EnableIRQ(TIMER2_IRQn);
   
