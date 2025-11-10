@@ -13,15 +13,22 @@ private:
   static constexpr unsigned int PWM_div_0    = 60;                           // Делитель частоты
   static constexpr char PULS_AVR = 6;                                        // Пульсов усреднения
   static constexpr float freq = 50.0f;                                       // Частота сети
+  static constexpr float SYNC_F_MIN = 49.0f;
+  static constexpr float SYNC_F_MAX = 51.0f;
   static constexpr float pi = 3.141592653589793;
+  
+  enum class EOperating_mode {
+    NO_SYNC,           
+    RESYNC,          
+    NORMAL            
+  };
   
 public:
   
-  CPULS(signed short*, unsigned int*);
+  CPULS(CADC&);
   
-  signed short* adc_data;
-  unsigned int* adc_timings;
-
+  CADC& rAdc;
+  
   static const char pulses[];
   
   bool forcing_bridge;
@@ -53,6 +60,8 @@ public:
   void start_puls();
   void stop_puls();
   void sin_restoration();
+  void control_sync();
+  void conv_adc();
   
   static constexpr unsigned int IOCON_P_PWM  = 0x03;                            //Тип портов - PWM
   static constexpr unsigned int IOCON_P_PORT = 0x00;                            //Тип портов - Port
@@ -74,9 +83,24 @@ public:
   static constexpr unsigned int COUNTER_STOP     = 0x0B;
   static constexpr unsigned int COUNTER_START    = 0x09;
   
-  static constexpr unsigned int TIM2_TCR_START   = 0x01;
+  static constexpr unsigned int TIM3_TCR_START   = 0x01;
 
-  static constexpr unsigned int TIM2_COMPARE_MR0 = 0x01;
-  static constexpr unsigned int TIM2_COMPARE_MR1 = 0x08;
+  static constexpr unsigned int TIM3_COMPARE_MR0 = 0x01;
+  static constexpr unsigned int TIM3_COMPARE_MR1 = 0x08;
+  static constexpr unsigned int TIM3_CAPTURE_RI  = 0x08;
+  static constexpr unsigned int IOCON_T3_CAP1    = 0x23;
+  
+  static constexpr float TIC_SEC = 1000000.0;
+  
+  bool SYNC;
+  float SYNC_FREQUENCY;
+  unsigned int CURRENT_CR;
+  EOperating_mode Operating_mode;
+  
+  float sync_f; 
+  unsigned int prev_cr;
+  unsigned char n_sync_pulses;
+  
+  
   
 };

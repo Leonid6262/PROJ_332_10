@@ -116,7 +116,7 @@ void main(void)
                                   rRt_clockc.setDateTime(CurDateTime); <--данные пишутся в RTC в момент выполнения setDateTime(CurDateTime)
                               */
   
-  static CPULS puls(adc.data, adc.timings); /* Тест импульсов управления. Выдаётся классическая последовательность СИФУ,
+  static CPULS puls(adc); /* Тест импульсов управления. Выдаётся классическая последовательность СИФУ,
                                                передаются данные в ESP32, восстанавливаются сигналы напряжения и тока статора.                                                         
                                             */
   
@@ -126,8 +126,8 @@ void main(void)
     {      
       // Указатели на отображаемые переменные.
        &adc.data[CADC::ROTOR_CURRENT],         
-       &puls.U_STATORA,                         // Восстановленное напряжение статора
-       &puls.I_STATORA,                         // Восстановленный ток статора
+       &adc.data[CADC::STATOR_VOLTAGE],//&puls.U_STATORA,                         // Восстановленное напряжение статора
+       &adc.data[CADC::STATOR_CURRENT],//&puls.I_STATORA,                         // Восстановленный ток статора
        &adc.data[CADC::ROTOR_VOLTAGE],            
        &adc.data[CADC::LEAKAGE_CURRENT],                                                                
        &adc.data[CADC::LOAD_NODE_CURRENT],
@@ -139,13 +139,13 @@ void main(void)
     },
     {
       // Коэффициенты отображения (дискрет на 100%)
-      CEEPSettings::getInstance().getSettings().disp_c.p_var1,
-      CEEPSettings::getInstance().getSettings().disp_c.p_var2,
-      CEEPSettings::getInstance().getSettings().disp_c.p_var3,
-      CEEPSettings::getInstance().getSettings().disp_c.p_var4,
-      CEEPSettings::getInstance().getSettings().disp_c.p_var5,
-      CEEPSettings::getInstance().getSettings().disp_c.p_var6,
-      CEEPSettings::getInstance().getSettings().disp_c.p_var7
+      100,//CEEPSettings::getInstance().getSettings().disp_c.p_var1,
+      100,//CEEPSettings::getInstance().getSettings().disp_c.p_var2,
+      100,//CEEPSettings::getInstance().getSettings().disp_c.p_var3,
+      100,//CEEPSettings::getInstance().getSettings().disp_c.p_var4,
+      100,//CEEPSettings::getInstance().getSettings().disp_c.p_var5,
+      100,//CEEPSettings::getInstance().getSettings().disp_c.p_var6,
+      100,//CEEPSettings::getInstance().getSettings().disp_c.p_var7
       // По d_100p[NUMBER_TRACKS] определяется фактическое количество треков. 
     },
     // Режим работы Access_point или Station
@@ -165,17 +165,16 @@ void main(void)
   
   /*--Объекты классов тестов--*/
     
-  static CCOMPARE compare;      // Тест компараторов. Измеряет частоту синхронизации и напряжения статора
+  static CCOMPARE compare;      // Тест компаратора напряжения статора. Измеряет частоту напряжения статора.
+                                // При использовании векторной математики восстановления синусоидальных сигналов
+                                // по 2-м измерениям, данное устройство (компаратор) излишне.
   
-  CProxyHandlerTIMER::getInstance().set_pointers     // Proxy Singleton доступа к Handler TIMER.
-    (                                                // Данный патерн позволяет избежать глобальных 
-     &puls,                                          // ссылок на puls, adc и rem_osc
-     &rem_osc, 
-     &adc
-       ); 
+  CProxyHandlerTIMER::getInstance().set_pointers(&puls, &rem_osc);  // Proxy Singleton доступа к Handler TIMER.
+                                                                    // Данный патерн позволяет избежать глобальных 
+                                                                    // ссылок на puls, и rem_osc
                                                                                        
   puls.start();                 // Старт теста ИУ
-  compare.start();              // Старт теста компараторов
+  compare.start();              // Старт теста компаратора
   
   static CTEST_ETH test_eth(emac_drv);  // loop Test Ethernet. По физической петле передаёт/принимает тестовые raw кадры 
 

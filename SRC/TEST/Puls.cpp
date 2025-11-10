@@ -3,15 +3,7 @@
 
 const char CPULS::pulses[] = {0x03, 0x06, 0x0C, 0x18, 0x30, 0x21};
 
-CPULS::CPULS(signed short* adc_data, unsigned int* adc_timings) : adc_data(adc_data), adc_timings(adc_timings)
-{  
-  LPC_SC->PCONP   |= CLKPWR_PCONP_PCPWM0;       //PWM0 power/clock control bit.
-  LPC_PWM0->PR     = PWM_div_0 - 1;             //при PWM_div=60, F=60МГц/60=1МГц, 1тик=1мкс       
-  
-  LPC_PWM0->TCR    = COUNTER_CLR;               //Сброс регистра таймера
-  LPC_PWM0->TCR    = COUNTER_RESET;             //Сброс таймера 
-
-}
+CPULS::CPULS(CADC& rAdc) : rAdc(rAdc){}
 
 void CPULS::start_puls()
 {
@@ -33,38 +25,20 @@ void CPULS::start_puls()
     LPC_PWM0->TCR   = COUNTER_START;      //Старт счётчик b1<-0
     LPC_PWM0->LER   = LER_012;            //Обновление MR0,MR1 и MR2 
   }
-  
-  LPC_TIM2->MR1 = LPC_TIM2->TC + PULSE_WIDTH; 
-  LPC_TIM2->MCR = TIM2_COMPARE_MR1;  
-}
-
-/*void CPULS::start_puls()
-{
-  //Старт ИУ форсировочного моста
-  if(main_bridge)   
-  {
-    LPC_GPIO3->CLR  = pulses[N_Pulse - 1] << FIRS_PULS_PORT;
-    LPC_IOCON->P1_2 = IOCON_P_PWM;        //P1_2->PWM0:1 (SUM-1)                 
-    LPC_PWM0->PCR   = PCR_PWMENA1; 
-    LPC_PWM0->TCR   = COUNTER_START;      //Старт счётчик b1<-0
-    LPC_PWM0->LER   = LER_012;            //Обновление MR0,MR1 и MR2 
-  }
-  //Старт ИУ рабочего моста
-  if(forcing_bridge)      
-  {
-    LPC_GPIO3->CLR  = pulses[N_Pulse - 1] << FIRS_PULS_PORT;
-    LPC_IOCON->P1_3 = IOCON_P_PWM;        //P1_3->PWM0:2 (SUM-2)        
-    LPC_PWM0->PCR   = PCR_PWMENA2; 
-    LPC_PWM0->TCR   = COUNTER_START;      //Старт счётчик b1<-0
-    LPC_PWM0->LER   = LER_012;            //Обновление MR0,MR1 и MR2 
-  }
     
-    LPC_TIM2->MR1 = LPC_TIM2->MR0 + PULSE_WIDTH;        // Окончание текущего
-    LPC_TIM2->MR0 = LPC_TIM2->MR0 + PULSE_PERIOD;       // Старт следующего
-     
-                                                        ////LPC_TIM2->MR1 = LPC_TIM2->TC + CPULS::PULSE_WIDTH; 
-                                                        ////LPC_TIM2->MCR = TIM2_COMPARE_MR1;  
-}*/
+  switch(Operating_mode)
+  {
+  case EOperating_mode::NO_SYNC:
+    LPC_TIM3->MR1 = LPC_TIM3->MR0 + PULSE_WIDTH;        // Окончание текущего
+    LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего    
+    break;
+  case EOperating_mode::RESYNC:
+    break;
+  case EOperating_mode::NORMAL:
+    break;
+  }
+  
+}
 
 void CPULS::stop_puls()
 {
@@ -74,30 +48,32 @@ void CPULS::stop_puls()
   LPC_GPIO1->CLR  = 1UL << P1_3;      
   
   LPC_GPIO3->SET   = OFF_PULSES;              
-  LPC_TIM2->MR0   += PULSE_PERIOD;
-  LPC_TIM2->MCR    = TIM2_COMPARE_MR0;            
-  
+ 
   LPC_PWM0->TCR  = COUNTER_STOP;            //Стоп счётчик b1<-1
   LPC_PWM0->TCR  = COUNTER_RESET;
   
   N_Pulse = (N_Pulse % N_PULSES) + 1;  
 }
-/*void CPULS::stop_puls()
+
+void CPULS::conv_adc()
 {
-  LPC_IOCON->P1_2 = IOCON_P_PORT; //P1_2 - Port
-  LPC_GPIO1->CLR  = 1UL << P1_2;
-  LPC_IOCON->P1_3 = IOCON_P_PORT; //P1_3 - Port
-  LPC_GPIO1->CLR  = 1UL << P1_3;      
-  
-  LPC_GPIO3->SET   = OFF_PULSES;              
-                                      ////LPC_TIM2->MR0   += PULSE_PERIOD;
-                                      ////LPC_TIM2->MCR    = TIM2_COMPARE_MR0;            
-  
-  LPC_PWM0->TCR  = COUNTER_STOP;            //Стоп счётчик b1<-1
-  LPC_PWM0->TCR  = COUNTER_RESET;
-  
-  N_Pulse = (N_Pulse % N_PULSES) + 1;  
-}*/
+  // Измерение всех используемых (в ВТЕ) аналоговых сигналов (внешнее ADC)
+  rAdc.conv_tnf
+    ({
+      CADC::ROTOR_CURRENT, 
+      CADC::STATOR_VOLTAGE,
+      CADC::STATOR_CURRENT,
+      CADC::ROTOR_VOLTAGE, 
+      CADC::EXTERNAL_SETTINGS,
+      CADC::LEAKAGE_CURRENT,           
+      CADC::LOAD_NODE_CURRENT
+    });
+  /* 
+  Для сокращения записи аргументов здесь использована си нотация enum, вмесо типобезопасной enum class c++.
+  CADC::ROTOR_CURRENT вместо static_cast<char>(CADC::EADC_NameCh::ROTOR_CURRENT) - считаю, разумный компромисс.
+  Пример доступа к измеренным значениям - rADC.data[CADC::ROTOR_CURRENT] 
+  */
+}
 
 void CPULS::sin_restoration() 
 {  
@@ -107,8 +83,8 @@ void CPULS::sin_restoration()
   */
   
   // Напряжение статора
-  u_stator_2 = adc_data[CADC::STATOR_VOLTAGE];
-  timing_ustator_2 = adc_timings[CADC::STATOR_VOLTAGE + 1];
+  u_stator_2 = rAdc.data[CADC::STATOR_VOLTAGE];
+  timing_ustator_2 = rAdc.timings[CADC::STATOR_VOLTAGE + 1];
   
   unsigned int us1us1  =  u_stator_1 * u_stator_1;
   unsigned int us2us2  =  u_stator_2 * u_stator_2;
@@ -125,8 +101,8 @@ void CPULS::sin_restoration()
   float usin = std::sin(u_theta);
    
   // Ток статора
-  i_stator_2 = adc_data[CADC::STATOR_CURRENT];
-  timing_istator_2 = adc_timings[CADC::STATOR_CURRENT + 1];
+  i_stator_2 = rAdc.data[CADC::STATOR_CURRENT];
+  timing_istator_2 = rAdc.timings[CADC::STATOR_CURRENT + 1];
   
   unsigned int is1is1  =  i_stator_1 * i_stator_1;
   unsigned int is2is2  =  i_stator_2 * i_stator_2;
@@ -155,6 +131,46 @@ void CPULS::sin_restoration()
   
 }
 
+void CPULS::control_sync()
+{
+  
+  CURRENT_CR = LPC_TIM3->CR1;
+  
+  if (prev_cr != CURRENT_CR)
+  {
+    float f = CPULS::TIC_SEC / static_cast<float>(CURRENT_CR - prev_cr);
+    
+    if (f >= SYNC_F_MIN && f <= SYNC_F_MAX)
+    {
+      sync_f = f;      
+      SYNC = true;
+      SYNC_FREQUENCY = sync_f;
+      n_sync_pulses = 0;
+    }
+    else
+    {
+      // Частота вне допустимого диапазона — игнорируем два периода
+      n_sync_pulses++;
+      if (n_sync_pulses > 12)
+      {
+        SYNC_FREQUENCY = 0;
+        SYNC = false;
+      }
+    }
+    prev_cr = CURRENT_CR;
+  }
+  else
+  {
+    // Синхронизации нет на протяжении двух периодов
+    n_sync_pulses++;
+    if (n_sync_pulses > 12)
+    {
+      SYNC_FREQUENCY = 0;
+      SYNC = false;
+    }
+  }
+}
+
 void CPULS::start() 
 {  
   forcing_bridge = false;
@@ -162,7 +178,16 @@ void CPULS::start()
   
   N_Pulse = 1;    
   ind_d_avr = 0;
-
+  n_sync_pulses = 0;
+  SYNC = false;
+  Operating_mode = EOperating_mode::NO_SYNC;
+  
+  LPC_SC->PCONP   |= CLKPWR_PCONP_PCPWM0;       //PWM0 power/clock control bit.
+  LPC_PWM0->PR     = PWM_div_0 - 1;             //при PWM_div=60, F=60МГц/60=1МГц, 1тик=1мкс       
+  
+  LPC_PWM0->TCR    = COUNTER_CLR;               //Сброс регистра таймера
+  LPC_PWM0->TCR    = COUNTER_RESET;             //Сброс таймера 
+  
   LPC_PWM0->PCR       = 0x00;           //Отключение PWM0 
   LPC_PWM0->MR0       = PWM_WIDTH * 2;  //Период ШИМ. MR0 - включение
   LPC_PWM0->MR1       = PWM_WIDTH;      //Выключение PWM0:1 по MR1
@@ -172,20 +197,19 @@ void CPULS::start()
   LPC_PWM0->TCR       = COUNTER_STOP;   //Включение PWM. Счётчик - стоп
   LPC_PWM0->TCR       = COUNTER_RESET;
   
-  LPC_TIM2->MCR  = 0x00000000;          //Compare TIM3 с MR0 и MR1, с прерываниями (disabled)
-  LPC_TIM2->IR   = 0xFFFFFFFF;          //Очистка флагов прерываний  
-  LPC_TIM2->TCR |= TIM2_TCR_START;      //Старт таймера TIM2
-  LPC_TIM2->MR0 = LPC_TIM2->TC + PULSE_PERIOD;
-  LPC_TIM2->MR1 = LPC_TIM2->TC + PULSE_WIDTH;    
-  LPC_TIM2->MCR = TIM2_COMPARE_MR1;     //Compare TIM2 с MR1- enabled
+  LPC_IOCON->P2_23 = IOCON_T3_CAP1;     //T3 CAP1   
+  LPC_TIM3->MCR  = 0x00000000;          //Compare TIM3 с MR0 и MR1, с прерываниями (disabled)
+  LPC_TIM3->IR   = 0xFFFFFFFF;          //Очистка флагов прерываний  
+  LPC_TIM3->TCR |= TIM3_TCR_START;      //Старт таймера TIM3
   
-  //LPC_TIM2->TC = 0;
-  //LPC_TIM2->MR0 = PULSE_PERIOD;
-  //LPC_TIM2->MR1 = PULSE_PERIOD + PULSE_WIDTH;  
-  //LPC_TIM2->MCR  = TIM2_COMPARE_MR0;     //Compare TIM2 с MR0- enabled
-  //LPC_TIM2->MCR |= TIM2_COMPARE_MR1;     //Compare TIM2 с MR1- enabled
+  LPC_TIM3->TC = 0;
+  LPC_TIM3->MR0 = PULSE_PERIOD;
+  LPC_TIM3->MR1 = PULSE_PERIOD + PULSE_WIDTH;
+  LPC_TIM3->CCR  = TIM3_CAPTURE_RI;      //Захват T3 по фронту CAP1 без прерываний 
+  LPC_TIM3->MCR  = TIM3_COMPARE_MR0;     //Compare TIM3 с MR0 - enabled
+  LPC_TIM3->MCR |= TIM3_COMPARE_MR1;     //Compare TIM3 с MR1 - enabled
   
-  NVIC_EnableIRQ(TIMER2_IRQn);
+  NVIC_EnableIRQ(TIMER3_IRQn);
   
 }
 

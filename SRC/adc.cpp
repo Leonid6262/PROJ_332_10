@@ -24,7 +24,7 @@ void CADC::conv_tnf(std::initializer_list<char> list)
       if (LPC_SSP0->SR & SPI_Config::SR_TNF)
       {
         LPC_SSP1->DR = cN_CH[*(list.begin() + index_wr)];
-        timings[timing_index] = LPC_TIM2->TC;
+        timings[timing_index] = LPC_TIM3->TC;
         index_wr++;
         timing_index++;
       }
@@ -36,7 +36,7 @@ void CADC::conv_tnf(std::initializer_list<char> list)
       {
         ending_index++;
         LPC_SSP1->DR = cN_CH[ch_HRf];
-        timings[timing_index] = LPC_TIM2->TC;
+        timings[timing_index] = LPC_TIM3->TC;
         timing_index++;
       }
     }

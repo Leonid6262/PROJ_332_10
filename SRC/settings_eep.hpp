@@ -85,7 +85,7 @@ private:
       .c_var1 = 0.5f,
       .p_var2 = 1380,
       .c_var2 = 13.8f,
-      .p_var3 = 100,
+      .p_var3 = 1086,
       .c_var3 = 0.5f,
       .p_var4 = 100,
       .c_var4 = 0.5f,  

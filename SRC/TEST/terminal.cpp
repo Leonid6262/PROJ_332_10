@@ -177,7 +177,7 @@ void CTerminal::terminal()
     break;
     
   case 5:
-    sprintf(formVar, "%.1f  ", deps.rCompare.SYNC_FREQUENCY);
+    sprintf(formVar, "%.1f  ", deps.rPuls.SYNC_FREQUENCY);
     deps.rComPort.transfer_string(formVar);
     sprintf(formVar, "%.1f    \r", deps.rCompare.STATOR_FREQUENCY);
     deps.rComPort.transfer_string(formVar);

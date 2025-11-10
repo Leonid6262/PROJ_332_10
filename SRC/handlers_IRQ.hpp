@@ -20,9 +20,8 @@ public:
   
   CPULS* pPuls;
   CREM_OSC* pRem_osc;
-  CADC* pAdc;
-  
-  void set_pointers(CPULS*, CREM_OSC*, CADC*);
+ 
+  void set_pointers(CPULS*, CREM_OSC*);
   
   const unsigned int IRQ_MR0  = 0x01;
   const unsigned int IRQ_MR1  = 0x02;
