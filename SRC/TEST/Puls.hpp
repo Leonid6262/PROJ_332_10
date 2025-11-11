@@ -26,7 +26,8 @@ private:
     static constexpr float SYNC_F_MAX = 51.0f;
     static constexpr float DT_MIN = 19608;
     static constexpr float DT_MAX = 20408;
-    unsigned int CURRENT_CR;                            // Текущие данные захвата таймера
+    unsigned int CURRENT_SYNC;
+    unsigned int current_cr;                            // Текущие данные захвата таймера
     unsigned int previous_cr;                           // Предыдущие данные захвата таймера
     unsigned short no_sync_pulses;                      // Количество пульсов отсутствия события захвата
     unsigned short sync_pulses;                         // Количество пульсов с событиями захвата
@@ -98,6 +99,8 @@ public:
    
   bool forcing_bridge;
   bool main_bridge;
+  
+  unsigned int A_Cur_tic;
   
   unsigned char N_Pulse;
   

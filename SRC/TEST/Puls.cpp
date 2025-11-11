@@ -36,9 +36,9 @@ void CPULS::start_puls()
     break;
   case EOperating_mode::RESYNC:
     LPC_TIM3->MR1 = LPC_TIM3->MR0 + PULSE_WIDTH;        // Окончание текущего
-    LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего 
-    
-    //LPC_TIM3->MR0 = v_sync.CURRENT_CR + A_Max_tic;    // Старт следующего
+                  LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего     
+    //LPC_TIM3->MR0 = v_sync.CURRENT_CR + A_Max_tic;    // Старт первого
+    //A_Cur_tic = A_Max_tic;
     //N_Pulse = 1;
     
     v_sync.Operating_mode = EOperating_mode::NORMAL;  
@@ -49,13 +49,14 @@ void CPULS::start_puls()
     {
       v_sync.SYNC_EVENT = false;
       LPC_TIM3->MR1 = LPC_TIM3->MR0 + PULSE_WIDTH;        // Окончание текущего
-      LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего 
-      //LPC_TIM3->MR0 = .........
+                    LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего 
+      //LPC_TIM3->MR0 = v_sync.CURRENT_SYNC + A_Cur_tic + (N_Pulse * 3333);
     }
     else
     {
       LPC_TIM3->MR1 = LPC_TIM3->MR0 + PULSE_WIDTH;        // Окончание текущего
-      LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего 
+                     LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего 
+      //LPC_TIM3->MR0 = v_sync.CURRENT_SYNC + A_Cur_tic + (N_Pulse * 3333);
     }
     break;
   }
@@ -169,14 +170,14 @@ void CPULS::sin_restoration()
 
 void CPULS::control_sync()
 { 
-  v_sync.CURRENT_CR = LPC_TIM3->CR1;
+  v_sync.current_cr = LPC_TIM3->CR1;
   
   if(v_sync.Operating_mode == EOperating_mode::NO_SYNC)
   {
-    if(v_sync.previous_cr != v_sync.CURRENT_CR)
+    if(v_sync.previous_cr != v_sync.current_cr)
     {
-      unsigned int dt = v_sync.CURRENT_CR - v_sync.previous_cr;
-      v_sync.previous_cr = v_sync.CURRENT_CR;
+      unsigned int dt = v_sync.current_cr - v_sync.previous_cr;
+      v_sync.previous_cr = v_sync.current_cr;
       
       if (dt >= v_sync.DT_MIN && dt <= v_sync.DT_MAX)
       {
@@ -196,12 +197,13 @@ void CPULS::control_sync()
   
   if(v_sync.Operating_mode == EOperating_mode::NORMAL)
   {
-    if(v_sync.previous_cr != v_sync.CURRENT_CR)
+    if(v_sync.previous_cr != v_sync.current_cr)
     {
       v_sync.no_sync_pulses = 0;
-      unsigned int dt = v_sync.CURRENT_CR - v_sync.previous_cr;
-      v_sync.previous_cr = v_sync.CURRENT_CR;
+      unsigned int dt = v_sync.current_cr - v_sync.previous_cr;
+      v_sync.previous_cr = v_sync.current_cr;
       SYNC_FREQUENCY = v_sync.TIC_SEC / static_cast<float>(dt);
+      v_sync.CURRENT_SYNC = v_sync.current_cr;
       v_sync.SYNC_EVENT = true; 
     }
     else
@@ -220,6 +222,8 @@ void CPULS::control_sync()
 
 void CPULS::start() 
 {  
+  A_Cur_tic = A_Max_tic;
+  
   forcing_bridge = false;
   main_bridge    = false;
   
