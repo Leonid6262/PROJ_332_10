@@ -31,7 +31,6 @@ extern "C"
       rProxy.pPuls->conv_adc();         // Измерение всех используемых (в ВТЕ) аналоговых сигналов (внешнее ADC)      
       rProxy.pPuls->sin_restoration();  // Восстанавление сигналов напряжения и тока статора
       rProxy.pRem_osc->send_data();     // Передача отображаемых данных в ESP32
-      rProxy.pPuls->control_sync();     // Контроль и измерение частоты синхронизации
       
     }
     
