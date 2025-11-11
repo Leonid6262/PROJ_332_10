@@ -11,6 +11,9 @@ private:
  
   static const char pulses[];
   
+  static constexpr unsigned int A_Max_tic = 8333;
+  static constexpr unsigned int A_Min_tic = 1667;
+
   enum class EOperating_mode {
     NO_SYNC,           
     RESYNC,          
@@ -23,16 +26,15 @@ private:
     static constexpr float SYNC_F_MAX = 51.0f;
     static constexpr float DT_MIN = 19608;
     static constexpr float DT_MAX = 20408;
-    unsigned int current_cr;                            // Текущие данные захвата таймера
+    unsigned int CURRENT_CR;                            // Текущие данные захвата таймера
     unsigned int previous_cr;                           // Предыдущие данные захвата таймера
-    unsigned short no_sync_pulses;                       // Количество пульсов отсутствия события захвата
-    unsigned short sync_pulses;                          // Количество пульсов с событиями захвата
+    unsigned short no_sync_pulses;                      // Количество пульсов отсутствия события захвата
+    unsigned short sync_pulses;                         // Количество пульсов с событиями захвата
     
-    static constexpr float TIC_SEC = 1000000.0;   
-            
+    static constexpr float TIC_SEC = 1000000.0;               
     EOperating_mode Operating_mode;    
-    float sync_f; 
-    
+     
+    bool SYNC_EVENT;
     
   } v_sync;
   

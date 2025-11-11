@@ -26,7 +26,7 @@ void CPULS::start_puls()
     LPC_PWM0->LER   = LER_012;            //Обновление MR0,MR1 и MR2 
   }
   
-  control_sync();     // Контроль и измерение частоты синхронизации
+  control_sync();     // Мониторинг события захвата
    
   switch(v_sync.Operating_mode)
   {
@@ -37,11 +37,26 @@ void CPULS::start_puls()
   case EOperating_mode::RESYNC:
     LPC_TIM3->MR1 = LPC_TIM3->MR0 + PULSE_WIDTH;        // Окончание текущего
     LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего 
-    v_sync.Operating_mode = EOperating_mode::NORMAL;
+    
+    //LPC_TIM3->MR0 = v_sync.CURRENT_CR + A_Max_tic;    // Старт следующего
+    //N_Pulse = 1;
+    
+    v_sync.Operating_mode = EOperating_mode::NORMAL;  
+    
     break;
-  case EOperating_mode::NORMAL:
-    LPC_TIM3->MR1 = LPC_TIM3->MR0 + PULSE_WIDTH;        // Окончание текущего
-    LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего  
+  case EOperating_mode::NORMAL:    
+    if(v_sync.SYNC_EVENT)
+    {
+      v_sync.SYNC_EVENT = false;
+      LPC_TIM3->MR1 = LPC_TIM3->MR0 + PULSE_WIDTH;        // Окончание текущего
+      LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего 
+      //LPC_TIM3->MR0 = .........
+    }
+    else
+    {
+      LPC_TIM3->MR1 = LPC_TIM3->MR0 + PULSE_WIDTH;        // Окончание текущего
+      LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего 
+    }
     break;
   }
   
@@ -55,7 +70,7 @@ void CPULS::stop_puls()
   LPC_GPIO1->CLR  = 1UL << P1_3;      
   
   LPC_GPIO3->SET   = OFF_PULSES;              
- 
+  
   LPC_PWM0->TCR  = COUNTER_STOP;            //Стоп счётчик b1<-1
   LPC_PWM0->TCR  = COUNTER_RESET;
   
@@ -154,13 +169,15 @@ void CPULS::sin_restoration()
 
 void CPULS::control_sync()
 { 
-  v_sync.current_cr = LPC_TIM3->CR1;
-  if(v_sync.previous_cr != v_sync.current_cr)
+  v_sync.CURRENT_CR = LPC_TIM3->CR1;
+  
+  if(v_sync.Operating_mode == EOperating_mode::NO_SYNC)
   {
-    unsigned int dt = v_sync.current_cr - v_sync.previous_cr;
-    v_sync.previous_cr = v_sync.current_cr;
-    if(v_sync.Operating_mode == EOperating_mode::NO_SYNC)
+    if(v_sync.previous_cr != v_sync.CURRENT_CR)
     {
+      unsigned int dt = v_sync.CURRENT_CR - v_sync.previous_cr;
+      v_sync.previous_cr = v_sync.CURRENT_CR;
+      
       if (dt >= v_sync.DT_MIN && dt <= v_sync.DT_MAX)
       {
         v_sync.sync_pulses++;
@@ -179,85 +196,39 @@ void CPULS::control_sync()
   
   if(v_sync.Operating_mode == EOperating_mode::NORMAL)
   {
-    if(v_sync.previous_cr == v_sync.current_cr)
+    if(v_sync.previous_cr != v_sync.CURRENT_CR)
     {
-      if(v_sync.Operating_mode == EOperating_mode::NORMAL)
-      {
-        v_sync.no_sync_pulses++;
-        if(v_sync.no_sync_pulses > 1000)
-        {        
-          SYNC_FREQUENCY = 0;
-          v_sync.sync_pulses = 0;
-          v_sync.Operating_mode = EOperating_mode::NO_SYNC;
-        }
-      }
+      v_sync.no_sync_pulses = 0;
+      unsigned int dt = v_sync.CURRENT_CR - v_sync.previous_cr;
+      v_sync.previous_cr = v_sync.CURRENT_CR;
+      SYNC_FREQUENCY = v_sync.TIC_SEC / static_cast<float>(dt);
+      v_sync.SYNC_EVENT = true; 
     }
     else
     {
-      if(v_sync.Operating_mode == EOperating_mode::NORMAL)
-      {
-        v_sync.no_sync_pulses = 0;
-        unsigned int dt = v_sync.current_cr - v_sync.previous_cr;
-        v_sync.previous_cr = v_sync.current_cr;
-        SYNC_FREQUENCY = v_sync.TIC_SEC / static_cast<float>(dt);
+      v_sync.no_sync_pulses++;
+      if(v_sync.no_sync_pulses > 6)
+      {        
+        SYNC_FREQUENCY = 0;
+        v_sync.sync_pulses = 0;
+        v_sync.Operating_mode = EOperating_mode::NO_SYNC;
       }
     }
   }
   
 }  
-  
-  /*  void CPULS::control_sync()
-{
-  
-  CURRENT_CR = LPC_TIM3->CR1;
-  
-  if (prev_cr != CURRENT_CR)
-  {
-    float f = CPULS::TIC_SEC / static_cast<float>(CURRENT_CR - prev_cr);
-    
-    if (f >= SYNC_F_MIN && f <= SYNC_F_MAX)
-    {
-      sync_f = f;      
-      SYNC = true;
-      SYNC_FREQUENCY = sync_f;
-      n_sync_pulses = 0;
-    }
-    else
-    {
-      // Частота вне допустимого диапазона — игнорируем два периода
-      n_sync_pulses++;
-      if (n_sync_pulses > 12)
-      {
-        SYNC_FREQUENCY = 0;
-        SYNC = false;
-      }
-    }
-    prev_cr = CURRENT_CR;
-  }
-  else
-  {
-    // Синхронизации нет на протяжении двух периодов
-    n_sync_pulses++;
-    if (n_sync_pulses > 12)
-    {
-      SYNC_FREQUENCY = 0;
-      SYNC = false;
-    }
-  }
-}
-*/
-
 
 void CPULS::start() 
 {  
   forcing_bridge = false;
   main_bridge    = false;
   
-  N_Pulse = 1;    
-  v_restoration.ind_d_avr = 0;
+  N_Pulse = 1;   
+  v_sync.SYNC_EVENT = false;  
   v_sync.no_sync_pulses = 0;
   v_sync.sync_pulses = 0;
   v_sync.Operating_mode = EOperating_mode::NO_SYNC;
+  v_restoration.ind_d_avr = 0;
   
   LPC_SC->PCONP   |= CLKPWR_PCONP_PCPWM0;       //PWM0 power/clock control bit.
   LPC_PWM0->PR     = PWM_div_0 - 1;             //при PWM_div=60, F=60МГц/60=1МГц, 1тик=1мкс       
