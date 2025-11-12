@@ -2,6 +2,7 @@
 #include "system_LPC177x.h"
 
 const char CPULS::pulses[] = {0x03, 0x06, 0x0C, 0x18, 0x30, 0x21};
+unsigned int CPULS::sync_timing[] = {0, 0, 0, 0, 0, 0};
 
 CPULS::CPULS(CADC& rAdc) : rAdc(rAdc){}
 
@@ -10,20 +11,20 @@ void CPULS::start_puls()
   //Старт ИУ форсировочного моста
   if(main_bridge)   
   {
-    LPC_GPIO3->CLR  = pulses[N_Pulse - 1] << FIRS_PULS_PORT;
     LPC_IOCON->P1_2 = IOCON_P_PWM;        //P1_2->PWM0:1 (SUM-1)                 
     LPC_PWM0->PCR   = PCR_PWMENA1; 
     LPC_PWM0->TCR   = COUNTER_START;      //Старт счётчик b1<-0
     LPC_PWM0->LER   = LER_012;            //Обновление MR0,MR1 и MR2 
+    LPC_GPIO3->CLR  = pulses[N_Pulse - 1] << FIRS_PULS_PORT;
   }
   //Старт ИУ рабочего моста
   if(forcing_bridge)      
-  {
-    LPC_GPIO3->CLR  = pulses[N_Pulse - 1] << FIRS_PULS_PORT;
+  {    
     LPC_IOCON->P1_3 = IOCON_P_PWM;        //P1_3->PWM0:2 (SUM-2)        
     LPC_PWM0->PCR   = PCR_PWMENA2; 
     LPC_PWM0->TCR   = COUNTER_START;      //Старт счётчик b1<-0
-    LPC_PWM0->LER   = LER_012;            //Обновление MR0,MR1 и MR2 
+    LPC_PWM0->LER   = LER_012;            //Обновление MR0,MR1 и MR2
+    LPC_GPIO3->CLR  = pulses[N_Pulse - 1] << FIRS_PULS_PORT;
   }
   
   control_sync();     // Мониторинг события захвата
@@ -36,10 +37,18 @@ void CPULS::start_puls()
     break;
   case EOperating_mode::RESYNC:
     LPC_TIM3->MR1 = LPC_TIM3->MR0 + PULSE_WIDTH;        // Окончание текущего
-                  LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего     
-    //LPC_TIM3->MR0 = v_sync.CURRENT_CR + A_Max_tic;    // Старт первого
-    //A_Cur_tic = A_Max_tic;
-    //N_Pulse = 1;
+                  //LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего     
+    
+
+    sync_timing[0] = v_sync.CURRENT_SYNC + 3333*0;
+    sync_timing[1] = v_sync.CURRENT_SYNC + 3333*1;
+    sync_timing[2] = v_sync.CURRENT_SYNC + 3333*2;
+    sync_timing[3] = v_sync.CURRENT_SYNC + 3333*3;
+    sync_timing[4] = v_sync.CURRENT_SYNC + 3333*4;
+    sync_timing[5] = v_sync.CURRENT_SYNC + 3333*5;
+    N_Pulse = 1;
+    A_Cur_tick = A_Max_tick;   
+    LPC_TIM3->MR0 = sync_timing[N_Pulse - 1] + A_Cur_tick;    // Старт первого
     
     v_sync.Operating_mode = EOperating_mode::NORMAL;  
     
@@ -48,15 +57,25 @@ void CPULS::start_puls()
     if(v_sync.SYNC_EVENT)
     {
       v_sync.SYNC_EVENT = false;
+
       LPC_TIM3->MR1 = LPC_TIM3->MR0 + PULSE_WIDTH;        // Окончание текущего
-                    LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего 
-      //LPC_TIM3->MR0 = v_sync.CURRENT_SYNC + A_Cur_tic + (N_Pulse * 3333);
+                  //LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего 
+      
+      sync_timing[ N_Pulse - 1            ] = v_sync.CURRENT_SYNC + 3333*0;
+      sync_timing[(N_Pulse % N_PULSES) + 1] = v_sync.CURRENT_SYNC + 3333*1;
+      sync_timing[(N_Pulse % N_PULSES) + 1] = v_sync.CURRENT_SYNC + 3333*2;
+      sync_timing[(N_Pulse % N_PULSES) + 1] = v_sync.CURRENT_SYNC + 3333*3;
+      sync_timing[(N_Pulse % N_PULSES) + 1] = v_sync.CURRENT_SYNC + 3333*4;
+      sync_timing[(N_Pulse % N_PULSES) + 1] = v_sync.CURRENT_SYNC + 3333*5;
+      
+      LPC_TIM3->MR0 = sync_timing[((N_Pulse % N_PULSES) + 1)] + A_Cur_tick;
     }
     else
     {
       LPC_TIM3->MR1 = LPC_TIM3->MR0 + PULSE_WIDTH;        // Окончание текущего
-                     LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего 
-      //LPC_TIM3->MR0 = v_sync.CURRENT_SYNC + A_Cur_tic + (N_Pulse * 3333);
+              //LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего 
+            
+      LPC_TIM3->MR0 = sync_timing[(N_Pulse % N_PULSES) + 1] + A_Cur_tick;
     }
     break;
   }
@@ -186,6 +205,7 @@ void CPULS::control_sync()
         {        
           v_sync.Operating_mode = EOperating_mode::RESYNC;
           v_sync.no_sync_pulses = 0;
+          v_sync.CURRENT_SYNC = v_sync.current_cr;
         }
       }
       else 
@@ -222,7 +242,8 @@ void CPULS::control_sync()
 
 void CPULS::start() 
 {  
-  A_Cur_tic = A_Max_tic;
+    
+  A_Cur_tick = A_Max_tick;
   
   forcing_bridge = false;
   main_bridge    = false;

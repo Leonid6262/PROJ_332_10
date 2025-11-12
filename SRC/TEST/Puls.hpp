@@ -10,9 +10,10 @@ class CPULS
 private:
  
   static const char pulses[];
+
   
-  static constexpr unsigned int A_Max_tic = 8333;
-  static constexpr unsigned int A_Min_tic = 1667;
+  static constexpr unsigned int A_Max_tick = 8333;
+  static constexpr unsigned int A_Min_tick = 1667;
 
   enum class EOperating_mode {
     NO_SYNC,           
@@ -70,7 +71,7 @@ private:
   static constexpr unsigned int P1_3 = 0x03;                                    //Port1:3  
   
   static constexpr unsigned int PWM_WIDTH        = 10;                          //us
-  static constexpr unsigned int PULSE_WIDTH      = 560;                         //us
+  static constexpr unsigned int PULSE_WIDTH      = 550;//560;                         //us
   static constexpr unsigned int PULSE_PERIOD     = 3333;                        //us
   static constexpr unsigned int N_PULSES         = 6;
   static constexpr unsigned int OFF_PULSES       = 0x003F0000;                   //Импульсы в порту
@@ -96,12 +97,13 @@ public:
   CPULS(CADC&);
   
   CADC& rAdc;
+  
+  static unsigned int sync_timing[];
    
   bool forcing_bridge;
   bool main_bridge;
   
-  unsigned int A_Cur_tic;
-  
+  unsigned int A_Cur_tick;  
   unsigned char N_Pulse;
   
   float SYNC_FREQUENCY;
