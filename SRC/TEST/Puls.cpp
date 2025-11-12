@@ -37,18 +37,7 @@ void CPULS::start_puls()
     break;
   case EOperating_mode::RESYNC:
     LPC_TIM3->MR1 = LPC_TIM3->MR0 + PULSE_WIDTH;        // Окончание текущего
-                  //LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего     
-    
-
-    sync_timing[0] = v_sync.CURRENT_SYNC + 3333*0;
-    sync_timing[1] = v_sync.CURRENT_SYNC + 3333*1;
-    sync_timing[2] = v_sync.CURRENT_SYNC + 3333*2;
-    sync_timing[3] = v_sync.CURRENT_SYNC + 3333*3;
-    sync_timing[4] = v_sync.CURRENT_SYNC + 3333*4;
-    sync_timing[5] = v_sync.CURRENT_SYNC + 3333*5;
-    N_Pulse = 1;
-    A_Cur_tick = A_Max_tick;   
-    LPC_TIM3->MR0 = sync_timing[N_Pulse - 1] + A_Cur_tick;    // Старт первого
+    LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего     
     
     v_sync.Operating_mode = EOperating_mode::NORMAL;  
     
@@ -59,23 +48,13 @@ void CPULS::start_puls()
       v_sync.SYNC_EVENT = false;
 
       LPC_TIM3->MR1 = LPC_TIM3->MR0 + PULSE_WIDTH;        // Окончание текущего
-                  //LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего 
-      
-      sync_timing[ N_Pulse - 1            ] = v_sync.CURRENT_SYNC + 3333*0;
-      sync_timing[(N_Pulse % N_PULSES) + 1] = v_sync.CURRENT_SYNC + 3333*1;
-      sync_timing[(N_Pulse % N_PULSES) + 1] = v_sync.CURRENT_SYNC + 3333*2;
-      sync_timing[(N_Pulse % N_PULSES) + 1] = v_sync.CURRENT_SYNC + 3333*3;
-      sync_timing[(N_Pulse % N_PULSES) + 1] = v_sync.CURRENT_SYNC + 3333*4;
-      sync_timing[(N_Pulse % N_PULSES) + 1] = v_sync.CURRENT_SYNC + 3333*5;
-      
-      LPC_TIM3->MR0 = sync_timing[((N_Pulse % N_PULSES) + 1)] + A_Cur_tick;
+      LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего 
     }
     else
     {
       LPC_TIM3->MR1 = LPC_TIM3->MR0 + PULSE_WIDTH;        // Окончание текущего
-              //LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего 
+      LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего 
             
-      LPC_TIM3->MR0 = sync_timing[(N_Pulse % N_PULSES) + 1] + A_Cur_tick;
     }
     break;
   }
