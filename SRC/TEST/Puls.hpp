@@ -27,6 +27,7 @@ private:
     static constexpr float SYNC_F_MAX = 51.0f;
     static constexpr float DT_MIN = 19608;
     static constexpr float DT_MAX = 20408;
+    static constexpr int _60gr = 3333;
     unsigned int CURRENT_SYNC;
     unsigned int current_cr;                            // Текущие данные захвата таймера
     unsigned int previous_cr;                           // Предыдущие данные захвата таймера

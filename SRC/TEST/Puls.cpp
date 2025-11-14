@@ -1,13 +1,16 @@
 #include "Puls.hpp"
 #include "system_LPC177x.h"
 
-const char CPULS::pulses[] = {0x03, 0x06, 0x0C, 0x18, 0x30, 0x21};
+const char CPULS::pulses[] = {0x21, 0x03, 0x06, 0x0C, 0x18, 0x30};
 unsigned int CPULS::sync_timing[] = {0, 0, 0, 0, 0, 0};
 
 CPULS::CPULS(CADC& rAdc) : rAdc(rAdc){}
 
 void CPULS::start_puls()
 {
+  
+  N_Pulse = (N_Pulse % N_PULSES) + 1; 
+  
   //Старт ИУ форсировочного моста
   if(main_bridge)   
   {
@@ -33,29 +36,80 @@ void CPULS::start_puls()
   {
   case EOperating_mode::NO_SYNC:
     LPC_TIM3->MR1 = LPC_TIM3->MR0 + PULSE_WIDTH;        // Окончание текущего
-    LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего    
+    LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего 
     break;
   case EOperating_mode::RESYNC:
-    LPC_TIM3->MR1 = LPC_TIM3->MR0 + PULSE_WIDTH;        // Окончание текущего
-    LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего     
-    
-    v_sync.Operating_mode = EOperating_mode::NORMAL;  
-    
+    LPC_TIM3->MR1 = LPC_TIM3->MR0 + PULSE_WIDTH;        // Окончание текущего  
+    v_sync.SYNC_EVENT = false;
+    for(short n = 0; n < N_PULSES; n++)
+    {
+      sync_timing[n] = v_sync.CURRENT_SYNC + (v_sync._60gr * n);
+    }
+    v_sync.Operating_mode = EOperating_mode::NORMAL;
+    A_Cur_tick = A_Max_tick; 
+    LPC_TIM3->MR0 = sync_timing[0] + A_Cur_tick;        // Старт 1-го 
+    N_Pulse = 1;
     break;
   case EOperating_mode::NORMAL:    
+    LPC_TIM3->MR1 = LPC_TIM3->MR0 + PULSE_WIDTH;        // Окончание текущего
     if(v_sync.SYNC_EVENT)
     {
       v_sync.SYNC_EVENT = false;
-
-      LPC_TIM3->MR1 = LPC_TIM3->MR0 + PULSE_WIDTH;        // Окончание текущего
-      LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего 
-    }
-    else
-    {
-      LPC_TIM3->MR1 = LPC_TIM3->MR0 + PULSE_WIDTH;        // Окончание текущего
-      LPC_TIM3->MR0 = LPC_TIM3->MR0 + PULSE_PERIOD;       // Старт следующего 
-            
-    }
+      
+      switch(N_Pulse)
+      {
+      case 1:
+        sync_timing[1] = v_sync.CURRENT_SYNC + v_sync._60gr*1;
+        sync_timing[2] = v_sync.CURRENT_SYNC + v_sync._60gr*2;
+        sync_timing[3] = v_sync.CURRENT_SYNC + v_sync._60gr*3;
+        sync_timing[4] = v_sync.CURRENT_SYNC + v_sync._60gr*4;
+        sync_timing[5] = v_sync.CURRENT_SYNC + v_sync._60gr*5;
+        sync_timing[0] = v_sync.CURRENT_SYNC + v_sync._60gr*6;
+        break;
+      case 6:
+        sync_timing[0] = v_sync.CURRENT_SYNC + v_sync._60gr*0;
+        sync_timing[1] = v_sync.CURRENT_SYNC + v_sync._60gr*1;
+        sync_timing[2] = v_sync.CURRENT_SYNC + v_sync._60gr*2;
+        sync_timing[3] = v_sync.CURRENT_SYNC + v_sync._60gr*3;
+        sync_timing[4] = v_sync.CURRENT_SYNC + v_sync._60gr*4;
+        sync_timing[5] = v_sync.CURRENT_SYNC + v_sync._60gr*5;
+        break;
+      case 5:
+        sync_timing[5] = v_sync.CURRENT_SYNC - v_sync._60gr*1;
+        sync_timing[0] = v_sync.CURRENT_SYNC + v_sync._60gr*0;
+        sync_timing[1] = v_sync.CURRENT_SYNC + v_sync._60gr*1;
+        sync_timing[2] = v_sync.CURRENT_SYNC + v_sync._60gr*2;
+        sync_timing[3] = v_sync.CURRENT_SYNC + v_sync._60gr*3;
+        sync_timing[4] = v_sync.CURRENT_SYNC + v_sync._60gr*4;
+        break;
+      case 4:
+        sync_timing[4] = v_sync.CURRENT_SYNC - v_sync._60gr*2;
+        sync_timing[5] = v_sync.CURRENT_SYNC - v_sync._60gr*1;
+        sync_timing[0] = v_sync.CURRENT_SYNC + v_sync._60gr*0;
+        sync_timing[1] = v_sync.CURRENT_SYNC + v_sync._60gr*1;
+        sync_timing[2] = v_sync.CURRENT_SYNC + v_sync._60gr*2;
+        sync_timing[3] = v_sync.CURRENT_SYNC + v_sync._60gr*3;
+        break;
+      case 3:
+        sync_timing[3] = v_sync.CURRENT_SYNC - v_sync._60gr*3;
+        sync_timing[4] = v_sync.CURRENT_SYNC - v_sync._60gr*2;
+        sync_timing[5] = v_sync.CURRENT_SYNC - v_sync._60gr*1;
+        sync_timing[0] = v_sync.CURRENT_SYNC + v_sync._60gr*0;
+        sync_timing[1] = v_sync.CURRENT_SYNC + v_sync._60gr*1;
+        sync_timing[2] = v_sync.CURRENT_SYNC + v_sync._60gr*2;
+        break;
+      case 2:
+        sync_timing[2] = v_sync.CURRENT_SYNC - v_sync._60gr*4;
+        sync_timing[3] = v_sync.CURRENT_SYNC - v_sync._60gr*3;
+        sync_timing[4] = v_sync.CURRENT_SYNC - v_sync._60gr*2;
+        sync_timing[5] = v_sync.CURRENT_SYNC - v_sync._60gr*1;
+        sync_timing[0] = v_sync.CURRENT_SYNC + v_sync._60gr*0;
+        sync_timing[1] = v_sync.CURRENT_SYNC + v_sync._60gr*1;
+        break;
+      }
+    }    
+    // Старт следующего 
+    LPC_TIM3->MR0 = sync_timing[((N_Pulse % N_PULSES) + 1) - 1] + A_Cur_tick;    
     break;
   }
   
@@ -73,7 +127,7 @@ void CPULS::stop_puls()
   LPC_PWM0->TCR  = COUNTER_STOP;            //Стоп счётчик b1<-1
   LPC_PWM0->TCR  = COUNTER_RESET;
   
-  N_Pulse = (N_Pulse % N_PULSES) + 1;  
+  //N_Pulse = (N_Pulse % N_PULSES) + 1;  
 }
 
 void CPULS::conv_adc()
@@ -192,8 +246,9 @@ void CPULS::control_sync()
         v_sync.sync_pulses = 0;
       }
     }
+    return;
   }
-  
+  if(v_sync.Operating_mode == EOperating_mode::RESYNC) return;
   if(v_sync.Operating_mode == EOperating_mode::NORMAL)
   {
     if(v_sync.previous_cr != v_sync.current_cr)
