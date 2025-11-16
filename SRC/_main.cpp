@@ -72,12 +72,12 @@ void main(void)
   static CCAN can2(CCAN::ECAN_Id_Instance::CAN2_Id);                // CAN-2   
   
   static CDAC0 dac0;                                                // DAC-0 (Controller dac)
-  static CDAC_PWM pwm_dac1(CDAC_PWM::EPWM_DACInstance::PWM_DAC1);   // DAC-1 (PWM1:5)
-  static CDAC_PWM pwm_dac2(CDAC_PWM::EPWM_DACInstance::PWM_DAC2);   // DAC-2 (PWM1:4)
+  static CDAC_PWM pwm_dac1(CDAC_PWM::EPWM_DACInstance::PWM_DAC1);   // DAC-1 (PWM1:5, Cos_phi)
+  static CDAC_PWM pwm_dac2(CDAC_PWM::EPWM_DACInstance::PWM_DAC2);   // DAC-2 (PWM1:4. 4...20mA)
   
-  static CIADC i_adc;           // Внутренее ADC.
-  static CADC adc;              // Внешнее ADC.
-  static CPULSCALC puls_calc; 
+  static CIADC i_adc;                   // Внутренее ADC.
+  static CADC adc;                      // Внешнее ADC.
+  static CPULSCALC puls_calc(adc); 
   
   static CSPI_ports spi_ports;  // Дискретные входы и выходы доступные по SPI. Примеры доступа: 
                                 //      if(rSpi_ports.Stator_Key()){...}
@@ -117,9 +117,9 @@ void main(void)
                                   rRt_clockc.setDateTime(CurDateTime); <--данные пишутся в RTC в момент выполнения setDateTime(CurDateTime)
                               */
   
-  static CPULS puls(adc); /* Тест импульсов управления. Выдаётся классическая последовательность СИФУ,
-                                               передаются данные в ESP32, восстанавливаются сигналы напряжения и тока статора.                                                         
-                                            */
+  static CPULS puls(puls_calc); /* Тест импульсов управления. Выдаётся классическая последовательность СИФУ,
+                                   передаются данные в ESP32, восстанавливаются сигналы напряжения и тока статора.                                                         
+                                */
   
   // Пример структуры инициализирующих значений CREM_OSC. Дистанционный осцилограф (ESP32 c WiFi модулем)
   static CREM_OSC::SSET_init set_init
@@ -174,7 +174,7 @@ void main(void)
                                                                     // Данный патерн позволяет избежать глобальных 
                                                                     // ссылок на puls, и rem_osc
                                                                                        
-  puls.start();                 // Старт теста ИУ
+  puls.init_and_start();        // Старт теста ИУ
   compare.start();              // Старт теста компаратора
   
   static CTEST_ETH test_eth(emac_drv);  // loop Test Ethernet. По физической петле передаёт/принимает тестовые raw кадры 

@@ -2,20 +2,48 @@
 
 #include "LPC407x_8x_177x_8x.h"
 #include "rem_osc.hpp"
-#include "adc.hpp"
+#include "conv_and_calc.hpp"
 
 class CPULS
 { 
+public:
+  
+  CPULS(CPULSCALC&);
+  
+  CPULSCALC& rPulsCalc;
+  
+  float SYNC_FREQUENCY;
+  
+  signed short A_Task_tick;
 
+  void init_and_start();
+  void rising_puls();
+  void faling_puls();
+
+  void start_forcing_bridge();
+  void start_main_bridge();
+  void stop();
+ 
 private:
  
   static const unsigned char pulses[];
   static const signed  char offsets[];
   
+  bool forcing_bridge;
+  bool main_bridge;
+  
+  unsigned char N_Pulse;
+    
+  signed short A_Cur_tick; 
+  signed short A_Prev_tick;
+  signed short d_Alpha;
+  
   static constexpr unsigned short A_Max_tick   = 8333;
   static constexpr unsigned short A_Min_tick   = 1667;
   static constexpr unsigned short d_A_Max_tick = 278;
-
+  
+  void control_sync();
+  
   enum class EOperating_mode {
     NO_SYNC,           
     RESYNC,          
@@ -43,35 +71,13 @@ private:
     
   } v_sync;
   
-  struct RestorationState 
-  {
-    static constexpr char PULS_AVR = 6;                                        // Пульсов усреднения
-    static constexpr float freq = 50.0f;                                       // Частота сети
-    static constexpr float pi = 3.141592653589793;
-    
-    float u_stat[PULS_AVR];
-    float i_stat[PULS_AVR];
-    char ind_d_avr;
-    signed short u_stator_1;
-    signed short u_stator_2;
-    unsigned int timing_ustator_1;
-    unsigned int timing_ustator_2;
-    unsigned short dT_ustator;
-    
-    signed short i_stator_1;
-    signed short i_stator_2;
-    unsigned int timing_istator_1;
-    unsigned int timing_istator_2;
-    unsigned short dT_istator;
-  } v_restoration;
-  
   static constexpr unsigned int IOCON_P1_PWM = 0x03;                         // Тип портов - PWM
   static constexpr unsigned int PWM_div_0    = 60;                           // Делитель частоты
     
-  static constexpr unsigned int IOCON_P_PWM  = 0x03;                            //Тип портов - PWM
-  static constexpr unsigned int IOCON_P_PORT = 0x00;                            //Тип портов - Port
-  static constexpr unsigned int P1_2 = 0x02;                                    //Port1:2
-  static constexpr unsigned int P1_3 = 0x03;                                    //Port1:3  
+  static constexpr unsigned int IOCON_P_PWM  = 0x03;                         //Тип портов - PWM
+  static constexpr unsigned int IOCON_P_PORT = 0x00;                         //Тип портов - Port
+  static constexpr unsigned int P1_2 = 0x02;                                 //Port1:2
+  static constexpr unsigned int P1_3 = 0x03;                                 //Port1:3  
   
   static constexpr unsigned int PWM_WIDTH        = 10;                          //us
   static constexpr unsigned int PULSE_WIDTH      = 550;//560;                         //us
@@ -93,37 +99,5 @@ private:
   static constexpr unsigned int TIM3_COMPARE_MR1 = 0x08;
   static constexpr unsigned int TIM3_CAPTURE_RI  = 0x08;
   static constexpr unsigned int IOCON_T3_CAP1    = 0x23;
-  
-public:
-  
-  CPULS(CADC&);
-  
-  CADC& rAdc;
-   
-  bool forcing_bridge;
-  bool main_bridge;
-  
-  signed short A_Task_tick;
-  signed short A_Cur_tick; 
-  signed short A_Prev_tick;
-  signed short d_Alpha;
-  
-  unsigned char N_Pulse;
-  
-  float SYNC_FREQUENCY;
-  signed short U_STATORA;  
-  signed short I_STATORA;
- 
-  void start();
-  void start_main_bridge();
-  void start_puls();
-  void stop_puls();
-  void sin_restoration();
-  void control_sync();
-  void conv_adc();
-  
-
-
-
   
 };

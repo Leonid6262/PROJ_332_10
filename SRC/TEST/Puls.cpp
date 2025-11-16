@@ -5,9 +5,9 @@
 const unsigned char CPULS::pulses[]  = {0x00, 0x21, 0x03, 0x06, 0x0C, 0x18, 0x30}; // Индекс 0 не используется
 const signed char   CPULS::offsets[] = {0, 1, 2, 0, -2, -1, 0};                    // Индекс 0 не используется
 
-CPULS::CPULS(CADC& rAdc) : rAdc(rAdc){}
+CPULS::CPULS(CPULSCALC& rPulsCalc) : rPulsCalc(rPulsCalc){}
 
-void CPULS::start_puls()
+void CPULS::rising_puls()
 {
   
   N_Pulse = (N_Pulse % N_PULSES) + 1; 
@@ -49,6 +49,7 @@ void CPULS::start_puls()
     N_Pulse = 6;    
     break;                                              
   case EOperating_mode::NORMAL:           
+    // Классические ограничения
     if(A_Task_tick > A_Max_tick) A_Task_tick = A_Max_tick;
     if(A_Task_tick < A_Min_tick) A_Task_tick = A_Min_tick;   
     d_Alpha = A_Task_tick - A_Prev_tick;
@@ -56,6 +57,7 @@ void CPULS::start_puls()
     else A_Cur_tick += (d_Alpha > 0 ? d_A_Max_tick : -d_A_Max_tick);
     A_Prev_tick = A_Cur_tick;
     
+    // Расчёт тайминга для следующего импульса
     if(v_sync.SYNC_EVENT)
     {
       v_sync.SYNC_EVENT = false;
@@ -88,11 +90,12 @@ void CPULS::start_puls()
     }    
     break;
   }    
-   conv_adc();         // Измерение всех используемых (в ВТЕ) аналоговых сигналов (внешнее ADC)      
-   sin_restoration();  // Восстанавление сигналов напряжения и тока статора
+   // Измерение всех используемых (в ВТЕ) аналоговых сигналов (внешнее ADC)      
+   // Восстанавление сигналов напряжения и тока статора
+   rPulsCalc.conv_and_calc();
 }
 
-void CPULS::stop_puls()
+void CPULS::faling_puls()
 {
   LPC_IOCON->P1_2 = IOCON_P_PORT; //P1_2 - Port
   LPC_GPIO1->CLR  = 1UL << P1_2;
@@ -109,31 +112,27 @@ void CPULS::control_sync()
 { 
   v_sync.current_cr = LPC_TIM3->CR1;
   
-  if(v_sync.Operating_mode == EOperating_mode::NO_SYNC)
+  if((v_sync.Operating_mode == EOperating_mode::NO_SYNC) && (v_sync.previous_cr != v_sync.current_cr))
   {
-    if(v_sync.previous_cr != v_sync.current_cr)
+    unsigned int dt = v_sync.current_cr - v_sync.previous_cr;
+    v_sync.previous_cr = v_sync.current_cr;   
+    if (dt >= v_sync.DT_MIN && dt <= v_sync.DT_MAX)
     {
-      unsigned int dt = v_sync.current_cr - v_sync.previous_cr;
-      v_sync.previous_cr = v_sync.current_cr;
-      
-      if (dt >= v_sync.DT_MIN && dt <= v_sync.DT_MAX)
-      {
-        v_sync.sync_pulses++;
-        if(v_sync.sync_pulses > 100)
-        {        
-          v_sync.Operating_mode = EOperating_mode::RESYNC;
-          v_sync.no_sync_pulses = 0;
-          v_sync.CURRENT_SYNC = v_sync.current_cr;
-        }
-      }
-      else 
+      v_sync.sync_pulses++;
+      if(v_sync.sync_pulses > 100)
       {        
-        v_sync.sync_pulses = 0;
+        v_sync.Operating_mode = EOperating_mode::RESYNC;
+        v_sync.no_sync_pulses = 0;
+        v_sync.CURRENT_SYNC = v_sync.current_cr;
       }
+    }
+    else 
+    {        
+      v_sync.sync_pulses = 0;
     }
     return;
   }
-  if(v_sync.Operating_mode == EOperating_mode::RESYNC) return;
+
   if(v_sync.Operating_mode == EOperating_mode::NORMAL)
   {
     if(v_sync.previous_cr != v_sync.current_cr)
@@ -167,101 +166,22 @@ void CPULS::control_sync()
   } 
 }  
 
-void CPULS::conv_adc()
+void  CPULS::start_forcing_bridge()
 {
-  // Измерение всех используемых (в ВТЕ) аналоговых сигналов (внешнее ADC)
-  rAdc.conv_tnf
-    ({
-      CADC::ROTOR_CURRENT, 
-      CADC::STATOR_VOLTAGE,
-      CADC::STATOR_CURRENT,
-      CADC::ROTOR_VOLTAGE, 
-      CADC::EXTERNAL_SETTINGS,
-      CADC::LEAKAGE_CURRENT,           
-      CADC::LOAD_NODE_CURRENT
-    });
-  /* 
-  Для сокращения записи аргументов здесь использована си нотация enum, вмесо типобезопасной enum class c++.
-  CADC::ROTOR_CURRENT вместо static_cast<char>(CADC::EADC_NameCh::ROTOR_CURRENT) - считаю, разумный компромисс.
-  Пример доступа к измеренным значениям - rADC.data[CADC::ROTOR_CURRENT] 
-  */
+  forcing_bridge = true;
+}
+void  CPULS::start_main_bridge()
+{
+  main_bridge = true;
+}
+void  CPULS::stop()
+{
+  forcing_bridge = false;
+  main_bridge = false;
 }
 
-void CPULS::sin_restoration() 
-{  
-  /*
-    Восстановление сигналов произвадится по двум мгновенным значениям и углу (Theta) между ними:
-    A = sqrt( (u1*u1 + u2*u2 - 2 * u1*u2 * cos(Theta)) / (sin(Theta) * sin(Theta)) );
-  */
-  
-  // Напряжение статора
-  v_restoration.u_stator_2 = rAdc.data[CADC::STATOR_VOLTAGE];
-  v_restoration.timing_ustator_2 = rAdc.timings[CADC::STATOR_VOLTAGE + 1];
-  
-  unsigned int us1us1  =  v_restoration.u_stator_1 * v_restoration.u_stator_1;
-  unsigned int us2us2  =  v_restoration.u_stator_2 * v_restoration.u_stator_2;
-  signed int   us1us2  =  v_restoration.u_stator_1 * v_restoration.u_stator_2;
-
-  v_restoration.dT_ustator = v_restoration.timing_ustator_2 - v_restoration.timing_ustator_1;
-  
-  v_restoration.u_stator_1 = v_restoration.u_stator_2;
-  v_restoration.timing_ustator_1 = v_restoration.timing_ustator_2;
-  
-  float u_theta = (2.0f * v_restoration.pi * v_restoration.freq * v_restoration.dT_ustator) / 1000000.0f;
-  
-  float ucos = std::cos(u_theta);
-  float usin = std::sin(u_theta);
-   
-  // Ток статора
-  v_restoration.i_stator_2 = rAdc.data[CADC::STATOR_CURRENT];
-  v_restoration.timing_istator_2 = rAdc.timings[CADC::STATOR_CURRENT + 1];
-  
-  unsigned int is1is1  =  v_restoration.i_stator_1 * v_restoration.i_stator_1;
-  unsigned int is2is2  =  v_restoration.i_stator_2 * v_restoration.i_stator_2;
-  signed int   is1is2  =  v_restoration.i_stator_1 * v_restoration.i_stator_2;
-
-  v_restoration.dT_istator = v_restoration.timing_istator_2 - v_restoration.timing_istator_1;
-  
-  v_restoration.i_stator_1 = v_restoration.i_stator_2;
-  v_restoration.timing_istator_1 = v_restoration.timing_istator_2;
-  
-  float i_theta = (2.0f * v_restoration.pi * v_restoration.freq * v_restoration.dT_istator) / 1000000.0f;
-  
-  float icos = std::cos(i_theta);
-  float isin = std::sin(i_theta);
-  
-  // Скользящее среднее по 6-ти пульсам
-  v_restoration.ind_d_avr = (v_restoration.ind_d_avr + 1) % v_restoration.PULS_AVR;
-  
-  v_restoration.u_stat[v_restoration.ind_d_avr] = sqrt(((us1us1 + us2us2) - (us1us2 * 2 * ucos)) / (usin * usin));  
-  float uavr = (
-                v_restoration.u_stat[0] + 
-                v_restoration.u_stat[1] + 
-                v_restoration.u_stat[2] + 
-                v_restoration.u_stat[3] + 
-                v_restoration.u_stat[4] + 
-                v_restoration.u_stat[5]
-                  ) / v_restoration.PULS_AVR;
-  U_STATORA = static_cast<int>(uavr + 0.5f);
-  
-  v_restoration.i_stat[v_restoration.ind_d_avr] = sqrt(((is1is1 + is2is2) - (is1is2 * 2 * icos)) / (isin * isin));  
-  float iavr = (
-                v_restoration.i_stat[0] + 
-                v_restoration.i_stat[1] + 
-                v_restoration.i_stat[2] + 
-                v_restoration.i_stat[3] + 
-                v_restoration.i_stat[4] + 
-                v_restoration.i_stat[5]
-                            ) / v_restoration.PULS_AVR;
-  I_STATORA = static_cast<int>(iavr + 0.5f);
-  
-}
-
-void CPULS::start() 
-{  
-    
-  A_Cur_tick = A_Max_tick;
-  
+void CPULS::init_and_start()
+{      
   forcing_bridge = false;
   main_bridge    = false;
   
@@ -270,7 +190,6 @@ void CPULS::start()
   v_sync.no_sync_pulses = 0;
   v_sync.sync_pulses = 0;
   v_sync.Operating_mode = EOperating_mode::NO_SYNC;
-  v_restoration.ind_d_avr = 0;
   
   LPC_SC->PCONP   |= CLKPWR_PCONP_PCPWM0;       //PWM0 power/clock control bit.
   LPC_PWM0->PR     = PWM_div_0 - 1;             //при PWM_div=60, F=60МГц/60=1МГц, 1тик=1мкс       

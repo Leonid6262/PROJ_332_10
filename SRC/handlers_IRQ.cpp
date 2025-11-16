@@ -25,20 +25,16 @@ extern "C"
     // Rising puls
     if (IRQ & rProxy.IRQ_MR0)       //Прерывание по Compare с MR0 (P->1)
     {                          
-      LPC_TIM3->IR |= rProxy.IRQ_MR0;
-      
-      rProxy.pPuls->start_puls();       // Старт ИУ    
-      rProxy.pRem_osc->send_data();     // Передача отображаемых данных в ESP32
-      
-    }
-    
+      LPC_TIM3->IR |= rProxy.IRQ_MR0;      
+      rProxy.pPuls->rising_puls();       // Фронт ИУ    
+      rProxy.pRem_osc->send_data();      // Передача отображаемых данных в ESP32      
+    }    
     // Faling puls
-    if (IRQ & rProxy.IRQ_MR1)           //Прерывание по Compare с MR1 (P->0)
+    if (IRQ & rProxy.IRQ_MR1)            //Прерывание по Compare с MR1 (P->0)
     {                       
       LPC_TIM3->IR |= rProxy.IRQ_MR1;
-      rProxy.pPuls->stop_puls();        //Стоп ИУ       
-    }  
-    
+      rProxy.pPuls->faling_puls();       //Спад ИУ       
+    }     
   }  
 }
 
