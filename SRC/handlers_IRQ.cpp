@@ -28,8 +28,6 @@ extern "C"
       LPC_TIM3->IR |= rProxy.IRQ_MR0;
       
       rProxy.pPuls->start_puls();       // Старт ИУ    
-      rProxy.pPuls->conv_adc();         // Измерение всех используемых (в ВТЕ) аналоговых сигналов (внешнее ADC)      
-      rProxy.pPuls->sin_restoration();  // Восстанавление сигналов напряжения и тока статора
       rProxy.pRem_osc->send_data();     // Передача отображаемых данных в ESP32
       
     }

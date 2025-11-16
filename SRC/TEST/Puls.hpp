@@ -9,11 +9,12 @@ class CPULS
 
 private:
  
-  static const char pulses[];
-
+  static const unsigned char pulses[];
+  static const signed  char offsets[];
   
-  static constexpr unsigned int A_Max_tick = 8333;
-  static constexpr unsigned int A_Min_tick = 1667;
+  static constexpr unsigned short A_Max_tick   = 8333;
+  static constexpr unsigned short A_Min_tick   = 1667;
+  static constexpr unsigned short d_A_Max_tick = 278;
 
   enum class EOperating_mode {
     NO_SYNC,           
@@ -28,6 +29,7 @@ private:
     static constexpr float DT_MIN = 19608;
     static constexpr float DT_MAX = 20408;
     static constexpr int _60gr = 3333;
+    unsigned int sync_timing;
     unsigned int CURRENT_SYNC;
     unsigned int current_cr;                            // Текущие данные захвата таймера
     unsigned int previous_cr;                           // Предыдущие данные захвата таймера
@@ -73,7 +75,6 @@ private:
   
   static constexpr unsigned int PWM_WIDTH        = 10;                          //us
   static constexpr unsigned int PULSE_WIDTH      = 550;//560;                         //us
-  static constexpr unsigned int PULSE_PERIOD     = 3333;                        //us
   static constexpr unsigned int N_PULSES         = 6;
   static constexpr unsigned int OFF_PULSES       = 0x003F0000;                   //Импульсы в порту
   static constexpr unsigned int FIRS_PULS_PORT   = 16;                           //1-й импульс в порту 
@@ -98,13 +99,15 @@ public:
   CPULS(CADC&);
   
   CADC& rAdc;
-  
-  static unsigned int sync_timing[];
    
   bool forcing_bridge;
   bool main_bridge;
   
-  unsigned int A_Cur_tick;  
+  signed short A_Task_tick;
+  signed short A_Cur_tick; 
+  signed short A_Prev_tick;
+  signed short d_Alpha;
+  
   unsigned char N_Pulse;
   
   float SYNC_FREQUENCY;
