@@ -76,7 +76,8 @@ void main(void)
   static CDAC_PWM pwm_dac2(CDAC_PWM::EPWM_DACInstance::PWM_DAC2);   // DAC-2 (PWM1:4)
   
   static CIADC i_adc;           // Внутренее ADC.
-  static CADC adc;              // Внешнее ADC. 
+  static CADC adc;              // Внешнее ADC.
+  static CPULSCALC puls_calc; 
   
   static CSPI_ports spi_ports;  // Дискретные входы и выходы доступные по SPI. Примеры доступа: 
                                 //      if(rSpi_ports.Stator_Key()){...}

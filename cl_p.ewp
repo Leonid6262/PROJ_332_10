@@ -2174,6 +2174,9 @@
             <name>$PROJ_DIR$\SRC\controllerDMA.cpp</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\SRC\conv_and_calc.cpp</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\SRC\crc16.cpp</name>
         </file>
         <file>
