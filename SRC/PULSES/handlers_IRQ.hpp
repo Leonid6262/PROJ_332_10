@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Puls.hpp"
+#include "SIFU.hpp"
 #include "Compare.hpp"
 #include "adc.hpp"
 
@@ -18,10 +18,10 @@ public:
     return instance;
   }
   
-  CPULS* pPuls;
+  CSIFU* pPuls;
   CREM_OSC* pRem_osc;
  
-  void set_pointers(CPULS*, CREM_OSC*);
+  void set_pointers(CSIFU*, CREM_OSC*);
   
   const unsigned int IRQ_MR0  = 0x01;
   const unsigned int IRQ_MR1  = 0x02;

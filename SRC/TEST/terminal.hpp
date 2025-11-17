@@ -6,7 +6,7 @@
 #include "spi_ports.hpp"
 #include "pause_us.hpp"
 #include "settings_eep.hpp"
-#include "Puls.hpp"
+#include "SIFU.hpp"
 #include "Compare.hpp"
 #include "Compare.hpp"
 #include "i_adc.hpp"
@@ -33,7 +33,7 @@ public:
     CSDCard&    rSD_card;
     CTEST_ETH&  rTest_eth;
     CRTC&       rRt_clock;
-    CPULS&      rPuls;
+    CSIFU&      rPuls;
     CCOMPARE&   rCompare;
   };
   

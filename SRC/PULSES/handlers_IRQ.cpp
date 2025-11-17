@@ -6,7 +6,7 @@
 
 CProxyHandlerTIMER::CProxyHandlerTIMER(){}; // Прокси для доступа к Timers IRQ Handlers
 
-void CProxyHandlerTIMER::set_pointers(CPULS* pPuls, CREM_OSC* pRem_osc)  
+void CProxyHandlerTIMER::set_pointers(CSIFU* pPuls, CREM_OSC* pRem_osc)  
 {
   this->pPuls = pPuls;
   this->pRem_osc = pRem_osc;

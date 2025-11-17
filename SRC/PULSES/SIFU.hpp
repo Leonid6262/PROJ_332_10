@@ -4,11 +4,11 @@
 #include "rem_osc.hpp"
 #include "conv_and_calc.hpp"
 
-class CPULS
+class CSIFU
 { 
 public:
   
-  CPULS(CPULSCALC&);
+  CSIFU(CPULSCALC&);
   
   CPULSCALC& rPulsCalc;
   
@@ -38,9 +38,9 @@ private:
   signed short A_Prev_tick;
   signed short d_Alpha;
   
-  static constexpr unsigned short A_Max_tick   = 8333;
-  static constexpr unsigned short A_Min_tick   = 1667;
-  static constexpr unsigned short d_A_Max_tick = 278;
+  static constexpr signed short A_Max_tick   = 8333;
+  static constexpr signed short A_Min_tick   = 1667;
+  static constexpr signed short d_A_Max_tick = 5;//278;
   
   void control_sync();
   
@@ -56,7 +56,7 @@ private:
     static constexpr float SYNC_F_MAX = 51.0f;
     static constexpr float DT_MIN = 19608;
     static constexpr float DT_MAX = 20408;
-    static constexpr int _60gr = 3333;
+    static constexpr signed int _60gr = 3333;
     unsigned int sync_timing;
     unsigned int CURRENT_SYNC;
     unsigned int current_cr;                            // Текущие данные захвата таймера

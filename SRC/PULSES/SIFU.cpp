@@ -1,13 +1,13 @@
-#include "Puls.hpp"
+#include "SIFU.hpp"
 #include <algorithm>
 #include "system_LPC177x.h"
 
-const unsigned char CPULS::pulses[]  = {0x00, 0x21, 0x03, 0x06, 0x0C, 0x18, 0x30}; // Индекс 0 не используется
-const signed char   CPULS::offsets[] = {0, 1, 2, 0, -2, -1, 0};                    // Индекс 0 не используется
+const unsigned char CSIFU::pulses[]  = {0x00, 0x21, 0x03, 0x06, 0x0C, 0x18, 0x30}; // Индекс 0 не используется
+const signed char   CSIFU::offsets[] = {0, 1, 2, 0, -2, -1, 0};                    // Индекс 0 не используется
 
-CPULS::CPULS(CPULSCALC& rPulsCalc) : rPulsCalc(rPulsCalc){}
+CSIFU::CSIFU(CPULSCALC& rPulsCalc) : rPulsCalc(rPulsCalc){}
 
-void CPULS::rising_puls()
+void CSIFU::rising_puls()
 {
   
   N_Pulse = (N_Pulse % N_PULSES) + 1; 
@@ -44,7 +44,8 @@ void CPULS::rising_puls()
     v_sync.Operating_mode = EOperating_mode::NORMAL;    // Синхронизация с 1-го в Alpha_max
     A_Task_tick = A_Max_tick;
     A_Cur_tick = A_Max_tick; 
-    A_Prev_tick = A_Max_tick;   
+    A_Prev_tick = A_Max_tick; 
+    d_Alpha = 0;
     LPC_TIM3->MR0 = v_sync.CURRENT_SYNC + A_Cur_tick;   // 1-2-3-4-sync-5->6-1-2-3-4-sync-5->6-1-2....
     N_Pulse = 6;    
     break;                                              
@@ -52,9 +53,28 @@ void CPULS::rising_puls()
     // Классические ограничения
     if(A_Task_tick > A_Max_tick) A_Task_tick = A_Max_tick;
     if(A_Task_tick < A_Min_tick) A_Task_tick = A_Min_tick;   
+    
     d_Alpha = A_Task_tick - A_Prev_tick;
-    if (abs(d_Alpha) < d_A_Max_tick) A_Cur_tick = A_Task_tick;     
-    else A_Cur_tick += (d_Alpha > 0 ? d_A_Max_tick : -d_A_Max_tick);
+    
+    if (abs(d_Alpha) < d_A_Max_tick) A_Cur_tick = A_Task_tick; 
+    
+    else 
+    {
+      //d_Alpha = (d_Alpha > 0 ? d_A_Max_tick : -d_A_Max_tick);
+      //A_Cur_tick += d_Alpha;
+      
+      if(d_Alpha > 0) 
+      {
+        A_Cur_tick += d_A_Max_tick;
+        d_Alpha = d_A_Max_tick;
+      }
+      else 
+      {
+        A_Cur_tick -= d_A_Max_tick;
+        d_Alpha = -d_A_Max_tick;
+      }
+    }
+
     A_Prev_tick = A_Cur_tick;
     
     // Расчёт тайминга для следующего импульса
@@ -95,7 +115,7 @@ void CPULS::rising_puls()
    rPulsCalc.conv_and_calc();
 }
 
-void CPULS::faling_puls()
+void CSIFU::faling_puls()
 {
   LPC_IOCON->P1_2 = IOCON_P_PORT; //P1_2 - Port
   LPC_GPIO1->CLR  = 1UL << P1_2;
@@ -108,7 +128,7 @@ void CPULS::faling_puls()
   LPC_PWM0->TCR  = COUNTER_RESET;  
 }
 
-void CPULS::control_sync()
+void CSIFU::control_sync()
 { 
   v_sync.current_cr = LPC_TIM3->CR1;
   
@@ -166,21 +186,21 @@ void CPULS::control_sync()
   } 
 }  
 
-void  CPULS::start_forcing_bridge()
+void  CSIFU::start_forcing_bridge()
 {
   forcing_bridge = true;
 }
-void  CPULS::start_main_bridge()
+void  CSIFU::start_main_bridge()
 {
   main_bridge = true;
 }
-void  CPULS::stop()
+void  CSIFU::stop()
 {
   forcing_bridge = false;
   main_bridge = false;
 }
 
-void CPULS::init_and_start()
+void CSIFU::init_and_start()
 {      
   forcing_bridge = false;
   main_bridge    = false;

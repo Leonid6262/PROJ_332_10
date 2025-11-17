@@ -13,7 +13,7 @@
 #include "Compare.hpp"
 #include "uart.hpp"
 #include "can.hpp"
-#include "Puls.hpp"
+#include "SIFU.hpp"
 #include "dac.hpp"
 #include "terminal.hpp"
 #include "lpc177x_8x_can.h"

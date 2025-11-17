@@ -77,7 +77,8 @@ void main(void)
   
   static CIADC i_adc;                   // Внутренее ADC.
   static CADC adc;                      // Внешнее ADC.
-  static CPULSCALC puls_calc(adc); 
+  static CPULSCALC puls_calc(adc);      // Измерение всех аналоговых сигналов,  
+                                        // восстанавление параметров напряжения и тока статора.
   
   static CSPI_ports spi_ports;  // Дискретные входы и выходы доступные по SPI. Примеры доступа: 
                                 //      if(rSpi_ports.Stator_Key()){...}
@@ -117,8 +118,10 @@ void main(void)
                                   rRt_clockc.setDateTime(CurDateTime); <--данные пишутся в RTC в момент выполнения setDateTime(CurDateTime)
                               */
   
-  static CPULS puls(puls_calc); /* Тест импульсов управления. Выдаётся классическая последовательность СИФУ,
-                                   передаются данные в ESP32, восстанавливаются сигналы напряжения и тока статора.                                                         
+  static CSIFU sifu(puls_calc); /* Классическое, компактное СИФУ, на одном таймере.
+                                   Handler синхронизации не используется.
+                                   Измеряются все аналоговые сигналы, передаются данные в ESP32, 
+                                   восстанавливаются параметры напряжения и тока статора.                                                         
                                 */
   
   // Пример структуры инициализирующих значений CREM_OSC. Дистанционный осцилограф (ESP32 c WiFi модулем)
@@ -170,11 +173,11 @@ void main(void)
                                 // При использовании векторной математики восстановления синусоидальных сигналов
                                 // по 2-м измерениям, данное устройство (компаратор) излишне.
   
-  CProxyHandlerTIMER::getInstance().set_pointers(&puls, &rem_osc);  // Proxy Singleton доступа к Handler TIMER.
+  CProxyHandlerTIMER::getInstance().set_pointers(&sifu, &rem_osc);  // Proxy Singleton доступа к Handler TIMER.
                                                                     // Данный патерн позволяет избежать глобальных 
                                                                     // ссылок на puls, и rem_osc
                                                                                        
-  puls.init_and_start();        // Старт теста ИУ
+  sifu.init_and_start();        // Старт теста ИУ
   compare.start();              // Старт теста компаратора
   
   static CTEST_ETH test_eth(emac_drv);  // loop Test Ethernet. По физической петле передаёт/принимает тестовые raw кадры 
@@ -202,7 +205,7 @@ void main(void)
     sd_card,
     test_eth,
     rt_clock,
-    puls,
+    sifu,
     compare 
   };
   static CTerminal terminal(deps); // Класс CTerminal НЕ ПО ПТ! Используется, только для индикации и управления тестами
