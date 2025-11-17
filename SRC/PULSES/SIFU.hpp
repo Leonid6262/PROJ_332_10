@@ -27,7 +27,7 @@ public:
 private:
  
   static const unsigned char pulses[];
-  static const signed  char offsets[];
+  static const signed  short offsets[];
   
   bool forcing_bridge;
   bool main_bridge;
@@ -56,7 +56,10 @@ private:
     static constexpr float SYNC_F_MAX = 51.0f;
     static constexpr float DT_MIN = 19608;
     static constexpr float DT_MAX = 20408;
-    static constexpr signed int _60gr = 3333;
+    static constexpr signed short   _0gr = 0;
+    static constexpr signed short  _60gr = 3333;
+    static constexpr signed short _120gr = 6667;
+    static constexpr signed short _180gr = 10000;
     unsigned int sync_timing;
     unsigned int CURRENT_SYNC;
     unsigned int current_cr;                            // Текущие данные захвата таймера

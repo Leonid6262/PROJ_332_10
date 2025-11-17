@@ -3,7 +3,16 @@
 #include "system_LPC177x.h"
 
 const unsigned char CSIFU::pulses[]  = {0x00, 0x21, 0x03, 0x06, 0x0C, 0x18, 0x30}; // Индекс 0 не используется
-const signed char   CSIFU::offsets[] = {0, 1, 2, 0, -2, -1, 0};                    // Индекс 0 не используется
+const signed short  CSIFU::offsets[] = 
+{
+ 0, 
+   SyncState::_60gr, 
+   SyncState::_120gr, 
+   SyncState::_180gr, 
+  -SyncState::_120gr, 
+  -SyncState::_60gr, 
+   SyncState::_0gr
+}; // Индекс 0 не используется
 
 CSIFU::CSIFU(CPULSCALC& rPulsCalc) : rPulsCalc(rPulsCalc){}
 
@@ -82,24 +91,27 @@ void CSIFU::rising_puls()
     {
       v_sync.SYNC_EVENT = false;
 
-      //v_sync.sync_timing = v_sync.CURRENT_SYNC + v_sync._60gr * offsets[N_Pulse];
+      //v_sync.sync_timing = v_sync.CURRENT_SYNC + offsets[N_Pulse];
       
       switch(N_Pulse)
       {
       case 4: // Диапазон 180...240
-        v_sync.sync_timing = v_sync.CURRENT_SYNC - v_sync._60gr*2;// для 5
+        v_sync.sync_timing = v_sync.CURRENT_SYNC - v_sync._120gr;// для 5
         break;  
       case 5: // Диапазон 120...180
-        v_sync.sync_timing = v_sync.CURRENT_SYNC - v_sync._60gr*1;// для 6
+        v_sync.sync_timing = v_sync.CURRENT_SYNC - v_sync._60gr;// для 6
         break;
       case 6: // Диапазон 60...120  
-        v_sync.sync_timing = v_sync.CURRENT_SYNC + v_sync._60gr*0;// для 1
+        v_sync.sync_timing = v_sync.CURRENT_SYNC + v_sync._0gr; // для 1
         break;
       case 1: // Диапазон 0...60 
-        v_sync.sync_timing = v_sync.CURRENT_SYNC + v_sync._60gr*1;// для 2
+        v_sync.sync_timing = v_sync.CURRENT_SYNC + v_sync._60gr;// для 2
         break;
       case 2: // Диапазон -60...0
-        v_sync.sync_timing = v_sync.CURRENT_SYNC + v_sync._60gr*2;// для 3
+        v_sync.sync_timing = v_sync.CURRENT_SYNC + v_sync._120gr;// для 3
+        break;
+      case 3: // Диапазон -120...-60
+        v_sync.sync_timing = v_sync.CURRENT_SYNC + v_sync._180gr;// для 4
         break;
       }      
       LPC_TIM3->MR0 = v_sync.sync_timing + A_Cur_tick; 
