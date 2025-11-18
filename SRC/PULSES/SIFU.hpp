@@ -14,15 +14,15 @@ public:
   
   float SYNC_FREQUENCY;
   
-  signed short A_Task_tick;
-
   void init_and_start();
   void rising_puls();
   void faling_puls();
 
   void start_forcing_bridge();
   void start_main_bridge();
-  void stop();
+  void pulses_stop();
+  void start_phasing_mode();
+  void stop_phasing_mode();
  
 private:
  
@@ -33,21 +33,19 @@ private:
   bool main_bridge;
   
   unsigned char N_Pulse;
-    
+  
+  signed short A_Task_tick;  
   signed short A_Cur_tick; 
   signed short A_Prev_tick;
   signed short d_Alpha;
-  
-  static constexpr signed short A_Max_tick   = 8333;
-  static constexpr signed short A_Min_tick   = 1667;
-  static constexpr signed short d_A_Max_tick = 5;//278;
   
   void control_sync();
   
   enum class EOperating_mode {
     NO_SYNC,           
     RESYNC,          
-    NORMAL            
+    NORMAL,
+    PHASING
   };
   
   struct SyncState 
@@ -57,9 +55,19 @@ private:
     static constexpr float DT_MIN = 19608;
     static constexpr float DT_MAX = 20408;
     static constexpr signed short   _0gr = 0;
+    static constexpr signed short   _5gr = 278;
+    static constexpr signed short  _30gr = 1667;
     static constexpr signed short  _60gr = 3333;
+    static constexpr signed short  _90gr = 5000;
     static constexpr signed short _120gr = 6667;
+    static constexpr signed short _150gr = 8333;
     static constexpr signed short _180gr = 10000;
+    static constexpr signed short Max_power_shift   =  _150gr;
+    static constexpr signed short Min_power_shift   = -_90gr;
+    signed short task_power_shift;
+    signed short cur_power_shift;
+    signed short prev_power_shift;
+    signed short d_shift;
     unsigned int sync_timing;
     unsigned int CURRENT_SYNC;
     unsigned int current_cr;                            // Текущие данные захвата таймера
@@ -73,6 +81,10 @@ private:
     bool SYNC_EVENT;
     
   } v_sync;
+  
+  static constexpr signed short A_Max_tick   = SyncState::_150gr;
+  static constexpr signed short A_Min_tick   = SyncState::_30gr;
+  static constexpr signed short d_A_Max_tick = SyncState::_5gr;
   
   static constexpr unsigned int IOCON_P1_PWM = 0x03;                         // Тип портов - PWM
   static constexpr unsigned int PWM_div_0    = 60;                           // Делитель частоты

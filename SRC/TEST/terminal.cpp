@@ -160,16 +160,16 @@ void CTerminal::terminal()
     {  
     case 0:
       deps.rComPort.transfer_string(const_cast<char*>("STOP            \r"));
-      deps.rPuls.stop();
+      deps.rPuls.pulses_stop();
       break;
     case 1:
       deps.rComPort.transfer_string(const_cast<char*>("MAIN            \r"));
-      deps.rPuls.stop();
+      deps.rPuls.pulses_stop();
       deps.rPuls.start_main_bridge();
       break;
     case 2:
       deps.rComPort.transfer_string(const_cast<char*>("FORSING         \r"));
-      deps.rPuls.stop();
+      deps.rPuls.pulses_stop();
       deps.rPuls.start_forcing_bridge();
       break;
     }

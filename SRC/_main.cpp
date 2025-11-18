@@ -162,7 +162,7 @@ void main(void)
     CEEPSettings::getInstance().getSettings().ssid,
     CEEPSettings::getInstance().getSettings().password 
   };
-  static CREM_OSC rem_osc(cont_dma, set_init);  // Дистанционный осцилограф (ESP32 c WiFi модулем).Карту каналов DMA с.м. в controllerDMA.hpp               // 
+  static CREM_OSC rem_osc(cont_dma, set_init);  // Дистанционный осциллограф (ESP32 c WiFi модулем).Карту каналов DMA с.м. в controllerDMA.hpp               // 
                                                 // Передача данных (метод send_data()) осуществляется в точке, где отображаемые переменные обновлены,
                                                 // например в IRQ ИУ. В примере, send_data() вызывается в handler TIMER2 (имитация СИФУ)
                                                 // с.м файл обработчиков прерываний "handlers_IRQ.cpp" и "Puls.cpp"

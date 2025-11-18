@@ -6,12 +6,12 @@ const unsigned char CSIFU::pulses[]  = {0x00, 0x21, 0x03, 0x06, 0x0C, 0x18, 0x30
 const signed short  CSIFU::offsets[] = 
 {
  0, 
-   SyncState::_60gr, 
-   SyncState::_120gr, 
-   SyncState::_180gr, 
-  -SyncState::_120gr, 
-  -SyncState::_60gr, 
-   SyncState::_0gr
+   SyncState::_60gr,  // Диапазон 0...60        (sync "видит" 1-й: ->2-3-4-5-6-sync-1->2-3-4...)
+   SyncState::_120gr, // Диапазон -60...0       (sync "видит" 2-й: ->3-4-5-6-1-sync-2->3-4-5...)
+   SyncState::_180gr, // Диапазон -120...-60    (sync "видит" 3-й: ->4-5-6-1-2-sync-3->4-5-6...)
+  -SyncState::_120gr, // Диапазон 180...240     (sync "видит" 4-й: ->5-6-1-2-3-sync-4->5-6-1...)
+  -SyncState::_60gr,  // Диапазон 120...180     (sync "видит" 5-й: ->6-1-2-3-4-sync-5->6-1-2...)
+   SyncState::_0gr    // Диапазон 60...120      (sync "видит" 6-й: ->1-2-3-4-5-sync-6->1-2-3...)
 }; // Индекс 0 не используется
 
 CSIFU::CSIFU(CPULSCALC& rPulsCalc) : rPulsCalc(rPulsCalc){}
@@ -55,66 +55,46 @@ void CSIFU::rising_puls()
     A_Cur_tick = A_Max_tick; 
     A_Prev_tick = A_Max_tick; 
     d_Alpha = 0;
-    LPC_TIM3->MR0 = v_sync.CURRENT_SYNC + A_Cur_tick;   // 1-2-3-4-sync-5->6-1-2-3-4-sync-5->6-1-2....
+    // 1-2-3-4-sync-5->6-1-2-3-4-sync-5->6-1-2....
+    LPC_TIM3->MR0 = v_sync.CURRENT_SYNC + A_Cur_tick + v_sync.cur_power_shift;
     N_Pulse = 6;    
-    break;                                              
-  case EOperating_mode::NORMAL:           
-    // Классические ограничения
-    if(A_Task_tick > A_Max_tick) A_Task_tick = A_Max_tick;
-    if(A_Task_tick < A_Min_tick) A_Task_tick = A_Min_tick;   
-    
-    d_Alpha = A_Task_tick - A_Prev_tick;
-    
-    if (abs(d_Alpha) < d_A_Max_tick) A_Cur_tick = A_Task_tick; 
-    
+    break;   
+  case EOperating_mode::PHASING:
+    // Ограничения сдвига синхронизации
+    if(v_sync.task_power_shift > v_sync.Max_power_shift) v_sync.task_power_shift = v_sync.Max_power_shift;
+    if(v_sync.task_power_shift < v_sync.Min_power_shift) v_sync.task_power_shift = v_sync.Min_power_shift;   
+    A_Task_tick = v_sync._0gr;
+    v_sync.d_shift = v_sync.task_power_shift - v_sync.prev_power_shift;
+    if (abs(v_sync.d_shift) < d_A_Max_tick) v_sync.cur_power_shift = v_sync.task_power_shift;
+    else
+    {
+      v_sync.d_shift = (v_sync.d_shift > 0 ? d_A_Max_tick : -d_A_Max_tick);
+      v_sync.cur_power_shift += v_sync.d_shift;
+    }
+    v_sync.prev_power_shift = v_sync.cur_power_shift;
+    CEEPSettings::getInstance().getSettings().power_shift = v_sync.cur_power_shift;
+  case EOperating_mode::NORMAL:
+    // Классические ограничения альфа
+    if(v_sync.Operating_mode != EOperating_mode::PHASING)
+    {
+      if(A_Task_tick > A_Max_tick) A_Task_tick = A_Max_tick;
+      if(A_Task_tick < A_Min_tick) A_Task_tick = A_Min_tick;   
+    } 
+    d_Alpha = A_Task_tick - A_Prev_tick;    
+    if (abs(d_Alpha) < d_A_Max_tick) A_Cur_tick = A_Task_tick;     
     else 
     {
-      //d_Alpha = (d_Alpha > 0 ? d_A_Max_tick : -d_A_Max_tick);
-      //A_Cur_tick += d_Alpha;
-      
-      if(d_Alpha > 0) 
-      {
-        A_Cur_tick += d_A_Max_tick;
-        d_Alpha = d_A_Max_tick;
-      }
-      else 
-      {
-        A_Cur_tick -= d_A_Max_tick;
-        d_Alpha = -d_A_Max_tick;
-      }
+      d_Alpha = (d_Alpha > 0 ? d_A_Max_tick : -d_A_Max_tick);
+      A_Cur_tick += d_Alpha;
     }
-
     A_Prev_tick = A_Cur_tick;
     
     // Расчёт тайминга для следующего импульса
     if(v_sync.SYNC_EVENT)
     {
       v_sync.SYNC_EVENT = false;
-
-      //v_sync.sync_timing = v_sync.CURRENT_SYNC + offsets[N_Pulse];
-      
-      switch(N_Pulse)
-      {
-      case 4: // Диапазон 180...240
-        v_sync.sync_timing = v_sync.CURRENT_SYNC - v_sync._120gr;// для 5
-        break;  
-      case 5: // Диапазон 120...180
-        v_sync.sync_timing = v_sync.CURRENT_SYNC - v_sync._60gr;// для 6
-        break;
-      case 6: // Диапазон 60...120  
-        v_sync.sync_timing = v_sync.CURRENT_SYNC + v_sync._0gr; // для 1
-        break;
-      case 1: // Диапазон 0...60 
-        v_sync.sync_timing = v_sync.CURRENT_SYNC + v_sync._60gr;// для 2
-        break;
-      case 2: // Диапазон -60...0
-        v_sync.sync_timing = v_sync.CURRENT_SYNC + v_sync._120gr;// для 3
-        break;
-      case 3: // Диапазон -120...-60
-        v_sync.sync_timing = v_sync.CURRENT_SYNC + v_sync._180gr;// для 4
-        break;
-      }      
-      LPC_TIM3->MR0 = v_sync.sync_timing + A_Cur_tick; 
+      v_sync.sync_timing = v_sync.CURRENT_SYNC + offsets[N_Pulse];
+      LPC_TIM3->MR0 = v_sync.sync_timing + A_Cur_tick + v_sync.cur_power_shift; 
     }
     else
     {
@@ -165,7 +145,7 @@ void CSIFU::control_sync()
     return;
   }
 
-  if(v_sync.Operating_mode == EOperating_mode::NORMAL)
+  if(v_sync.Operating_mode == EOperating_mode::NORMAL || v_sync.Operating_mode == EOperating_mode::PHASING)
   {
     if(v_sync.previous_cr != v_sync.current_cr)
     {
@@ -200,16 +180,27 @@ void CSIFU::control_sync()
 
 void  CSIFU::start_forcing_bridge()
 {
+  main_bridge = false;
   forcing_bridge = true;
 }
 void  CSIFU::start_main_bridge()
-{
+{ 
+  forcing_bridge = false;
   main_bridge = true;
 }
-void  CSIFU::stop()
+void  CSIFU::pulses_stop()
 {
   forcing_bridge = false;
   main_bridge = false;
+}
+void  CSIFU::start_phasing_mode()
+{
+  v_sync.Operating_mode = EOperating_mode::PHASING;
+}
+void  CSIFU::stop_phasing_mode()
+{
+  v_sync.Operating_mode = EOperating_mode::NORMAL;
+  A_Task_tick = A_Max_tick;
 }
 
 void CSIFU::init_and_start()
@@ -218,6 +209,9 @@ void CSIFU::init_and_start()
   main_bridge    = false;
   
   N_Pulse = 1;   
+  v_sync.task_power_shift = CEEPSettings::getInstance().getSettings().power_shift;
+  v_sync.prev_power_shift = v_sync.task_power_shift;
+  v_sync.cur_power_shift = v_sync.task_power_shift;
   v_sync.SYNC_EVENT = false;  
   v_sync.no_sync_pulses = 0;
   v_sync.sync_pulses = 0;
