@@ -160,24 +160,23 @@ void CTerminal::terminal()
     {  
     case 0:
       deps.rComPort.transfer_string(const_cast<char*>("STOP            \r"));
-      deps.rPuls.forcing_bridge = false;
-      deps.rPuls.main_bridge = false;
+      deps.rPuls.pulses_stop();
       break;
     case 1:
       deps.rComPort.transfer_string(const_cast<char*>("MAIN            \r"));
-      deps.rPuls.forcing_bridge = false;
-      deps.rPuls.main_bridge = true;
+      deps.rPuls.pulses_stop();
+      deps.rPuls.start_main_bridge();
       break;
     case 2:
       deps.rComPort.transfer_string(const_cast<char*>("FORSING         \r"));
-      deps.rPuls.main_bridge = false;
-      deps.rPuls.forcing_bridge = true;
+      deps.rPuls.pulses_stop();
+      deps.rPuls.start_forcing_bridge();
       break;
     }
     break;
     
   case 5:
-    sprintf(formVar, "%.1f  ", deps.rCompare.SYNC_FREQUENCY);
+    sprintf(formVar, "%.1f  ", deps.rPuls.SYNC_FREQUENCY);
     deps.rComPort.transfer_string(formVar);
     sprintf(formVar, "%.1f    \r", deps.rCompare.STATOR_FREQUENCY);
     deps.rComPort.transfer_string(formVar);

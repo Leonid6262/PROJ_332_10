@@ -2851,6 +2851,18 @@
     <group>
         <name>SRC</name>
         <group>
+            <name>ANALOG</name>
+            <file>
+                <name>$PROJ_DIR$\SRC\ANALOG\adc.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\SRC\ANALOG\dac.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\SRC\ANALOG\i_adc.cpp</name>
+            </file>
+        </group>
+        <group>
             <name>INIT</name>
             <file>
                 <name>$PROJ_DIR$\SRC\INIT\emac.cpp</name>
@@ -2869,21 +2881,42 @@
             </file>
         </group>
         <group>
+            <name>PULSES</name>
+            <file>
+                <name>$PROJ_DIR$\SRC\PULSES\conv_and_calc.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\SRC\PULSES\handlers_IRQ.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\SRC\PULSES\rem_osc.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\SRC\PULSES\SIFU.cpp</name>
+            </file>
+        </group>
+        <group>
+            <name>SERIAL</name>
+            <file>
+                <name>$PROJ_DIR$\SRC\SERIAL\can.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\SRC\SERIAL\spi_ports.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\SRC\SERIAL\uart.cpp</name>
+            </file>
+        </group>
+        <group>
             <name>TESTS</name>
             <file>
                 <name>$PROJ_DIR$\SRC\TEST\Compare.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\SRC\TEST\Puls.cpp</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\SRC\TEST\terminal.cpp</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\SRC\TEST\test_eth.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\SRC\TEST\testESP32.cpp</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\SRC\TEST\Tests.cpp</name>
@@ -2893,19 +2926,10 @@
             <name>$PROJ_DIR$\SRC\_main.cpp</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\SRC\adc.cpp</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\SRC\can.cpp</name>
-        </file>
-        <file>
             <name>$PROJ_DIR$\SRC\controllerDMA.cpp</name>
         </file>
         <file>
             <name>$PROJ_DIR$\SRC\crc16.cpp</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\SRC\dac.cpp</name>
         </file>
         <file>
             <name>$PROJ_DIR$\SRC\din_cpu.cpp</name>
@@ -2914,25 +2938,10 @@
             <name>$PROJ_DIR$\SRC\dout_cpu.cpp</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\SRC\handlers_IRQ.cpp</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\SRC\i_adc.cpp</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\SRC\rem_osc.cpp</name>
-        </file>
-        <file>
             <name>$PROJ_DIR$\SRC\rtc.cpp</name>
         </file>
         <file>
             <name>$PROJ_DIR$\SRC\settings_eep.cpp</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\SRC\spi_ports.cpp</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\SRC\uart.cpp</name>
         </file>
     </group>
     <file>

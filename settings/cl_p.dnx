@@ -12,7 +12,7 @@
         <ByteLimit>50</ByteLimit>
     </Stack>
     <DebugChecksum>
-        <Checksum>3299027559</Checksum>
+        <Checksum>3221844587</Checksum>
     </DebugChecksum>
     <CodeCoverage>
         <Enabled>_ 0</Enabled>
@@ -32,10 +32,10 @@
         <TraceBufferSize>0x00010000</TraceBufferSize>
         <TraceStallIfFIFOFull>0x00000000</TraceStallIfFIFOFull>
         <TracePortSize>0x00000004</TracePortSize>
-        <jlinkResetStyle>12</jlinkResetStyle>
-        <jlinkResetStrategy>0</jlinkResetStrategy>
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
         <CStepIntDis>_ 0</CStepIntDis>
+        <jlinkResetStyle>12</jlinkResetStyle>
+        <jlinkResetStrategy>0</jlinkResetStrategy>
     </JLinkDriver>
     <SWOTraceHWSettings>
         <OverrideDefaultClocks>0</OverrideDefaultClocks>
@@ -156,18 +156,34 @@
         <FreqHi>0</FreqHi>
         <MultiCoreRunAll>1</MultiCoreRunAll>
     </Simulator>
+    <LogFile>
+        <LoggingEnabled>_ 0</LoggingEnabled>
+        <LogFile>_ "$PROJ_DIR$\LogFile1.log"</LogFile>
+        <Category2>_ 2</Category2>
+    </LogFile>
     <struct_types>
         <Fmt0>LPC_CAN_TypeDef-BTR	3	0</Fmt0>
         <Fmt1>LPC_CAN_TypeDef-GSR	1	0</Fmt1>
         <Fmt2>LPC_CAN_TypeDef-ICR	1	0</Fmt2>
         <Fmt3>LPC_CAN_TypeDef-MOD	1	0</Fmt3>
         <Fmt4>LPC_CAN_TypeDef-SR	1	0</Fmt4>
-        <Fmt5>struct CRTC::SDateTime-day	3	0</Fmt5>
-        <Fmt6>struct CRTC::SDateTime-hour	3	0</Fmt6>
-        <Fmt7>struct CRTC::SDateTime-minute	3	0</Fmt7>
-        <Fmt8>struct CRTC::SDateTime-month	3	0</Fmt8>
-        <Fmt9>struct CRTC::SDateTime-second	3	0</Fmt9>
-        <Fmt10>struct CRTC::SDateTime-year	3	0</Fmt10>
+        <Fmt5>class CSIFU-A_Cur_tick	3	0</Fmt5>
+        <Fmt6>class CSIFU-A_Prev_tick	3	0</Fmt6>
+        <Fmt7>class CSIFU-A_Task_tick	3	0</Fmt7>
+        <Fmt8>struct CEEPSettings::WorkSettings-power_shift	3	0</Fmt8>
+        <Fmt9>struct CEEPSettings::WorkSettings::Disp_c-p_var1	3	0</Fmt9>
+        <Fmt10>struct CEEPSettings::WorkSettings::Disp_c-p_var2	3	0</Fmt10>
+        <Fmt11>struct CEEPSettings::WorkSettings::Disp_c-p_var3	3	0</Fmt11>
+        <Fmt12>struct CEEPSettings::WorkSettings::Disp_c-p_var4	3	0</Fmt12>
+        <Fmt13>struct CRTC::SDateTime-day	3	0</Fmt13>
+        <Fmt14>struct CRTC::SDateTime-hour	3	0</Fmt14>
+        <Fmt15>struct CRTC::SDateTime-minute	3	0</Fmt15>
+        <Fmt16>struct CRTC::SDateTime-month	3	0</Fmt16>
+        <Fmt17>struct CRTC::SDateTime-second	3	0</Fmt17>
+        <Fmt18>struct CRTC::SDateTime-year	3	0</Fmt18>
+        <Fmt19>struct CSIFU::SyncState-cur_power_shift	3	0</Fmt19>
+        <Fmt20>struct CSIFU::SyncState-prev_power_shift	3	0</Fmt20>
+        <Fmt21>struct CSIFU::SyncState-task_power_shift	3	0</Fmt21>
     </struct_types>
     <array_types>
         <Fmt0>byte[8]	3	0</Fmt0>
@@ -192,10 +208,11 @@
         <Fmt19>unsigned char[64]	3	0</Fmt19>
         <Fmt20>unsigned char[8]	4	0</Fmt20>
         <Fmt21>unsigned int[128]	3	0</Fmt21>
-        <Fmt22>unsigned int[16]	1	0</Fmt22>
-        <Fmt23>unsigned short[10]	3	0</Fmt23>
-        <Fmt24>unsigned short[4]	3	0</Fmt24>
-        <Fmt25>unsigned short[8]	4	0</Fmt25>
+        <Fmt22>unsigned int[16]	3	0</Fmt22>
+        <Fmt23>unsigned int[6]	3	0</Fmt23>
+        <Fmt24>unsigned short[10]	3	0</Fmt24>
+        <Fmt25>unsigned short[4]	3	0</Fmt25>
+        <Fmt26>unsigned short[8]	4	0</Fmt26>
     </array_types>
     <watch_formats>
         <Fmt0>{W}1:sizeof(Test_SWD)	4	0</Fmt0>
@@ -336,10 +353,22 @@
         <Enabled>0</Enabled>
         <ShowSource>0</ShowSource>
     </Trace2>
+    <DisassembleMode>
+        <mode>0</mode>
+    </DisassembleMode>
+    <Breakpoints2>
+        <Count>0</Count>
+    </Breakpoints2>
     <TermIOLog>
         <LoggingEnabled>_ 0</LoggingEnabled>
         <LogFile>_ ""</LogFile>
     </TermIOLog>
+    <Aliases>
+        <A0>_ "G:\S\Programs\IAR_N\SPI_WIFI_2\SRC\INIT\emc.c" ""</A0>
+        <A1>_ "G:\S\Programs\IAR_N\SPI_WIFI_2\SRC\main.cpp" ""</A1>
+        <Count>2</Count>
+        <SuppressDialog>0</SuppressDialog>
+    </Aliases>
     <DriverProfiling>
         <Enabled>0</Enabled>
         <Mode>1</Mode>
@@ -352,21 +381,4 @@
     <CallStackStripe>
         <ShowTiming>1</ShowTiming>
     </CallStackStripe>
-    <LogFile>
-        <LoggingEnabled>_ 0</LoggingEnabled>
-        <LogFile>_ "$PROJ_DIR$\LogFile1.log"</LogFile>
-        <Category2>_ 2</Category2>
-    </LogFile>
-    <DisassembleMode>
-        <mode>0</mode>
-    </DisassembleMode>
-    <Breakpoints2>
-        <Count>0</Count>
-    </Breakpoints2>
-    <Aliases>
-        <A0>_ "G:\S\Programs\IAR_N\SPI_WIFI_2\SRC\INIT\emc.c" ""</A0>
-        <A1>_ "G:\S\Programs\IAR_N\SPI_WIFI_2\SRC\main.cpp" ""</A1>
-        <Count>2</Count>
-        <SuppressDialog>0</SuppressDialog>
-    </Aliases>
 </settings>
